@@ -35,13 +35,26 @@ public class GeomBuilder {
 
 
         int len = new_verts.Count;
+
+        // top left corner
         new_triangles.Add(len - 4);
         new_triangles.Add(len - 3);
         new_triangles.Add(len - 2);
 
+        //reverse side
         new_triangles.Add(len - 2);
         new_triangles.Add(len - 3);
         new_triangles.Add(len - 4);
+
+        //bottom right corner
+        new_triangles.Add(len - 2);
+        new_triangles.Add(len - 4);
+        new_triangles.Add(len - 1);
+
+        //reverse side
+        new_triangles.Add(len - 1);
+        new_triangles.Add(len - 4);
+        new_triangles.Add(len - 2);
     }
 
     public Mesh build_mesh ()
