@@ -57,8 +57,11 @@ public class GeomBuilder {
         float y_shift = size.y / 2.0f;
         float z_shift = size.z / 2.0f;
 
-        AddVertXYZ add_vert = delegate(float p1, float p2, float p3) {
-            new_verts.Add((rot * new Vector3(p1, p2, p3)) + center);
+        AddVertXYZ add_vert = delegate(float p1, 
+                                       float p2, 
+                                       float p3) {
+            new_verts.Add((rot * 
+                new Vector3(p1, p2, p3)) + center);
         };
 
         // +x face
@@ -125,8 +128,10 @@ public class GeomBuilder {
             ramp_top = (ramp_top - (midpoint - Vector3.zero));
         }
 
-        Vector3 p3 = new Vector3(ramp_top.x, ramp_top.y - thickness, ramp_top.z);
-        Vector3 p4 = new Vector3(ramp_base.x, ramp_base.y - thickness, ramp_base.z);
+        Vector3 p3 = new Vector3(ramp_top.x, 
+            ramp_top.y - thickness, ramp_top.z);
+        Vector3 p4 = new Vector3(ramp_base.x, 
+            ramp_base.y - thickness, ramp_base.z);
 
         Vector3 offset = Vector3.Cross(
             ((ramp_top + new Vector3(0, -1000, 0)) - ramp_base), 
@@ -305,7 +310,9 @@ public class GeomBuilder {
         return this;                          
     }
 
-    private Vector3 to_cartesian(float azimuth, float elevation, float length) {
+    private Vector3 to_cartesian(float azimuth, 
+                                 float elevation, 
+                                 float length) {
         float x = length * Mathf.Sin(azimuth) * Mathf.Cos(elevation);
         float y = length * Mathf.Sin(elevation);
         float z = -length * Mathf.Cos(azimuth) * Mathf.Cos(elevation);

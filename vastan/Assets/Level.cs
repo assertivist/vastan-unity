@@ -69,9 +69,9 @@ public class Level {
                     break;
 
                 case "hologram":
-                    //cycle_mesh(current_is_hologram);
-                    //current_is_hologram = true;
+                    cycle_mesh(false);
                     parse_node(node);
+                    cycle_mesh(true);
                     break;
 
                 case "block":
