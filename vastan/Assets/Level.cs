@@ -2,6 +2,7 @@
 using System.Xml;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 
 public class Level {
 
@@ -14,6 +15,8 @@ public class Level {
     public List<Mesh> holograms;
 
     private GameObject static_fab;
+
+    private int incarn_count = 0;
 
     private GameObject parent = new GameObject("LevelRoot");
 
@@ -89,6 +92,9 @@ public class Level {
                 case "ground":
                     parse_ground(node);
                     break;
+                case "incarnator":
+                    parse_incarnator(node);
+                    break;
                 default:
                     break;
             }
@@ -109,6 +115,7 @@ public class Level {
         current_gb = current_gb.add_block(c, center, size, rot);
         
     }
+
     private void parse_ramp(XmlNode ramp_node) {
         Vector3 ramp_base = parse_vec3(ramp_node.Attributes["base"]);
         Vector3 ramp_top = parse_vec3(ramp_node.Attributes["top"]);
@@ -119,6 +126,7 @@ public class Level {
 
         current_gb.add_ramp(c, ramp_base, ramp_top, width, thickness, rot);
     }
+
     private void parse_wedge(XmlNode wedge_node) {
         Vector3 wedge_base = parse_vec3(wedge_node.Attributes["base"]);
         Vector3 wedge_top = parse_vec3(wedge_node.Attributes["top"]);
@@ -129,6 +137,20 @@ public class Level {
         current_gb.add_wedge(c, wedge_base, wedge_top, width, rot);
 
     }
+
+    private void parse_incarnator(XmlNode incarn_node) {
+        Vector3 incarn_pos = parse_vec3(incarn_node.Attributes["location"]);
+        float rot = parse_float(incarn_node, "heading");
+
+        GameObject nsp = new GameObject("incarn_"+incarn_count);
+        incarn_count++;
+        nsp.transform.Translate(incarn_pos);
+        nsp.transform.Rotate(new Vector3(0, rot, 0));
+        nsp.transform.SetParent(parent.transform);
+
+        nsp.AddComponent<NetworkStartPosition>();
+    }
+
     private void parse_dome(XmlNode dome_node) {
 
     }
@@ -177,7 +199,15 @@ public class Level {
         foreach (Mesh m in statics) {
             GameObject geom = GameObject.Instantiate(static_fab, Vector3.zero, Quaternion.identity) as GameObject;
             geom.GetComponent<MeshFilter>().mesh = m;
+            geom.AddComponent<Static>();
+
+            geom.AddComponent<MeshCollider>();
+            var mc = geom.GetComponent<MeshCollider>();
+            mc.sharedMesh = m;
+
+
             geom.transform.SetParent(parent.transform);
+
         }
         foreach (Mesh m in holograms) {
             GameObject geom = GameObject.Instantiate(static_fab, Vector3.zero, Quaternion.identity) as GameObject;

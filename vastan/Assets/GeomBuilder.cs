@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 public class GeomBuilder {
 
@@ -15,6 +16,7 @@ public class GeomBuilder {
 
     public void init() {
         m = new Mesh();
+        m.name = uuid();
         new_verts = new List<Vector3>();
         new_triangles = new List<int>();
         new_colors = new List<Color>();
@@ -321,6 +323,7 @@ public class GeomBuilder {
 
     public Mesh get_mesh () {
         m = new Mesh();
+        m.name = uuid();
 
         m.vertices = new_verts.ToArray();
         m.colors = new_colors.ToArray();
@@ -329,5 +332,16 @@ public class GeomBuilder {
         m.RecalculateNormals();
         m.RecalculateBounds();
         return m;
+    }
+
+    // meh
+    private static string uuid() {
+        var random = new System.Random();
+        DateTime epoch_start = new System.DateTime(1970, 1, 1, 8, 0, 0, System.DateTimeKind.Utc);
+        double timestamp = (System.DateTime.UtcNow - epoch_start).TotalSeconds;
+
+        return String.Format("{0:X}", Convert.ToInt32(timestamp))
+                + "-" + String.Format("{0:X}", Convert.ToInt32(Time.time * 1000000))
+                + "-" + String.Format("{0:X}", random.Next(1000000000));
     }
 }
