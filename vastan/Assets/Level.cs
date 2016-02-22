@@ -157,7 +157,7 @@ public class Level {
 
     private void parse_ground(XmlNode ground_node) {
         Color c = parse_color(ground_node);
-        current_gb.add_block(c, new Vector3(0, -1f, 0), new Vector3(1000, 1, 1000), Quaternion.identity);
+        current_gb.add_block(c, new Vector3(0, -.01f, 0), new Vector3(1000, .01f, 1000), Quaternion.identity);
     }
 
     private Color parse_color(XmlNode node) {
