@@ -32,9 +32,6 @@ ehthumbs.db
 Thumbs.db
 [Tt]humbs/
 
-#ignore metadata for all folders (Directory/Directory.meta)
-*.meta
-!*.*.meta
 
 #ignore specific meta files
 *.lua.meta
