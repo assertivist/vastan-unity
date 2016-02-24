@@ -3,6 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 
+// so, this is pretty much a direct port of
+// geombuilder from projects past. i totally
+// forgot that LINQ existed until i was 
+// already mostly finished with this. 
+
+// also
+// note that there is no vertex sharing in 
+// the shape definitions. This is because
+// UNITU will attempt to smooth faces that 
+// share vertices (a cube becomes shaded like
+// a sphere) unless you duplicate faces/verts.
+// (normals are set per vertex, not per face)
+
+// ALSO 
+// UNITU is Y-UP
+
 public class GeomBuilder {
 
     private Mesh m;
@@ -334,14 +350,21 @@ public class GeomBuilder {
         return m;
     }
 
-    // meh
+    // silliness
     private static string uuid() {
         var random = new System.Random();
-        DateTime epoch_start = new System.DateTime(1970, 1, 1, 8, 0, 0, System.DateTimeKind.Utc);
-        double timestamp = (System.DateTime.UtcNow - epoch_start).TotalSeconds;
+        DateTime epoch_start = 
+            new System.DateTime(1970, 1, 1, 8, 0, 0,
+            System.DateTimeKind.Utc);
+        double timestamp = 
+            (System.DateTime.UtcNow - epoch_start)
+            .TotalSeconds;
 
-        return String.Format("{0:X}", Convert.ToInt32(timestamp))
-                + "-" + String.Format("{0:X}", Convert.ToInt32(Time.time * 1000000))
-                + "-" + String.Format("{0:X}", random.Next(1000000000));
+        return String.Format("{0:X}", 
+            Convert.ToInt32(timestamp))
+                + "-" + String.Format("{0:X}", 
+                Convert.ToInt32(Time.time * 1000000))
+                + "-" + String.Format("{0:X}", 
+                random.Next(1000000000));
     }
 }
