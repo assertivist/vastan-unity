@@ -27,6 +27,9 @@ public class PlayerState : NetworkBehaviour {
     [SyncVar]
     public Color color;
 
+    [SyncVar]
+    public bool walking;
+
     private PlayerUI sliders;
 
     private float respawn = 0;

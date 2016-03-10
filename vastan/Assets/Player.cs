@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 public class Player : NetworkBehaviour {
@@ -9,6 +10,7 @@ public class Player : NetworkBehaviour {
 
     private PlayerState ps;
     private Look look;
+    private List<Leg> legs;
 
     public Transform cockpit;
     public Transform plasma_1;
@@ -19,6 +21,7 @@ public class Player : NetworkBehaviour {
     void Start () {
 	    ps = GetComponent<PlayerState>();
         look = cockpit.gameObject.GetComponent<Look>();
+        legs = new List<Leg>(GetComponents<Leg>());
     }
 
     public override void OnStartServer() {
@@ -34,11 +37,15 @@ public class Player : NetworkBehaviour {
         }
         var pos = transform.position;
         pos += transform.forward * -5;
-        pos += transform.up ;
-        pos.y += 1.8f;
+        //pos += transform.up ;
+        pos.y += 2.2f;
         cam.transform.position = pos;
-        cam.transform.LookAt(transform, Vector3.up);
-        cam.transform.SetParent(walker);
+        cam.transform.LookAt(cockpit, Vector3.up);
+        pos -= transform.forward * -5.1f;
+        //pos -= transform.up;
+
+        cam.transform.position = pos;
+        cam.transform.SetParent(cockpit);
         
     }
 
@@ -47,17 +54,20 @@ public class Player : NetworkBehaviour {
         if (!isLocalPlayer)
             return;
 
-        var rot = Input.GetAxis("Horizontal") * 45.0f * Time.deltaTime;
-        var forward = Input.GetAxis("Vertical") * 5.0f * Time.deltaTime;
-
-        // transform is THIS OBJECT's transform
+        var rot = Input.GetAxis("Horizontal") * 60.0f * Time.deltaTime;
+        var forward = Input.GetAxis("Vertical") * 6.5f * Time.deltaTime;
 
         transform.Rotate(new Vector3(0, rot, 0));
         transform.position += transform.forward * forward;
 
-        //look.targetDirection = transform.forward;
+        if (forward != 0) {
+            ps.walking = true;
+        }
+        else {
+            ps.walking = false;
+        }
 
-        //walker.Rotate(new Vector3(0, rot, 0));
+        update_legs();
 
         if (Input.GetKeyDown(KeyCode.Space)) {
             // called from client, but invoked on server (??)
@@ -68,12 +78,16 @@ public class Player : NetworkBehaviour {
         if (Input.GetKeyDown(KeyCode.LeftControl)) {
             var rb = GetComponent<Rigidbody>();
             
-            rb.AddForce(Vector3.up * 8.0f, ForceMode.Impulse);
+            rb.AddForce(Vector3.up * 1200.0f, ForceMode.Impulse);
         }
-
-        //rotate_head(ps.head_yaw, ps.head_pitch);
         
 
+    }
+
+    private void update_legs() {
+        foreach (Leg l in legs) {
+            l.walking = ps.walking;
+        }
     }
 
     // Decoration for "network commands"
