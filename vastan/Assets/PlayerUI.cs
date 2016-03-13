@@ -11,6 +11,8 @@ public class PlayerUI : MonoBehaviour {
 
     private Slider head_pos_left;
     private Slider head_pos_right;
+    private Image left_handle;
+    private Image right_Handle;
 
     private Slider get_slider(string go_name) {
         var go = GameObject.Find(go_name);
@@ -24,6 +26,8 @@ public class PlayerUI : MonoBehaviour {
         plasma_2_slider = get_slider("plasma_2");
         head_pos_left = get_slider("head_pos_left");
         head_pos_right = get_slider("head_pos_right");
+
+
     }
 
     public void update_sliders(int health, 
@@ -38,13 +42,19 @@ public class PlayerUI : MonoBehaviour {
 
         if (head_x < 180) {
             float head_val = Mathf.Abs(head_x) * 100f / 50f;
+
+            head_pos_right.handleRect.gameObject.SetActive(true);
             head_pos_right.value = head_val;
             head_pos_left.value = 0;
+            head_pos_left.handleRect.gameObject.SetActive(false);
         }
         else {
             float head_val = (360 - head_x) * 100f / 60f;
+
+            head_pos_left.handleRect.gameObject.SetActive(true);
             head_pos_left.value = head_val;
             head_pos_right.value = 0;
+            head_pos_right.handleRect.gameObject.SetActive(false);
         }
          
     }

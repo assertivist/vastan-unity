@@ -17,11 +17,36 @@ public class Player : NetworkBehaviour {
     public Transform plasma_2;
     public Transform walker;
     
+    private bool did_color = false;
     // Use this for initialization
     void Start () {
 	    ps = GetComponent<PlayerState>();
         look = cockpit.gameObject.GetComponent<Look>();
         legs = new List<Leg>(GetComponents<Leg>());
+
+        
+    }
+
+    private void recolor() {
+        Debug.Log(ps.color);
+        string[] recolor = {
+            "central_bottom_body",
+            "central_rear_body",
+            "left_body",
+            "right_body",
+            "left_top_leg",
+            "right_top_leg",
+            "left_bottom_leg",
+            "right_bottom_leg"
+        };
+        var walker = transform.FindChild("walker");
+        foreach (string name in recolor) {
+            var go = walker.FindChild(name);
+            var renderer = go.GetComponent<SkinnedMeshRenderer>();
+            foreach (Material m in renderer.materials) {
+                m.color = ps.color;
+            }
+        }
     }
 
     public override void OnStartServer() {
@@ -53,6 +78,11 @@ public class Player : NetworkBehaviour {
 	void Update () {
         if (!isLocalPlayer)
             return;
+
+        if (!did_color) {
+            did_color = true;
+            recolor();
+        }
 
         var rot = Input.GetAxis("Horizontal") * 60.0f * Time.deltaTime;
         var forward = Input.GetAxis("Vertical") * 6.5f * Time.deltaTime;

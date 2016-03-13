@@ -40,17 +40,12 @@ public class PlayerState : NetworkBehaviour {
 
     void Start() {
         sliders = GameObject.Find("Canvas").GetComponent<PlayerUI>();
-        color = random_color();
+        if (isLocalPlayer) {
+            Cmdrandom_color();
+        }
         head_rot = Quaternion.identity;
     }
 
-    private Color random_color() {
-        return new Color(
-            UnityEngine.Random.Range(0f, 255f),
-            UnityEngine.Random.Range(0f, 255f),
-            UnityEngine.Random.Range(0f, 255f)
-        );
-    }
 
     public bool can_shoot() {
         return plasma_1 > 39 || plasma_2 > 39;
@@ -97,6 +92,12 @@ public class PlayerState : NetworkBehaviour {
             transform.rotation = new_start.rotation;*/
         }
     }
+
+    [Command]
+    void Cmdrandom_color() {
+        color = new Color(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
+    }
+
 
     void Update() {
         if (isServer) {
