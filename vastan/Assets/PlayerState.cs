@@ -30,6 +30,9 @@ public class PlayerState : NetworkBehaviour {
     [SyncVar]
     public bool walking;
 
+    [SyncVar]
+    public Quaternion head_rot;
+
     private PlayerUI sliders;
 
     private float respawn = 0;
@@ -38,6 +41,7 @@ public class PlayerState : NetworkBehaviour {
     void Start() {
         sliders = GameObject.Find("Canvas").GetComponent<PlayerUI>();
         color = random_color();
+        head_rot = Quaternion.identity;
     }
 
     private Color random_color() {
@@ -117,6 +121,8 @@ public class PlayerState : NetworkBehaviour {
             energy += 2;
             
         }
-        sliders.update_sliders(health, energy, plasma_1, plasma_2);
+        float head_x = head_rot.eulerAngles.x;
+        sliders.update_sliders(health, 
+            energy, plasma_1, plasma_2, head_x);
     }
 }

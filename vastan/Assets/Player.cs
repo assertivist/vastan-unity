@@ -66,10 +66,11 @@ public class Player : NetworkBehaviour {
         else {
             ps.walking = false;
         }
+        ps.head_rot = cockpit.localRotation;
 
         update_legs();
 
-        if (Input.GetKeyDown(KeyCode.Space)) {
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)) {
             // called from client, but invoked on server (??)
             if (ps.can_shoot())
                 Cmd_fire_plasma();

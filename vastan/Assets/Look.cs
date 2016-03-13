@@ -26,7 +26,7 @@ public class Look : MonoBehaviour {
 
     void Update() {
         // Ensure the cursor is always locked when set
-        Cursor.lockState = CursorLockMode.Locked;
+        // Cursor.lockState = CursorLockMode.Locked;
 
         // Allow the script to clamp based on a desired target value.
         var targetOrientation = Quaternion.Euler(targetDirection);
