@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 public class Player : NetworkBehaviour {
@@ -9,16 +10,43 @@ public class Player : NetworkBehaviour {
 
     private PlayerState ps;
     private Look look;
+    private List<Leg> legs;
 
     public Transform cockpit;
     public Transform plasma_1;
     public Transform plasma_2;
     public Transform walker;
     
+    private bool did_color = false;
     // Use this for initialization
     void Start () {
 	    ps = GetComponent<PlayerState>();
         look = cockpit.gameObject.GetComponent<Look>();
+        legs = new List<Leg>(GetComponents<Leg>());
+
+        
+    }
+
+    private void recolor() {
+        Debug.Log(ps.color);
+        string[] recolor = {
+            "central_bottom_body",
+            "central_rear_body",
+            "left_body",
+            "right_body",
+            "left_top_leg",
+            "right_top_leg",
+            "left_bottom_leg",
+            "right_bottom_leg"
+        };
+        var walker = transform.FindChild("walker");
+        foreach (string name in recolor) {
+            var go = walker.FindChild(name);
+            var renderer = go.GetComponent<SkinnedMeshRenderer>();
+            foreach (Material m in renderer.materials) {
+                m.color = ps.color;
+            }
+        }
     }
 
     public override void OnStartServer() {
@@ -34,11 +62,15 @@ public class Player : NetworkBehaviour {
         }
         var pos = transform.position;
         pos += transform.forward * -5;
-        pos += transform.up ;
-        pos.y += 1.8f;
+        //pos += transform.up ;
+        pos.y += 2.2f;
         cam.transform.position = pos;
-        cam.transform.LookAt(transform, Vector3.up);
-        cam.transform.SetParent(walker);
+        cam.transform.LookAt(cockpit, Vector3.up);
+        pos -= transform.forward * -5.1f;
+        //pos -= transform.up;
+
+        cam.transform.position = pos;
+        cam.transform.SetParent(cockpit);
         
     }
 
@@ -47,19 +79,28 @@ public class Player : NetworkBehaviour {
         if (!isLocalPlayer)
             return;
 
-        var rot = Input.GetAxis("Horizontal") * 45.0f * Time.deltaTime;
-        var forward = Input.GetAxis("Vertical") * 5.0f * Time.deltaTime;
+        if (!did_color) {
+            did_color = true;
+            recolor();
+        }
 
-        // transform is THIS OBJECT's transform
+        var rot = Input.GetAxis("Horizontal") * 60.0f * Time.deltaTime;
+        var forward = Input.GetAxis("Vertical") * 6.5f * Time.deltaTime;
 
         transform.Rotate(new Vector3(0, rot, 0));
         transform.position += transform.forward * forward;
 
-        //look.targetDirection = transform.forward;
+        if (forward != 0) {
+            ps.walking = true;
+        }
+        else {
+            ps.walking = false;
+        }
+        ps.head_rot = cockpit.localRotation;
 
-        //walker.Rotate(new Vector3(0, rot, 0));
+        update_legs();
 
-        if (Input.GetKeyDown(KeyCode.Space)) {
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)) {
             // called from client, but invoked on server (??)
             if (ps.can_shoot())
                 Cmd_fire_plasma();
@@ -68,12 +109,16 @@ public class Player : NetworkBehaviour {
         if (Input.GetKeyDown(KeyCode.LeftControl)) {
             var rb = GetComponent<Rigidbody>();
             
-            rb.AddForce(Vector3.up * 8.0f, ForceMode.Impulse);
+            rb.AddForce(Vector3.up * 1200.0f, ForceMode.Impulse);
         }
-
-        //rotate_head(ps.head_yaw, ps.head_pitch);
         
 
+    }
+
+    private void update_legs() {
+        foreach (Leg l in legs) {
+            l.walking = ps.walking;
+        }
     }
 
     // Decoration for "network commands"
