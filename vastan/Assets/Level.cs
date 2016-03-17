@@ -174,9 +174,9 @@ public class Level {
     private Vector3 parse_vec3(XmlAttribute vec3_attrib) {
         string value = vec3_attrib.Value;
         string[] values = value.Split(',');
-        float x = float.Parse(values[0]);
+        float x = float.Parse(values[2]);
         float y = float.Parse(values[1]);
-        float z = float.Parse(values[2]);
+        float z = float.Parse(values[0]);
         return new Vector3(x, y, z);
     }
 
