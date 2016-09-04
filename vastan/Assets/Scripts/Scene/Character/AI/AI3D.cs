@@ -1,0 +1,91 @@
+using UnityEngine;
+using System.Collections;
+using ServerSideCalculations.Networking;
+using ServerSideCalculations.Characters;
+using ServerSideCalculations;
+using System.Collections.Generic;
+
+public class AI3D : SceneCharacter3D, IArtificialIntelligence
+{
+	public SceneCharacter Target { get; set; }
+
+	public GameServer Server { get; set; }
+
+	public SceneCharacter GetSceneChar ()
+	{
+		return this; 
+	}
+
+
+	// Update is called once per frame
+	void Update ()
+	{
+		this.UpdateAI ();
+	}
+
+	#region Movement
+
+	public override bool MissingController ()
+	{
+		return false;
+	}
+
+
+	public override float GetCurrentSpeed ()
+	{
+		return 0f;
+	}
+
+	float MaxTurnSpeed = 10;
+	
+	public void RunAtTarget ()
+	{	
+		if (!((Character)Target).IsAlive) {
+			return;
+		}
+		
+		////Debug.Log ("Turning toward " + Target.transform.position + " at " + MaxTurnSpeed + "*" + Time.deltaTime);
+		
+		
+		// Turn toward the Target
+		this.transform.rotation = Quaternion.Slerp (this.transform.rotation, Quaternion.LookRotation (Target.transform.position - this.transform.position), MaxTurnSpeed * Time.deltaTime);
+		
+		// Move toward the Target
+		if (Vector3.Distance (Target.transform.position, transform.position) >= ((Character)this).ArmLength) {
+			this.Move (1f, 0f, Time.deltaTime, false);
+		}
+	}
+    
+    #endregion Movement
+    
+    #region Combat
+
+	public float AttackDelay;
+
+	public float TimeLastAttacked;
+
+
+	public void AttackTarget ()
+	{
+		var timeSinceLastAttack = Time.time - TimeLastAttacked;
+		if (timeSinceLastAttack < AttackDelay) {
+			return;
+		}			
+		
+		TimeLastAttacked = Time.time;
+		
+		foreach (var potentialTarget in Server.SceneCharacters.Values) {
+			// Check friendly fire
+			if (!Server.FriendlyFire && ((Character)potentialTarget).Team == BaseCharacter.Team) {
+				continue;
+			}
+			
+			if (potentialTarget.transform.IsWithinArc (this.transform, BaseCharacter.ArmLength + 2f, 120f)) {
+				Server.CharacterHits (this, (Character)potentialTarget); // 16D-E
+			}
+		}
+	}
+    
+    #endregion Combat
+    
+}
