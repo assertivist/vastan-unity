@@ -31,14 +31,14 @@ public class SceneCharacter3D : SceneCharacter
 	{	
 		////Debug.Log ("Executing control command " + control.ToString ());
 		
-		Move (control.Forward, control.Strafe, control.Duration, control.Jump);
+		Move (control.Forward, control.Turn, control.Duration, control.Jump);
 		Look (control.LookHorz, control.LookVert);
 	}
 
 	/**
 	* Move the player's position
 	*/
-	public void Move (float forward, float strafe, float duration, bool jump)
+	public void Move (float forward, float turn, float duration, bool jump)
 	{
 		if (jump) {
 			((Character)this).AttemptJump ();
@@ -51,9 +51,11 @@ public class SceneCharacter3D : SceneCharacter
 		//Debug.Log ("Moving character " + name + " " + forward + " x " + duration + (!Controller.isGrounded ? " not" : "") + " grounded");
 		
 		// Only allow movement control when touching the ground
-		if (Controller.isGrounded) {	
-			// Feed moveDirection with input.
-			MoveDirection = new Vector3 (strafe, 0, forward);
+		if (Controller.isGrounded) {
+            // Rotate self based on turn input.
+            this.transform.localEulerAngles = new Vector3(0, this.transform.localEulerAngles.y + turn, 0);
+            // Feed moveDirection with input.
+            MoveDirection = new Vector3 (0, 0, forward);
 			MoveDirection = this.transform.TransformDirection (MoveDirection);
 			//Debug.Log("   Grounded - Direction: " + MoveDirection + " Move Speed: " + ((Character)this).MoveSpeed);
 			
@@ -92,9 +94,10 @@ public class SceneCharacter3D : SceneCharacter
 		*/
 	public void Look (float yawAmount, float pitchAmount)
 	{	
+        // calculate head angles
 		float yawAngle = Mathf.Clamp (this.transform.localEulerAngles.y + yawAmount, Game.MIN_TURN, Game.MAX_TURN);
 		//float pitchAngle = Mathf.Clamp( this.transform.localEulerAngles.x + pitchAmount, Game.MIN_TURN, Game.MAX_TURN );
-		this.transform.localEulerAngles = new Vector3 (0, yawAngle, 0);
+		
 		
 		PitchAngle = Mathf.Clamp (PitchAngle - pitchAmount, -180, 180); 
 		//Debug.Log( "Pitch angle: " + PitchAngle );

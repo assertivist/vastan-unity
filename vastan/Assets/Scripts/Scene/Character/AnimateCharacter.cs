@@ -18,12 +18,12 @@ namespace ServerSideCalculations.Scene.Character
 			if( Math.Abs( SceneCharacter.MoveDirection.magnitude ) > 1 )
 			{
 				//Debug.Log("Animate run" );
-				GetComponent<Animation>().CrossFade("run");
+				//GetComponent<Animation>().CrossFade("run");
 			}
 			else
 			{
 				//Debug.Log("Animate Idle" );
-				GetComponent<Animation>().CrossFade("idle");
+				//GetComponent<Animation>().CrossFade("idle");
 			}
 		}
 	}

@@ -445,7 +445,7 @@ public class GameClient : Game
         CurrentControlCommand.Forward = Input.GetAxis("Vertical");
 
         // 9C: Update strafe left/right movement
-        CurrentControlCommand.Strafe = Input.GetAxis("Horizontal");
+        CurrentControlCommand.Turn = Input.GetAxis("Horizontal");
 
         //Jumping
         if (Input.GetButtonDown("Jump"))
@@ -549,43 +549,36 @@ public class GameClient : Game
             Debug.Log("Camera = " + Camera.main.name);
             MyCamera = Camera.main;
         }
-
-        if (!Is3D)
+        
+        ((SkinnedMeshRenderer)MyPlayer.GetComponentInChildren<SkinnedMeshRenderer>()).enabled = ThirdPerson;
+        if (ThirdPerson)
         {
-            MyCamera.transform.position = StaticCameraPosition;
-            MyCamera.transform.rotation = Quaternion.identity;
+            // Calculate the current rotation angles
+            float wantedRotationAngle = MyPlayer.transform.eulerAngles.y;
+            float currentRotationAngle = MyCamera.transform.eulerAngles.y;
+
+            // Damp the rotation around the y-axis
+            currentRotationAngle = Mathf.LerpAngle(currentRotationAngle, wantedRotationAngle, CameraRotationDamping * Time.deltaTime);
+
+            // Convert the angle into a rotation
+            Quaternion currentRotation = Quaternion.Euler(0, currentRotationAngle, 0);
+
+            // Set the position of the camera on the x-z plane to X distance meters behind the player
+            Vector3 pos = MyPlayer.transform.position - currentRotation * Vector3.forward * CameraDistance;
+            pos.y += CameraHeight;
+            MyCamera.transform.position = pos;
+
+            // Look at the player
+            MyCamera.transform.LookAt(MyPlayer.transform.position + MyPlayer.transform.up * MyPlayer.BaseCharacter.Height * ((SceneCharacter3D)MyPlayer).PitchAngle); // Without this, the camera doesn't turn L/R at all
         }
         else
         {
-            ((SkinnedMeshRenderer)MyPlayer.GetComponentInChildren<SkinnedMeshRenderer>()).enabled = ThirdPerson;
-            if (ThirdPerson)
-            {
-                // Calculate the current rotation angles
-                float wantedRotationAngle = MyPlayer.transform.eulerAngles.y;
-                float currentRotationAngle = MyCamera.transform.eulerAngles.y;
-
-                // Damp the rotation around the y-axis
-                currentRotationAngle = Mathf.LerpAngle(currentRotationAngle, wantedRotationAngle, CameraRotationDamping * Time.deltaTime);
-
-                // Convert the angle into a rotation
-                Quaternion currentRotation = Quaternion.Euler(0, currentRotationAngle, 0);
-
-                // Set the position of the camera on the x-z plane to X distance meters behind the player
-                Vector3 pos = MyPlayer.transform.position - currentRotation * Vector3.forward * CameraDistance;
-                pos.y += CameraHeight;
-                MyCamera.transform.position = pos;
-
-                // Look at the player
-                MyCamera.transform.LookAt(MyPlayer.transform.position + MyPlayer.transform.up * MyPlayer.BaseCharacter.Height * ((SceneCharacter3D)MyPlayer).PitchAngle); // Without this, the camera doesn't turn L/R at all
-            }
-            else
-            {
-                MyCamera.transform.position = MyPlayer.transform.position + new Vector3(0, .4f, 0);
-                MyCamera.transform.rotation = MyPlayer.transform.rotation;
-                //Debug.Log ("Pitch: " + MyPlayer.PitchAngle);
-                MyCamera.transform.Rotate(new Vector3(-10 * ((SceneCharacter3D)MyPlayer).PitchAngle, 0, 0));
-            }
+            MyCamera.transform.position = MyPlayer.transform.position + new Vector3(0, .4f, 0);
+            MyCamera.transform.rotation = MyPlayer.transform.rotation;
+            //Debug.Log ("Pitch: " + MyPlayer.PitchAngle);
+            MyCamera.transform.Rotate(new Vector3(-10 * ((SceneCharacter3D)MyPlayer).PitchAngle, 0, 0));
         }
+        
     }
     #endregion Camera
 

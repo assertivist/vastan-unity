@@ -17,7 +17,7 @@ public class ControlCommand
 	
 	public float Forward { get; set; }
 	
-	public float Strafe { get; set; }
+	public float Turn { get; set; }
 	
 	public bool Jump { get; set; }
 	
@@ -33,13 +33,13 @@ public class ControlCommand
 	}
 	
 	
-	public ControlCommand (int newCharacterId, int newId, float newDuration, float newForward, float newStrafe, float newLookHz, float newLookVt, bool jump)
+	public ControlCommand (int newCharacterId, int newId, float newDuration, float newForward, float newTurn, float newLookHz, float newLookVt, bool jump)
 	{	
 		CharacterId = newCharacterId;
 		Id = newId;
 		Duration = newDuration;
 		Forward = newForward;
-		Strafe = newStrafe;
+		Turn = newTurn;
 		LookHorz = newLookHz;
 		LookVert = newLookVt;
 		Jump = jump;
@@ -47,7 +47,7 @@ public class ControlCommand
 
 	public override string ToString ()
 	{
-		return "F: " + Forward + ", S: " + Strafe;
+		return "F: " + Forward + ", Turn: " + Turn;
 	}
 	
 }

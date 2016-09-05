@@ -28,8 +28,6 @@ public abstract class Game : MonoBehaviour
 	#endregion
 	
 	public bool IsActive;
-	
-	public bool Is3D = true;
 
 
 	// Use this for initialization
@@ -117,13 +115,11 @@ public abstract class Game : MonoBehaviour
 	public SceneInfo SceneInformation;
 
 	public GameObject PlayerPrefab3D;
-	public GameObject PlayerPrefab2D;
 
 	public GameObject AIPrefab3D;
-	public GameObject AIPrefab2D;
-	
-	public GameObject PlayerPrefab{ get { return Is3D ? PlayerPrefab3D : PlayerPrefab2D; } }
-	public GameObject AIPrefab{ get { return Is3D ? AIPrefab3D : AIPrefab2D; } }
+
+	public GameObject PlayerPrefab{ get { return PlayerPrefab3D; } }
+	public GameObject AIPrefab{ get { return AIPrefab3D; } }
 
 
 	public Dictionary<int, SceneCharacter> SceneCharacters { get; set; }

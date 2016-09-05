@@ -286,14 +286,8 @@ public class GameServer : Game
 
         IArtificialIntelligence aiSceneCharacter = null;
 
-        if (Is3D)
-        {
-            aiSceneCharacter = aiInstantiation.GetComponent<AI3D>();
-        }
-        else
-        {
-            aiSceneCharacter = aiInstantiation.GetComponent<AI2D>();
-        }
+        aiSceneCharacter = aiInstantiation.GetComponent<AI3D>();
+       
 
         if (aiSceneCharacter == null)
         {
