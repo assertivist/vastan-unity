@@ -29,10 +29,12 @@ public class MainMenu : MonoBehaviour
 
 	int remotePort = 25000;
 	int listenPort = 25000;
+    string player_name = "dummy";
 	string remoteGUId = "";
 	bool useNat = false;
 	public GameServer gameServer;
 	public GameClient gameClient;
+    public ColorPicker colorPicker;
 
 	private void DrawNetworkingGUI ()
 	{
@@ -59,6 +61,7 @@ public class MainMenu : MonoBehaviour
 
 				//gameClient.useNat = useNat;
 				gameClient.IsActive = true;
+                gameClient.MyColor = colorPicker.CurrentColor;
 			}
 
 			// Start a new server
@@ -78,6 +81,7 @@ public class MainMenu : MonoBehaviour
 			} else {
 				remoteIP = GUILayout.TextField (remoteIP, GUILayout.MinWidth (100));
 				remotePort = int.Parse (GUILayout.TextField (remotePort.ToString ()));
+                gameClient.MyName = GUILayout.TextField(player_name);
 			}
 
 			if (GUILayout.Button ("Exit from Main Menu")) {

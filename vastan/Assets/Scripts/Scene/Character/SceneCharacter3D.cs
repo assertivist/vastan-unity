@@ -5,7 +5,8 @@ using ServerSideCalculations.Characters;
 public class SceneCharacter3D : SceneCharacter
 {
 	public CharacterController Controller { get; set; }
-	
+    public GameObject head;
+    public Vector2 targetDirection;
 	public float PitchAngle { get; set; }
 
 
@@ -18,7 +19,10 @@ public class SceneCharacter3D : SceneCharacter
 		if (GetComponent<Rigidbody> ()) {
 			GetComponent<Rigidbody> ().freezeRotation = true;
 		}
-	}
+
+        targetDirection = head.transform.localRotation.eulerAngles;
+        targetDirection.y += 90;
+    }
 
 
 	public override bool MissingController ()
@@ -89,19 +93,36 @@ public class SceneCharacter3D : SceneCharacter
 		Controller.Move (MoveDirection * duration);
 	}
 
-	/**
-		* Turn/tilt the player as needed
+    public Vector2 clampInDegrees = new Vector2(195, 85);
+
+    /**
+		* Turn/tilt the player's head as needed
 		*/
-	public void Look (float yawAmount, float pitchAmount)
-	{	
-        // calculate head angles
-		float yawAngle = Mathf.Clamp (this.transform.localEulerAngles.y + yawAmount, Game.MIN_TURN, Game.MAX_TURN);
-		//float pitchAngle = Mathf.Clamp( this.transform.localEulerAngles.x + pitchAmount, Game.MIN_TURN, Game.MAX_TURN );
-		
-		
-		PitchAngle = Mathf.Clamp (PitchAngle - pitchAmount, -180, 180); 
-		//Debug.Log( "Pitch angle: " + PitchAngle );
-	}
+    public void Look (float yawAmount, float pitchAmount)
+	{
+        var _smoothMouse = new Vector2(yawAmount, pitchAmount);
+        // Allow the script to clamp based on a desired target value.
+        var targetOrientation = Quaternion.Euler(targetDirection);
+
+        // Find the absolute mouse movement value from point zero.
+        HeadRot += _smoothMouse;
+
+        // Clamp and apply the local x value first, so as not to be affected by world transforms.
+        if (clampInDegrees.x < 360)
+            HeadRot.x = Mathf.Clamp(HeadRot.x, -clampInDegrees.x * 0.5f, clampInDegrees.x * 0.5f);
+
+        // Then clamp and apply the global y value.
+        if (clampInDegrees.y < 360)
+            HeadRot.y = Mathf.Clamp(HeadRot.y, -clampInDegrees.y * 0.5f, clampInDegrees.y * 0.5f);
+
+        var xRotation = Quaternion.AngleAxis(HeadRot.x, targetOrientation * Vector3.right);
+        var yRotation = Quaternion.AngleAxis(HeadRot.y, targetOrientation * Vector3.up);
+
+        head.transform.localRotation = xRotation;
+        head.transform.localRotation *= yRotation;
+
+        head.transform.localRotation *= targetOrientation;
+    }
 
 	public override float GetCurrentSpeed ()
 	{
@@ -110,5 +131,5 @@ public class SceneCharacter3D : SceneCharacter
 		} else {
 			return 0;
 		}
-	}	
+	}
 }

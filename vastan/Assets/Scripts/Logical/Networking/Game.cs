@@ -155,6 +155,8 @@ public abstract class Game : MonoBehaviour
 		var playerInstantiation = (GameObject)GameObject.Instantiate (prefab, SceneInformation.PlayerSpawn.position, SceneInformation.PlayerSpawn.rotation);
 		var inGameCharacter = playerInstantiation.GetComponent<SceneCharacter> ();
 		inGameCharacter.BaseCharacter = newCharacter;
+        inGameCharacter.PlayerName = newCharacter.CharName;
+        inGameCharacter.recolor();
 		
 		// Add the new player's character to the list of characters on the server
 		Debug.Log ("Adding character " + inGameCharacter.BaseCharacter.CharName + " with ID " + charId);

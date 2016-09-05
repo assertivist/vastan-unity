@@ -13,6 +13,9 @@ public class GameClient : Game
 
     public Camera MyCamera;
 
+    public Color MyColor;
+    public string MyName;
+
     public Character MyCharacter;
     public SceneCharacter MyPlayer;
 
@@ -35,9 +38,6 @@ public class GameClient : Game
         base.Start();
 
         ControlCommands = new Dictionary<int, ControlCommand>();
-
-        SensitivityX = 10F;
-        SensitivityY = .3F;
 
         LoadSounds();
 
@@ -98,6 +98,8 @@ public class GameClient : Game
             MyPlayer.Client = this;
             MyPlayer.BaseCharacter = MyCharacter;
             MyPlayer.tag = "Player";
+            MyPlayer.BaseCharacter.Color = MyColor;
+            MyPlayer.recolor();
         }
 
         if (CurrentGameState != GameStates.LevelLoaded ||
@@ -137,7 +139,7 @@ public class GameClient : Game
     public Dictionary<int, ObjectState> CharacterIntendedStates { get; set; }
 
     [RPC]
-    public void UpdateCharacter(int charId, Vector3 position, Vector3 direction, Vector3 moveDirection)
+    public void UpdateCharacter(int charId, Vector3 position, Vector3 direction, Vector3 moveDirection, Vector2 headRot)
     {
         ////Debug.Log ("Update called for " + charId + " at " + position.x + ", " + position.y + ", " + position.z);
 
@@ -152,7 +154,7 @@ public class GameClient : Game
         }
 
         SceneCharacter character = SceneCharacters[charId];
-        ObjectState charState = new ObjectState(charId, position, direction);
+        ObjectState charState = new ObjectState(charId, position, direction, headRot);
         character.MoveDirection = moveDirection;
 
         if (!CharacterInterpolation)
@@ -189,6 +191,22 @@ public class GameClient : Game
                     intendedCharacterDirection.y - currentCharDirection.y,
                     intendedCharacterDirection.z - currentCharDirection.z
         ));
+    }
+
+    [RPC]
+    public void UpdateCharacterName(int charId, byte[] name)
+    {
+        SceneCharacter character = SceneCharacters[charId];
+        string player_name = (string)name.Deserialize();
+        character.name = player_name;
+    }
+
+    [RPC]
+    public void UpdateCharacterColor(int charId, Color color)
+    {
+        SceneCharacter character = SceneCharacters[charId];
+        character.BaseCharacter.Color = color;
+        character.recolor();
     }
 
     public Dictionary<int, Vector3> CharacterPositionDiffs { get; set; }
@@ -297,6 +315,10 @@ public class GameClient : Game
     {
 
         Debug.Log("Sucessfully connected to Server");
+
+        var nv = GetComponent<NetworkView>();
+        nv.RPC("ClientColor", RPCMode.Server, MyColor);
+        nv.RPC("ClientName", RPCMode.Server, MyName.Serialize());
 
         if (!IsActive)
         {
@@ -460,10 +482,14 @@ public class GameClient : Game
 
     #region Look controls
 
-    public float SensitivityX { get; set; }
-    public float SensitivityY { get; set; }
+    public Vector2 sensitivity = new Vector2(2, 2);
+    public Vector2 smoothing = new Vector2(3, 3);
+
+    Vector2 _smoothMouse;
+
     public float TurnAngle { get; set; }
     public float PitchAngle { get; set; }
+
     public float TimeLastSendLookRequest { get; set; }
     public float SendLookRequestInterval { get; set; }
 
@@ -471,11 +497,21 @@ public class GameClient : Game
     private void UpdateMouseLookControls()
     {
         // 9E: Add the vertical and horizontal rotation from the mouse
-        float rotationX = Input.GetAxis("Mouse X") * SensitivityX;
-        float rotationY = -Input.GetAxis("Mouse Y") * SensitivityY;
+        // Very simple smooth mouselook modifier for the MainCamera in Unity
+        // by Francis R. Griffiths-Keam - www.runningdimensions.com
 
-        CurrentControlCommand.LookHorz = rotationX;
-        CurrentControlCommand.LookVert = rotationY;
+        // Get raw mouse input for a cleaner reading on more sensitive mice.
+        var mouseDelta = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
+
+        // Scale input against the sensitivity setting and multiply that against the smoothing value.
+        mouseDelta = Vector2.Scale(mouseDelta, new Vector2(sensitivity.x * smoothing.x, sensitivity.y * smoothing.y));
+
+        // Interpolate mouse movement over time to apply smoothing delta.
+        _smoothMouse.x = Mathf.Lerp(_smoothMouse.x, mouseDelta.x, 1f / smoothing.x);
+        _smoothMouse.y = Mathf.Lerp(_smoothMouse.y, mouseDelta.y, 1f / smoothing.y);
+
+        CurrentControlCommand.LookHorz = _smoothMouse.x;
+        CurrentControlCommand.LookVert = _smoothMouse.y;
     }
 
     #endregion Look controls

@@ -21,7 +21,7 @@ public class Look : MonoBehaviour {
     void Start() {
         // Set target direction to the camera's initial orientation.
         targetDirection = transform.localRotation.eulerAngles;
-        
+        targetDirection.y -= 90;
     }
 
     void Update() {

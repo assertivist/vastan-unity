@@ -529,6 +529,23 @@ public class GameServer : Game
 
     #endregion
 
+    [RPC]
+    public void ClientColor(Color color, NetworkMessageInfo info)
+    {
+        Player player = Players[info.sender.guid];
+        player.BaseCharacter.Color = color;
+        player.InGameCharacter.recolor();
+        GetComponent<NetworkView>().RPC("UpdateCharacterColor", RPCMode.Others, player.BaseCharacter.Id, color);
+    }
+
+    public void ClientName(byte[] client_name_s, NetworkMessageInfo info)
+    {
+        string client_name = (string)client_name_s.Deserialize();
+        Player player = Players[info.sender.guid];
+        player.InGameCharacter.PlayerName = client_name;
+        GetComponent<NetworkView>().RPC("UpdateCharacterName", RPCMode.Others, player.BaseCharacter.Id, client_name_s);
+    }
+
 
     #region Combat
 
@@ -568,7 +585,7 @@ public class GameServer : Game
 
         // 16A: Server rewinds the attacker to its position when the client attacked
         #region Rewind Attacker State
-        var presentAttackerState = new ObjectState(0, sceneAttacker.transform.position, sceneAttacker.transform.forward);
+        var presentAttackerState = new ObjectState(0, sceneAttacker.transform.position, sceneAttacker.transform.forward, new Vector2(0,0));
 
         if (LatencyCompensation)
         {
@@ -592,7 +609,7 @@ public class GameServer : Game
 
             // 16B: Server rewinds each potential target to its position when the client attacked
             #region Rewind Target State
-            var presentTargetState = new ObjectState(0, potentialTarget.transform.position, potentialTarget.transform.forward);
+            var presentTargetState = new ObjectState(0, potentialTarget.transform.position, potentialTarget.transform.forward, new Vector2(0,0));
 
             if (LatencyCompensation)
             {
