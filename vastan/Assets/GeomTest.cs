@@ -11,7 +11,7 @@ public class GeomTest : MonoBehaviour {
 
     void test_xml() {
         Level l = new Level();
-        l.load("indra");
+        l.load("stratocaster");
         GameObject l_root = l.game_object();
         l_root.transform.SetParent(transform);
     }
