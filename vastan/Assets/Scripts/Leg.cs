@@ -26,7 +26,8 @@ public class Leg : MonoBehaviour {
     private int walk_seq_step = 0;
     private bool up_step = false;
 
-    private static int wf_ellipse_mag_coefficient = 37;
+    private static int wf_ellipse_mag_coefficient = -37;
+    private static int wf_ellipse_itlalic_mag = -37;
 
     private float wf_x = 0;
     private float wf_sizep = min_walkfunc_size_factor;
@@ -54,13 +55,29 @@ public class Leg : MonoBehaviour {
 
         foot_ref = foot.position;
 	}
-    /*
-    void recompute_wf_x() {
-        wf_x_max = Mathf.Sqrt(wf_sizep / wf_ellipse_mag_coefficient);
-        wf_x = (Mathf.Abs(walk_seq_step) * wf_x_max) / (walkfunc_steps);
-        wf_x = (wf_x * wf_sizep) / max_walkfunc_size_factor;
-    }
 
+    // i just made this and it is right??
+    // returns a Y for any X
+    // and a top/bottom arg
+    float ellipse(float x, bool top)
+    {
+        var A = wf_ellipse_itlalic_mag;
+        var c = wf_sizep;
+
+        var first_term = (3 * x) * Mathf.Cos(A) * Mathf.Sin(A);
+        var under_sqrt_term1 = Mathf.Pow(c, 2) * (Mathf.Pow(4 * Mathf.Cos(A), 2) + Mathf.Pow(Mathf.Sin(A), 2));
+        var under_sqrt_term2 = Mathf.Pow((4 * x), 2) * Mathf.Pow(Mathf.Pow(Mathf.Cos(A), 2) + Mathf.Pow(Mathf.Sin(A), 2), 2);
+        var under_sqrt = under_sqrt_term1 - under_sqrt_term2;
+        var bottom_term = ((4 * Mathf.Pow(Mathf.Cos(-20), 2)) + Mathf.Pow(Mathf.Sin(-20), 2));
+
+        if (top) {
+            return (first_term - Mathf.Sqrt(under_sqrt)) / bottom_term;
+        }
+        else {
+            return (first_term + Mathf.Sqrt(under_sqrt)) / bottom_term;
+        }
+
+    }
     void increment_walk_seq_step(int dir) {
         direction = dir;
         if (!((-walkfunc_steps < walk_seq_step) && 
@@ -75,26 +92,8 @@ public class Leg : MonoBehaviour {
         }
     }
 
-    float wf_upper(float x) {
-        return ((-direction * 15 * wf_x) + 
-            Mathf.Sqrt(75 * ((-wf_ellipse_mag_coefficient * 
-            Mathf.Pow(wf_x, 2)) + wf_sizep))) / 100;
-    }
-	
-    float wf_lower(float x) {
-        return ((-direction * 15 * wf_x) -
-            Mathf.Sqrt(75 * ((-wf_ellipse_mag_coefficient *
-            Mathf.Pow(wf_x, 2)) + wf_sizep))) / 100;
-    }
-
     Vector3 get_target_pos() {
-        float wf_y = 0;
-        if (up_step) {
-            wf_y = wf_upper(wf_x);
-        }
-        else {
-            wf_y = wf_lower(wf_x);
-        }
+        float wf_y = ellipse(wf_x, up_step);
 
         int d = 0;
         if (direction > 0) {
@@ -105,7 +104,6 @@ public class Leg : MonoBehaviour {
         }
 
         Vector3 pos = new Vector3(wf_x + d * (.03f * wf_sizep), wf_y, 0);
-
         return pos;
 
     }
@@ -175,7 +173,6 @@ public class Leg : MonoBehaviour {
         }
         else return;
     }
-    */
 	// Update is called once per frame
 	void Update () {
         if (walking) {
