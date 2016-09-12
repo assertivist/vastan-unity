@@ -1,4 +1,4 @@
-<?xml version="1" standalone="yes" ?>
+<?xml version="1.0" standalone="yes" ?>
 <map name="Naloxone" tagline="Counteract." author="ryan &apos;silverfox&apos; herriman" description="I hate needles.">
 	<sky color="0.247,0.298,0.400" horizon="0.902,0.902,0.761" horizonScale="0.1"/>
 	<ground color="0.494,0.545,0.643"/>

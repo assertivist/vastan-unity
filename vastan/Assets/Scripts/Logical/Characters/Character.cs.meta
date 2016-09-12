@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 01a618cef033fba4b9ee5ef1234cdc26
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - AttackGraphicType: {fileID: 100000, guid: 40826364867a5b747982400f6660c3a2, type: 2}
+  - WeaponPrepSound: {fileID: 8300000, guid: 4288297b3989ab34ebf84988ad56068b, type: 3}
+  - WeaponAttackSound: {fileID: 8300000, guid: 38552617da451c8468d01d6f501e24da, type: 3}
+  - WeaponHitSound: {fileID: 8300000, guid: 7d717f132e8bcd5409d2f308f2b234e5, type: 3}
+  - WeaponBlockSound: {fileID: 8300000, guid: aa49f6273466b7e4880d0f1ffe97980c, type: 3}
+  - InjuredSound: {fileID: 8300000, guid: f12fd5c38368f1b4c85768d6799e85f6, type: 3}
+  - DeathSound: {fileID: 8300000, guid: e79fe139fc9a4434fbdca2e79867f8a8, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 

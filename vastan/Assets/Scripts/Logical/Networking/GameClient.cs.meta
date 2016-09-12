@@ -1,0 +1,42 @@
+fileFormatVersion: 2
+guid: 5e70420c21323974eb481b7c8185f137
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - PlayerPrefab: {fileID: 100004, guid: 4339c6e797cec29448f3ab296cb25497, type: 2}
+  - AIPrefab: {fileID: 100004, guid: f59115da342493a4f815fbeaaee19370, type: 2}
+  - FileImage: {instanceID: 0}
+  - MeleeSphereType: {fileID: 100000, guid: 017c04e0d76fced409ce7eaf4bbbf244, type: 2}
+  - CurrentReticle: {fileID: 2800000, guid: 8d7b9e18b8654c349b3cf7d7cca299cf, type: 3}
+  - RingTexture: {fileID: 2800000, guid: 2d796d9394f902c4cb69fb12857c540b, type: 3}
+  - CursorTexture: {fileID: 2800000, guid: 14b5c0244813df544b4ce46f6aed0114, type: 3}
+  - LegTexture: {fileID: 2800000, guid: 14b5c0244813df544b4ce46f6aed0114, type: 3}
+  - warnGraphicType: {fileID: 100000, guid: 017c04e0d76fced409ce7eaf4bbbf244, type: 2}
+  - ULMeleeWarnTexture: {fileID: 2800000, guid: 2f88204962482e94a9ec38928d286729,
+      type: 3}
+  - UCMeleeWarnTexture: {fileID: 2800000, guid: ab800902a8df2764bb4e039615ad9d20,
+      type: 3}
+  - URMeleeWarnTexture: {fileID: 2800000, guid: f767d27e6cc449e44931059ce4700ccd,
+      type: 3}
+  - MLMeleeWarnTexture: {fileID: 2800000, guid: 5245b1bd886087f48a56f4687b8d5c72,
+      type: 3}
+  - MCMeleeWarnTexture: {fileID: 2800000, guid: ef9bb4a8330308f4ea3ce796d02f68d8,
+      type: 3}
+  - MRMeleeWarnTexture: {fileID: 2800000, guid: 56a9d4e487ac006408f1a1dfc696c55f,
+      type: 3}
+  - LLMeleeWarnTexture: {fileID: 2800000, guid: 348803288a10bc64aa3e8f9830f2bb99,
+      type: 3}
+  - LCMeleeWarnTexture: {fileID: 2800000, guid: 635916d1d96d2344e9ef38dab8082e53,
+      type: 3}
+  - LRMeleeWarnTexture: {fileID: 2800000, guid: b1f77cecf5cac0a408cfd94100063b77,
+      type: 3}
+  - None: {instanceID: 0}
+  - Grunt1: {instanceID: 0}
+  - Woosh1: {instanceID: 0}
+  - Clink1: {instanceID: 0}
+  - MetalHitFlesh1: {instanceID: 0}
+  - Hurt1: {instanceID: 0}
+  - Distortion: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
