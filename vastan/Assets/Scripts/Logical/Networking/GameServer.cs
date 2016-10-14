@@ -391,7 +391,7 @@ public class GameServer : Game
 
             // 7: Send the character's state to all players
             ////Debug.Log ("Updating char " + character.BaseCharacter.Id + character.transform.ToCoordinates ());
-            GetComponent<NetworkView>().RPC("UpdateCharacter", RPCMode.Others, character.BaseCharacter.Id, character.transform.position, character.transform.forward, character.MoveDirection);
+            GetComponent<NetworkView>().RPC("UpdateCharacter", RPCMode.Others, character.BaseCharacter.Id, character.transform.position, character.transform.forward, character.MoveDirection, character.HeadRot);
         }
 
 
@@ -528,7 +528,7 @@ public class GameServer : Game
     }
 
     #endregion
-
+    /*
     [RPC]
     public void ClientColor(Color color, NetworkMessageInfo info)
     {
@@ -537,7 +537,7 @@ public class GameServer : Game
         player.InGameCharacter.recolor();
         GetComponent<NetworkView>().RPC("UpdateCharacterColor", RPCMode.Others, player.BaseCharacter.Id, color);
     }
-
+    */
     public void ClientName(byte[] client_name_s, NetworkMessageInfo info)
     {
         string client_name = (string)client_name_s.Deserialize();
@@ -585,7 +585,7 @@ public class GameServer : Game
 
         // 16A: Server rewinds the attacker to its position when the client attacked
         #region Rewind Attacker State
-        var presentAttackerState = new ObjectState(0, sceneAttacker.transform.position, sceneAttacker.transform.forward, new Vector2(0,0));
+        var presentAttackerState = new ObjectState(0, sceneAttacker.transform.position, sceneAttacker.transform.forward, Quaternion.identity);
 
         if (LatencyCompensation)
         {
@@ -609,7 +609,7 @@ public class GameServer : Game
 
             // 16B: Server rewinds each potential target to its position when the client attacked
             #region Rewind Target State
-            var presentTargetState = new ObjectState(0, potentialTarget.transform.position, potentialTarget.transform.forward, new Vector2(0,0));
+            var presentTargetState = new ObjectState(0, potentialTarget.transform.position, potentialTarget.transform.forward, Quaternion.identity);
 
             if (LatencyCompensation)
             {

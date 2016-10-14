@@ -61,7 +61,7 @@ public class MainMenu : MonoBehaviour
 
 				//gameClient.useNat = useNat;
 				gameClient.IsActive = true;
-                gameClient.MyColor = colorPicker.CurrentColor;
+                //gameClient.MyColor = colorPicker.CurrentColor;
 			}
 
 			// Start a new server

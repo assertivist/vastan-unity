@@ -13,7 +13,7 @@ public class GameClient : Game
 
     public Camera MyCamera;
 
-    public Color MyColor;
+    //public Color MyColor;
     public string MyName;
 
     public Character MyCharacter;
@@ -98,8 +98,8 @@ public class GameClient : Game
             MyPlayer.Client = this;
             MyPlayer.BaseCharacter = MyCharacter;
             MyPlayer.tag = "Player";
-            MyPlayer.BaseCharacter.Color = MyColor;
-            MyPlayer.recolor();
+            //MyPlayer.BaseCharacter.Color = MyColor;
+            //MyPlayer.recolor();
         }
 
         if (CurrentGameState != GameStates.LevelLoaded ||
@@ -139,7 +139,7 @@ public class GameClient : Game
     public Dictionary<int, ObjectState> CharacterIntendedStates { get; set; }
 
     [RPC]
-    public void UpdateCharacter(int charId, Vector3 position, Vector3 direction, Vector3 moveDirection, Vector2 headRot)
+    public void UpdateCharacter(int charId, Vector3 position, Vector3 direction, Vector3 moveDirection, Quaternion headRot)
     {
         ////Debug.Log ("Update called for " + charId + " at " + position.x + ", " + position.y + ", " + position.z);
 
@@ -200,14 +200,14 @@ public class GameClient : Game
         string player_name = (string)name.Deserialize();
         character.name = player_name;
     }
-
+    /*
     [RPC]
     public void UpdateCharacterColor(int charId, Color color)
     {
         SceneCharacter character = SceneCharacters[charId];
         character.BaseCharacter.Color = color;
         character.recolor();
-    }
+    }*/
 
     public Dictionary<int, Vector3> CharacterPositionDiffs { get; set; }
     public Dictionary<int, Vector3> CharacterDirectionDiffs { get; set; }
@@ -316,9 +316,9 @@ public class GameClient : Game
 
         Debug.Log("Sucessfully connected to Server");
 
-        var nv = GetComponent<NetworkView>();
-        nv.RPC("ClientColor", RPCMode.Server, MyColor);
-        nv.RPC("ClientName", RPCMode.Server, MyName.Serialize());
+        //var nv = GetComponent<NetworkView>();
+        //nv.RPC("ClientColor", RPCMode.Server, MyColor);
+        //nv.RPC("ClientName", RPCMode.Server, MyName.Serialize());
 
         if (!IsActive)
         {

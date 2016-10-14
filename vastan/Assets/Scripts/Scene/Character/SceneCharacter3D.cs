@@ -8,6 +8,7 @@ public class SceneCharacter3D : SceneCharacter
     public GameObject head;
     public Vector2 targetDirection;
 	public float PitchAngle { get; set; }
+    private Vector2 _headRot;
 
 
 	// Use this for initialization
@@ -105,7 +106,7 @@ public class SceneCharacter3D : SceneCharacter
         var targetOrientation = Quaternion.Euler(targetDirection);
 
         // Find the absolute mouse movement value from point zero.
-        HeadRot += _smoothMouse;
+        _headRot += _smoothMouse;
 
         // Clamp and apply the local x value first, so as not to be affected by world transforms.
         if (clampInDegrees.x < 360)
@@ -122,6 +123,8 @@ public class SceneCharacter3D : SceneCharacter
         head.transform.localRotation *= yRotation;
 
         head.transform.localRotation *= targetOrientation;
+        HeadRot = head.transform.localRotation;
+        _headRot = new Vector2(HeadRot.x, HeadRot.y);
     }
 
 	public override float GetCurrentSpeed ()
