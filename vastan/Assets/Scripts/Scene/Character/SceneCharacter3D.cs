@@ -21,7 +21,7 @@ public class SceneCharacter3D : SceneCharacter
 		}
 
         targetDirection = head.transform.localRotation.eulerAngles;
-        targetDirection.y += 90;
+        //targetDirection.y += 90;
     }
 
 
