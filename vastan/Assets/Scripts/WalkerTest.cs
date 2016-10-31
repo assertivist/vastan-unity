@@ -6,7 +6,8 @@ public class WalkerTest : MonoBehaviour {
     public GameObject walker;
     private SceneCharacter3D walker_char;
 
-    public Leg leg;
+    public Leg left_leg;
+    public Leg right_leg;
 
     public Vector2 sensitivity = new Vector2(3, 3);
     public Vector2 smoothing = new Vector2(3, 3);
@@ -16,7 +17,10 @@ public class WalkerTest : MonoBehaviour {
     // Use this for initialization
     void Start () {
         walker_char = walker.GetComponent<SceneCharacter3D>();
-        leg = walker.GetComponent<Leg>();
+        var legs = walker.GetComponents<Leg>();
+        left_leg = legs[0];
+        right_leg = legs[1];
+        right_leg.up_step = true;
     }
 	
 	// Update is called once per frame
@@ -36,6 +40,7 @@ public class WalkerTest : MonoBehaviour {
         walker_char.Look(_smoothMouse.x, _smoothMouse.y);
 
 
-        leg.change_wf_size(leg.c + Input.GetAxis("Mouse ScrollWheel"));
+        left_leg.change_wf_size(left_leg.c + Input.GetAxis("Mouse ScrollWheel"));
+        right_leg.change_wf_size(right_leg.c + Input.GetAxis("Mouse ScrollWheel"));
     }
 }

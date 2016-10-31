@@ -7,12 +7,10 @@ public class Leg : MonoBehaviour {
     public Transform bottom;
     public Transform foot;
 
-    public Transform test_target;
-
     private Vector3 hip_rest;
 
     private float top_target;
-    private Quaternion bottom_target;
+    private float bottom_target;
 
 
     public bool on_ground = false;
@@ -20,13 +18,13 @@ public class Leg : MonoBehaviour {
 
     private const float min_walkfunc_size_factor = .001f;
     private const float max_walkfunc_size_factor = 1.0f;
-    private const int walkfunc_steps = 50;
+    public const int walkfunc_steps = 25;
 
-    private const float top_length = 1;
-    private const float bottom_length = 1.21f;
+    private float top_length = 1;
+    private float bottom_length = 1.21f;
 
-    private int walk_seq_step = 0;
-    private bool up_step = false;
+    public int walk_seq_step = 0;
+    public bool up_step = false;
 
     // walkfunc ellipse italicized amount
     private static float A = -.27f;
@@ -41,28 +39,45 @@ public class Leg : MonoBehaviour {
 
     private float direction = 0;
 
-    private Vector3 foot_ref;
+    private Vector3 foot_rest;
+    private Vector3 foot_back;
 
     public bool walking = false;
+    private Vector3 leg_target;
+
 
     // Use this for initialization
     void Start () {
-        top_target = top.eulerAngles.x;
-        Debug.Log(top_target);
+        top_target = top.localEulerAngles.x;
+        Debug.Log(top.localEulerAngles);
+        
 
-        //bottom_target = bottom.eulerAngles.x;
-        Debug.Log(bottom_target);
-
-        bottom_target = bottom.localRotation;
+        bottom_target = bottom.localEulerAngles.x;
+        Debug.Log(bottom.localEulerAngles);
+        
 
         hip_rest = hip.position;
         Debug.Log(hip_rest);
 
-        foot_ref = foot.position;
+        top_length = (bottom.position - hip.position).magnitude;
+        bottom_length = (foot.position - bottom.position).magnitude;
+
+        Debug.Log(top_length);
+        Debug.Log(bottom_length);
+
+        // do all this stuff in order to get vectors that point to
+        // foot rest areas in 'back' and 'front' for forward
+        // and backward walking respectively
+        var temp = foot.localPosition;
+        temp.x += .5f;
+        foot.localPosition = temp;
+        foot_rest = foot.position - hip.position;
+        temp.x -= .5f;
+        foot.localPosition = temp;
+        
         //test_target.SetParent(foot);
         //test_target.Rotate(0, 0, 90);
-
-
+        
         recompute_wf_domain();
 
     }
@@ -125,7 +140,6 @@ public class Leg : MonoBehaviour {
     Vector3 get_target_pos() {
         float wf_y = ellipse(wf_x, up_step);
         Vector3 pos = new Vector3(wf_x, wf_y);
-        Debug.Log(pos);
         return pos;
     }
     
@@ -141,7 +155,7 @@ public class Leg : MonoBehaviour {
         Vector3 from = foot.position;
         from.y += 1;
         Ray r = new Ray(from, Vector3.down);
-
+        Debug.DrawRay(from, Vector3.down);
         var result = new RaycastHit();
         bool hit = Physics.Raycast(r, out result);
 
@@ -154,15 +168,17 @@ public class Leg : MonoBehaviour {
 
     void ik_leg() {
         Vector3 floor_pos = get_floor_spot();
-        Vector3 target_pos = get_target_pos();
+        Vector3 target_pos = leg_target;
         Vector3 hip_pos = hip.position;
-
+        
         Vector3 target_vector;
 
-        if (floor_pos.y < 10 && target_pos.y < floor_pos.y){
+        if (floor_pos.y < 10 && target_pos.y < floor_pos.y) {
             floor_pos.x = target_pos.x;
             target_vector = hip_pos - floor_pos;
             on_ground = true;
+
+            Debug.DrawLine(hip_pos, floor_pos, Color.yellow);
         }
         else {
             target_vector = hip_pos - target_pos;
@@ -183,14 +199,28 @@ public class Leg : MonoBehaviour {
                 return;
             }
             Vector3 t_normal = target_vector.normalized;
-            float delta = Vector3.Angle(target_vector, Vector3.up);
-            top.Rotate(0, 90 - target_top_angle + delta, 0);
+
+            Vector2 target2 = new Vector2(target_vector.x, target_vector.y);
+            float delta = Vector2.Angle(target2, Vector2.up);
+
+            var angles = top.localEulerAngles;
+            angles.y = 180.0f - target_top_angle;
+            if (target2.x < 0) {
+                angles.y -= delta;
+            }
+            else {
+                angles.y += delta;
+            }
+            top.localEulerAngles = angles;
 
             float tb_angle_cos = ((Mathf.Pow(top_length, 2) + 
                 Mathf.Pow(bottom_length, 2) -
                 Mathf.Pow(pt_length, 2)) / (2 * top_length * bottom_length));
             float target_bottom_angle = Mathf.Rad2Deg * Mathf.Acos(tb_angle_cos);
-            bottom.Rotate(0, (180 - target_bottom_angle) * -1, 0);
+
+            angles = bottom.localEulerAngles;
+            angles.y = (180.0f - target_bottom_angle);
+            bottom.localEulerAngles = angles;
         }
         else return;
     }
@@ -198,7 +228,19 @@ public class Leg : MonoBehaviour {
 	void Update () {
         increment_walk_seq_step(-1);
         recompute_wf_x();
-        var thePos = get_target_pos();
-        test_target.localPosition = thePos;
-	}
+        leg_target = hip.position + foot_rest + get_target_pos();
+        
+        ik_leg();
+
+        Debug.DrawLine(hip.position, leg_target, Color.magenta);
+        Debug.DrawLine(hip.position, bottom.position, Color.green);
+        Debug.DrawLine(bottom.position, foot.position, Color.blue);
+        //var thePos = get_target_pos();
+
+    }
+
+    void LateUpdate()
+    {
+        
+    }
 }
