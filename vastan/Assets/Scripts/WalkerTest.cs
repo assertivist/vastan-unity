@@ -36,6 +36,6 @@ public class WalkerTest : MonoBehaviour {
         walker_char.Look(_smoothMouse.x, _smoothMouse.y);
 
 
-        leg.wf_sizep += Input.GetAxis("Mouse ScrollWheel");
+        leg.change_wf_size(leg.c + Input.GetAxis("Mouse ScrollWheel"));
     }
 }

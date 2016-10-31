@@ -19,8 +19,8 @@ public class Leg : MonoBehaviour {
     public float crouch_factor = 0;
 
     private const float min_walkfunc_size_factor = .001f;
-    private const float max_walkfunc_size_factor = 22.0f;
-    private const int walkfunc_steps = 14;
+    private const float max_walkfunc_size_factor = 1.0f;
+    private const int walkfunc_steps = 50;
 
     private const float top_length = 1;
     private const float bottom_length = 1.21f;
@@ -28,10 +28,15 @@ public class Leg : MonoBehaviour {
     private int walk_seq_step = 0;
     private bool up_step = false;
 
-    private static int wf_ellipse_mag_coefficient = 37;
+    // walkfunc ellipse italicized amount
+    private static float A = -.27f;
 
+    //current x
     private float wf_x = 0;
-    public float wf_sizep = 22.0f; // min_walkfunc_size_factor;
+
+    // size parameter
+    public float c = 1.0f; // min_walkfunc_size_factor;
+
     private float wf_x_max;
 
     private float direction = 0;
@@ -54,22 +59,19 @@ public class Leg : MonoBehaviour {
         Debug.Log(hip_rest);
 
         foot_ref = foot.position;
+        //test_target.SetParent(foot);
+        //test_target.Rotate(0, 0, 90);
 
-        wf_x_max = Mathf.Sqrt(wf_sizep / wf_ellipse_mag_coefficient);
-	}
 
-    // i just made this and it is right??
-    // returns a Y for any X
-    // and a top/bottom arg
-    /*
+        recompute_wf_domain();
+
+    }
+
     float ellipse(float x, bool top)
-    {
-        var A = wf_ellipse_italic_mag;
-        var c = wf_sizep;
-
+    { 
         var first_term = (3 * x) * Mathf.Cos(A) * Mathf.Sin(A);
-        var under_sqrt_term1 = Mathf.Pow(c, 2) * (4 * Mathf.Pow(Mathf.Cos(A), 2) + Mathf.Pow(Mathf.Sin(A), 2));
-        var under_sqrt_term2 = Mathf.Pow((4 * x), 2) * Mathf.Pow((Mathf.Pow(Mathf.Cos(A), 2) + Mathf.Pow(Mathf.Sin(A), 2)), 2);
+        var under_sqrt_term1 = Mathf.Pow(c, 2) * ((4 * Mathf.Pow(Mathf.Cos(A), 2)) + Mathf.Pow(Mathf.Sin(A), 2));
+        var under_sqrt_term2 = 4 * Mathf.Pow((x), 2) * Mathf.Pow((Mathf.Pow(Mathf.Cos(A), 2) + Mathf.Pow(Mathf.Sin(A), 2)), 2);
         var under_sqrt = under_sqrt_term1 - under_sqrt_term2;
         var bottom_term = ((4 * Mathf.Pow(Mathf.Cos(A), 2)) + Mathf.Pow(Mathf.Sin(A), 2));
 
@@ -80,20 +82,7 @@ public class Leg : MonoBehaviour {
             return (first_term + Mathf.Sqrt(under_sqrt)) / bottom_term;
         }
     }
-    */
-
-    float ellipse(float x, bool top)
-    {
-        var term1 = (-wf_x);
-        var term2 = Mathf.Sqrt(75.0f * ((-wf_ellipse_mag_coefficient * Mathf.Pow(wf_x, 2)) + wf_sizep)) / 100.0f;
-        if (top) {
-            return term1 + term2;
-        }
-        else {
-            return term1 - term2;
-        }
-    }
-
+  
     void increment_walk_seq_step(int dir) {
         direction = dir;
         if (!((-walkfunc_steps < walk_seq_step) && 
@@ -108,23 +97,35 @@ public class Leg : MonoBehaviour {
         }
     }
 
+    public void change_wf_size(float new_size)
+    {
+        c = new_size;
+        if (c > max_walkfunc_size_factor)
+        {
+            c = max_walkfunc_size_factor;
+        }
+        else if (c < min_walkfunc_size_factor)
+        {
+            c = min_walkfunc_size_factor;
+        }
+        recompute_wf_domain();
+    }
+
     void recompute_wf_x()
     {
-        wf_x_max = Mathf.Sqrt(wf_sizep / wf_ellipse_mag_coefficient);
-        Debug.Log("new max: " + wf_x_max);
-        wf_x = ((float)Mathf.Abs(walk_seq_step) * wf_x_max) / (float) walkfunc_steps;
-        wf_x = (wf_x * wf_sizep) / max_walkfunc_size_factor;
+        wf_x = ((float)Mathf.Abs(walk_seq_step) * (wf_x_max)) / (float) walkfunc_steps;
         if (walk_seq_step < 0) wf_x *= -1;
-        Debug.Log("new wf_x: " + wf_x);
+    }
+
+    void recompute_wf_domain()
+    {
+        wf_x_max = Mathf.Sqrt(Mathf.Pow(c, 2.0f) * ((3.0f * Mathf.Cos(2.0f * A)) + 5.0f)) / (2.0f * Mathf.Sqrt(2.0f));
     }
 
     Vector3 get_target_pos() {
         float wf_y = ellipse(wf_x, up_step);
-        Vector3 pos = new Vector3();
-        pos.x = wf_x;
-        pos.y = wf_y;
-        Debug.Log("pos.x: " + pos.x);
-        Debug.Log("pos.y: " + pos.y);
+        Vector3 pos = new Vector3(wf_x, wf_y);
+        Debug.Log(pos);
         return pos;
     }
     
@@ -195,21 +196,9 @@ public class Leg : MonoBehaviour {
     }
 	// Update is called once per frame
 	void Update () {
-        increment_walk_seq_step(1);
+        increment_walk_seq_step(-1);
         recompute_wf_x();
         var thePos = get_target_pos();
-        
-        test_target.transform.position = thePos;
-        Debug.Log("walk_seq_step: " + walk_seq_step);
-
-        /*
-        if (walking) {
-
-            bottom.Rotate(Vector3.up, -10);
-        }
-        else {
-            bottom.localRotation = bottom_target;
-        }
-        */
+        test_target.localPosition = thePos;
 	}
 }
