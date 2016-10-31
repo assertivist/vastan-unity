@@ -166,6 +166,10 @@ public class Leg : MonoBehaviour {
         
     }
 
+    // the name is a little spare but this
+    // places the legs according to the target spot
+    // while not putting the feet through any object
+
     void ik_leg() {
         Vector3 floor_pos = get_floor_spot();
         Vector3 target_pos = leg_target;
@@ -224,6 +228,7 @@ public class Leg : MonoBehaviour {
         }
         else return;
     }
+
 	// Update is called once per frame
 	void Update () {
         increment_walk_seq_step(-1);
@@ -235,7 +240,6 @@ public class Leg : MonoBehaviour {
         Debug.DrawLine(hip.position, leg_target, Color.magenta);
         Debug.DrawLine(hip.position, bottom.position, Color.green);
         Debug.DrawLine(bottom.position, foot.position, Color.blue);
-        //var thePos = get_target_pos();
 
     }
 
