@@ -7,23 +7,24 @@ public class Leg : MonoBehaviour {
     public Transform bottom;
     public Transform foot;
 
-    private Vector3 hip_rest;
-
-    private float top_target;
-    private float bottom_target;
-
-
     public bool on_ground = false;
     public float crouch_factor = 0;
 
+    // min/max radius of ellipse
     private const float min_walkfunc_size_factor = .001f;
     private const float max_walkfunc_size_factor = 1.0f;
+
+    // steps (points on the ellipse)
     public const int walkfunc_steps = 25;
 
     private float top_length = 1;
     private float bottom_length = 1.21f;
 
+    // current point on ellipse
     public int walk_seq_step = 0;
+
+    // up or down step? (are we lifting
+    // this foot or using it to move fw)
     public bool up_step = false;
 
     // walkfunc ellipse italicized amount
@@ -33,32 +34,32 @@ public class Leg : MonoBehaviour {
     private float wf_x = 0;
 
     // size parameter
-    public float c = 1.0f; // min_walkfunc_size_factor;
+    public float c = min_walkfunc_size_factor;
 
+    // domain of walkfunc at current size
     private float wf_x_max;
 
+    // forwards or backwards?
     private float direction = 0;
 
+    // these offsets are for calculating
+    // the foot targets--when walkers go
+    // forward they kinda lean forward and
+    // the opposite when moving backward
     private Vector3 foot_rest;
+    private Vector3 foot_forward;
     private Vector3 foot_back;
+    private Vector3 foot_stand;
 
+    // yo we walkin'?
     public bool walking = false;
-    private Vector3 leg_target;
+
+    // the target for the foot
+    private Vector3 target_pos;
 
 
     // Use this for initialization
     void Start () {
-        top_target = top.localEulerAngles.x;
-        Debug.Log(top.localEulerAngles);
-        
-
-        bottom_target = bottom.localEulerAngles.x;
-        Debug.Log(bottom.localEulerAngles);
-        
-
-        hip_rest = hip.position;
-        Debug.Log(hip_rest);
-
         top_length = (bottom.position - hip.position).magnitude;
         bottom_length = (foot.position - bottom.position).magnitude;
 
@@ -68,12 +69,24 @@ public class Leg : MonoBehaviour {
         // do all this stuff in order to get vectors that point to
         // foot rest areas in 'back' and 'front' for forward
         // and backward walking respectively
+
+
+        foot_rest = foot.position - hip.position;
+        Debug.Log("rest: " + foot_rest.x + " " + foot_rest.y + " " + foot_rest.z);
         var temp = foot.localPosition;
         temp.x += .5f;
         foot.localPosition = temp;
-        foot_rest = foot.position - hip.position;
-        temp.x -= .5f;
+        foot_back = foot.position - hip.position;
+        Debug.Log("back: " + foot_back.x + " " + foot_back.y + " " + foot_back.z + " ");
+        temp.x -= 1.0f;
         foot.localPosition = temp;
+        foot_forward = foot.position - hip.position;
+
+        Debug.Log("forward: " + foot_forward.x + " " + foot_forward.y + " " + foot_forward.z + " ");
+        temp.x += 1.0f;
+        foot.localPosition = temp;
+
+
         
         //test_target.SetParent(foot);
         //test_target.Rotate(0, 0, 90);
@@ -171,10 +184,10 @@ public class Leg : MonoBehaviour {
     // while not putting the feet through any object
 
     void ik_leg() {
+
+        target_pos = hip.position + foot_rest + get_target_pos();
         Vector3 floor_pos = get_floor_spot();
-        Vector3 target_pos = leg_target;
         Vector3 hip_pos = hip.position;
-        
         Vector3 target_vector;
 
         if (floor_pos.y < 10 && target_pos.y < floor_pos.y) {
@@ -231,13 +244,31 @@ public class Leg : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-        increment_walk_seq_step(-1);
+        if (walking)
+        {
+            if (direction > 0)
+            {
+                // walkin forwards
+
+                increment_walk_seq_step(-1);
+
+            }
+            else
+            {
+                //walkin backwards
+
+                increment_walk_seq_step(1);
+            }
+        }
+        else
+        {
+            
+        }
+
         recompute_wf_x();
-        leg_target = hip.position + foot_rest + get_target_pos();
-        
         ik_leg();
 
-        Debug.DrawLine(hip.position, leg_target, Color.magenta);
+        Debug.DrawLine(hip.position, target_pos, Color.magenta);
         Debug.DrawLine(hip.position, bottom.position, Color.green);
         Debug.DrawLine(bottom.position, foot.position, Color.blue);
 
