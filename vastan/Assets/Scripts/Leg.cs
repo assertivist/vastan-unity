@@ -2,73 +2,109 @@
 using System.Collections;
 
 public class Leg : MonoBehaviour {
+    public Transform walker;
     public Transform hip;
     public Transform top;
     public Transform bottom;
     public Transform foot;
 
-    private Vector3 hip_rest;
-
-    private float top_target;
-    private Quaternion bottom_target;
-
-
     public bool on_ground = false;
     public float crouch_factor = 0;
 
-    private const int walkfunc_steps = 14;
+    // min/max radius of ellipse
     private const float min_walkfunc_size_factor = .001f;
-    private const float max_walkfunc_size_factor = 22;
+    private const float max_walkfunc_size_factor = 1.0f;
 
-    private const float top_length = 1;
-    private const float bottom_length = 1.21f;
+    // steps (points on the ellipse)
+    public const int walkfunc_steps = 25;
 
-    private int walk_seq_step = 0;
-    private bool up_step = false;
+    private float top_length = 1;
+    private float bottom_length = 1.21f;
 
-    private static int wf_ellipse_mag_coefficient = -37;
-    private static int wf_ellipse_itlalic_mag = -37;
+    // current point on ellipse
+    public int walk_seq_step = 0;
 
+    // up or down step? (are we lifting
+    // this foot or using it to move fw)
+    public bool up_step = false;
+
+    // walkfunc ellipse italicized amount
+    private static float A = -.27f;
+
+    //current x
     private float wf_x = 0;
-    private float wf_sizep = min_walkfunc_size_factor;
-    private float wf_x_max = Mathf.Sqrt(min_walkfunc_size_factor
-                                    / wf_ellipse_mag_coefficient);
 
-    private int direction = 0;
+    // size parameter
+    public float c = min_walkfunc_size_factor;
 
-    private Vector3 foot_ref;
+    // domain of walkfunc at current size
+    private float wf_x_max;
 
+    // forwards or backwards?
+    public float direction = 0;
+
+    // these offsets are for calculating
+    // the foot targets--when walkers go
+    // forward they kinda lean forward and
+    // the opposite when moving backward
+    private GameObject rest_target;
+    private GameObject front_target;
+    private GameObject back_target;
+    private GameObject offset_target;
+    // the maximum amount that these targets 
+    // will get offset
+    private float max_lean = .8f;
+    // ultimate goal offset that gets
+    // lerped for smoothness
+    private Vector3 offset;
+    private float offset_ratio = 0;
+
+    // yo we walkin'?
     public bool walking = false;
+
+    // the ultimate final target for the foot
+    private Vector3 target_pos;
 
     // Use this for initialization
     void Start () {
-        top_target = top.eulerAngles.x;
-        Debug.Log(top_target);
+        top_length = (bottom.position - hip.position).magnitude;
+        bottom_length = (foot.position - bottom.position).magnitude;
 
-        //bottom_target = bottom.eulerAngles.x;
-        Debug.Log(bottom_target);
+        //offset = foot.position - hip.position;
 
-        bottom_target = bottom.localRotation;
+        rest_target = new GameObject();
+        rest_target.transform.position = foot.position;
+        rest_target.transform.SetParent(walker);
 
-        hip_rest = hip.position;
-        Debug.Log(hip_rest);
+        front_target = new GameObject();
+        front_target.transform.position = foot.position + (foot.right * max_lean);
+        front_target.transform.SetParent(walker);
 
-        foot_ref = foot.position;
-	}
+        back_target = new GameObject();
+        back_target.transform.position = foot.position + (foot.right * max_lean * -1);
+        back_target.transform.SetParent(walker);
 
-    // i just made this and it is right??
-    // returns a Y for any X
-    // and a top/bottom arg
-    float ellipse(float x, bool top)
-    {
-        var A = wf_ellipse_itlalic_mag;
-        var c = wf_sizep;
+        offset_target = new GameObject();
+        offset_target.transform.SetParent(walker);
+        offset_target.transform.rotation = walker.rotation;
+        offset_target.transform.position = foot.position;
 
+        Debug.Log(top_length);
+        Debug.Log(bottom_length);
+        recompute_wf_domain();
+
+    }
+
+    float ellipse(float x, bool top) { 
         var first_term = (3 * x) * Mathf.Cos(A) * Mathf.Sin(A);
-        var under_sqrt_term1 = Mathf.Pow(c, 2) * (Mathf.Pow(4 * Mathf.Cos(A), 2) + Mathf.Pow(Mathf.Sin(A), 2));
-        var under_sqrt_term2 = Mathf.Pow((4 * x), 2) * Mathf.Pow(Mathf.Pow(Mathf.Cos(A), 2) + Mathf.Pow(Mathf.Sin(A), 2), 2);
+        var under_sqrt_term1 = Mathf.Pow(c, 2) * 
+            ((4 * Mathf.Pow(Mathf.Cos(A), 2)) + Mathf.Pow(Mathf.Sin(A), 2));
+        var under_sqrt_term2 = 4 * Mathf.Pow((x), 2) 
+            * Mathf.Pow((Mathf.Pow(Mathf.Cos(A), 2) 
+            + Mathf.Pow(Mathf.Sin(A), 2)), 2);
         var under_sqrt = under_sqrt_term1 - under_sqrt_term2;
-        var bottom_term = ((4 * Mathf.Pow(Mathf.Cos(-20), 2)) + Mathf.Pow(Mathf.Sin(-20), 2));
+        var bottom_term = ((4 * Mathf.Pow(Mathf.Cos(A), 2)) 
+            + Mathf.Pow(Mathf.Sin(A), 2));
 
         if (top) {
             return (first_term - Mathf.Sqrt(under_sqrt)) / bottom_term;
@@ -76,8 +112,8 @@ public class Leg : MonoBehaviour {
         else {
             return (first_term + Mathf.Sqrt(under_sqrt)) / bottom_term;
         }
-
     }
+  
     void increment_walk_seq_step(int dir) {
         direction = dir;
         if (!((-walkfunc_steps < walk_seq_step) && 
@@ -85,27 +121,45 @@ public class Leg : MonoBehaviour {
             up_step = !up_step;
         }
         if (up_step) {
-            walk_seq_step -= 1 * direction;
+            walk_seq_step -= 1 * Mathf.FloorToInt(direction);
         }
         else {
-            walk_seq_step += 1 * direction;
+            walk_seq_step += 1 * Mathf.FloorToInt(direction);
         }
+    }
+
+    public void change_wf_size(float new_size)
+    {
+        c = new_size;
+        if (c > max_walkfunc_size_factor)
+        {
+            c = max_walkfunc_size_factor;
+        }
+        else if (c < min_walkfunc_size_factor)
+        {
+            c = min_walkfunc_size_factor;
+        }
+        recompute_wf_domain();
+    }
+
+    void recompute_wf_x()
+    {
+        wf_x = ((float)Mathf.Abs(walk_seq_step) 
+            * (wf_x_max)) / (float) walkfunc_steps;
+        if (walk_seq_step < 0) wf_x *= -1;
+    }
+
+    void recompute_wf_domain()
+    {
+        wf_x_max = Mathf.Sqrt(Mathf.Pow(c, 2.0f) 
+            * ((3.0f * Mathf.Cos(2.0f * A)) + 5.0f)) 
+            / (2.0f * Mathf.Sqrt(2.0f));
     }
 
     Vector3 get_target_pos() {
         float wf_y = ellipse(wf_x, up_step);
-
-        int d = 0;
-        if (direction > 0) {
-            d = 1;
-        }
-        else {
-            d = -1;
-        }
-
-        Vector3 pos = new Vector3(wf_x + d * (.03f * wf_sizep), wf_y, 0);
+        Vector3 pos = new Vector3(wf_x, wf_y, 0f);
         return pos;
-
     }
     
     float bottom_resting_pos() {
@@ -120,7 +174,7 @@ public class Leg : MonoBehaviour {
         Vector3 from = foot.position;
         from.y += 1;
         Ray r = new Ray(from, Vector3.down);
-
+        Debug.DrawRay(from, Vector3.down);
         var result = new RaycastHit();
         bool hit = Physics.Raycast(r, out result);
 
@@ -131,17 +185,36 @@ public class Leg : MonoBehaviour {
         
     }
 
-    void ik_leg() {
-        Vector3 floor_pos = get_floor_spot();
-        Vector3 target_pos = get_target_pos();
-        Vector3 hip_pos = hip.position;
+    // the name is a little spare but this
+    // places the legs according to the target spot
+    // while not putting the feet through any object
 
+    void ik_leg() {
+        
+        var ellipse_target = get_target_pos();
+
+        var pos = offset_target.transform.localPosition;
+        pos.x += ellipse_target.x;
+        pos.y += ellipse_target.y;
+        //offset_target.transform.localPosition = pos;
+
+        target_pos = offset_target.transform.position;
+
+        Debug.DrawLine(rest_target.transform.position, target_pos);
+
+        Debug.DrawLine(offset_target.transform.position, offset_target.transform.up, Color.green);
+        Debug.DrawLine(offset_target.transform.position, offset_target.transform.forward, Color.blue);
+
+        Vector3 floor_pos = get_floor_spot();
+        Vector3 hip_pos = hip.position;
         Vector3 target_vector;
 
-        if (floor_pos.y < 10 && target_pos.y < floor_pos.y){
+        if (floor_pos.y < 10 && target_pos.y < floor_pos.y) {
             floor_pos.x = target_pos.x;
             target_vector = hip_pos - floor_pos;
             on_ground = true;
+
+            Debug.DrawLine(hip_pos, floor_pos, Color.yellow);
         }
         else {
             target_vector = hip_pos - target_pos;
@@ -162,25 +235,101 @@ public class Leg : MonoBehaviour {
                 return;
             }
             Vector3 t_normal = target_vector.normalized;
-            float delta = Vector3.Angle(target_vector, Vector3.up);
-            top.Rotate(90 - target_top_angle + delta, 0, 0);
+
+            Vector2 target2 = new Vector2(target_vector.x, target_vector.y);
+            float delta = Vector2.Angle(target2, Vector2.up);
+
+            var angles = top.localEulerAngles;
+            angles.y = 180.0f - target_top_angle;
+            if (target2.x < 0) {
+                angles.y -= delta;
+            }
+            else {
+                angles.y += delta;
+            }
+            top.localEulerAngles = angles;
 
             float tb_angle_cos = ((Mathf.Pow(top_length, 2) + 
                 Mathf.Pow(bottom_length, 2) -
                 Mathf.Pow(pt_length, 2)) / (2 * top_length * bottom_length));
             float target_bottom_angle = Mathf.Rad2Deg * Mathf.Acos(tb_angle_cos);
-            bottom.Rotate((180 - target_bottom_angle) * -1, 0, 0);
+
+            angles = bottom.localEulerAngles;
+            angles.y = (180.0f - target_bottom_angle);
+            bottom.localEulerAngles = angles;
         }
         else return;
     }
+
 	// Update is called once per frame
 	void Update () {
-        if (walking) {
+        if (walking)
+        {
+            var offset_dt = Time.deltaTime * 1.5f;
+            if (direction > 0)
+            {
+                // walkin forwards
+                increment_walk_seq_step(-1);
+                
+                offset_ratio -= offset_dt;
+                if (offset_ratio < -1) {
+                    offset_ratio = -1;
+                }
+            }
+            else
+            {
+                //walkin backwards
+                increment_walk_seq_step(1);
 
-            bottom.Rotate(Vector3.up, -10);
+                offset_ratio += offset_dt;
+                if (offset_ratio > 1) {
+                    offset_ratio = 1;
+                }
+            }
+
+            change_wf_size(c *= (1.250f));
         }
-        else {
-            bottom.localRotation = bottom_target;
+        else
+        {
+            change_wf_size(c *= (0.750f));
+            if (offset_ratio > 0 ) {
+                offset_ratio -= .1f;
+            }
+            if (offset_ratio < 0 ) {
+                offset_ratio += .1f;
+            }
         }
-	}
+
+        //offset = hip.transform.TransformPoint(new Vector3(.35f,-1.635f,0));
+        if (offset_ratio > 0) {
+            offset = Vector3.Lerp(
+                rest_target.transform.position, 
+                back_target.transform.position, 
+                offset_ratio);
+        }
+        if (offset_ratio < 0) {
+            offset = Vector3.Lerp(
+                rest_target.transform.position, 
+                front_target.transform.position, 
+                Mathf.Abs(offset_ratio));
+        }
+
+        offset_target.transform.position = offset;
+        //offset_target.transform.rotation = hip.rotation;
+
+        recompute_wf_x();
+        ik_leg();
+
+        Debug.DrawLine(hip.position, target_pos, Color.magenta);
+
+        Debug.DrawLine(rest_target.transform.position, front_target.transform.position, Color.white);
+        Debug.DrawLine(rest_target.transform.position, back_target.transform.position, Color.gray);
+
+
+    }
+
+    void LateUpdate()
+    {
+        
+    }
 }
