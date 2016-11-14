@@ -2,6 +2,7 @@
 using System.Collections;
 
 public class Leg : MonoBehaviour {
+    public Transform walker;
     public Transform hip;
     public Transform top;
     public Transform bottom;
@@ -40,68 +41,70 @@ public class Leg : MonoBehaviour {
     private float wf_x_max;
 
     // forwards or backwards?
-    private float direction = 0;
+    public float direction = 0;
 
     // these offsets are for calculating
     // the foot targets--when walkers go
     // forward they kinda lean forward and
     // the opposite when moving backward
-    private Vector3 foot_rest;
-    private Vector3 foot_forward;
-    private Vector3 foot_back;
-    private Vector3 foot_stand;
+    private GameObject rest_target;
+    private GameObject front_target;
+    private GameObject back_target;
+    private GameObject offset_target;
+    // the maximum amount that these targets 
+    // will get offset
+    private float max_lean = .8f;
+    // ultimate goal offset that gets
+    // lerped for smoothness
+    private Vector3 offset;
+    private float offset_ratio = 0;
 
     // yo we walkin'?
     public bool walking = false;
 
-    // the target for the foot
+    // the ultimate final target for the foot
     private Vector3 target_pos;
-
 
     // Use this for initialization
     void Start () {
         top_length = (bottom.position - hip.position).magnitude;
         bottom_length = (foot.position - bottom.position).magnitude;
 
+        //offset = foot.position - hip.position;
+
+        rest_target = new GameObject();
+        rest_target.transform.position = foot.position;
+        rest_target.transform.SetParent(walker);
+
+        front_target = new GameObject();
+        front_target.transform.position = foot.position + (foot.right * max_lean);
+        front_target.transform.SetParent(walker);
+
+        back_target = new GameObject();
+        back_target.transform.position = foot.position + (foot.right * max_lean * -1);
+        back_target.transform.SetParent(walker);
+
+        offset_target = new GameObject();
+        offset_target.transform.SetParent(walker);
+        offset_target.transform.rotation = walker.rotation;
+        offset_target.transform.position = foot.position;
+
         Debug.Log(top_length);
         Debug.Log(bottom_length);
-
-        // do all this stuff in order to get vectors that point to
-        // foot rest areas in 'back' and 'front' for forward
-        // and backward walking respectively
-
-
-        foot_rest = foot.position - hip.position;
-        Debug.Log("rest: " + foot_rest.x + " " + foot_rest.y + " " + foot_rest.z);
-        var temp = foot.localPosition;
-        temp.x += .5f;
-        foot.localPosition = temp;
-        foot_back = foot.position - hip.position;
-        Debug.Log("back: " + foot_back.x + " " + foot_back.y + " " + foot_back.z + " ");
-        temp.x -= 1.0f;
-        foot.localPosition = temp;
-        foot_forward = foot.position - hip.position;
-
-        Debug.Log("forward: " + foot_forward.x + " " + foot_forward.y + " " + foot_forward.z + " ");
-        temp.x += 1.0f;
-        foot.localPosition = temp;
-
-
-        
-        //test_target.SetParent(foot);
-        //test_target.Rotate(0, 0, 90);
-        
         recompute_wf_domain();
 
     }
 
-    float ellipse(float x, bool top)
-    { 
+    float ellipse(float x, bool top) { 
         var first_term = (3 * x) * Mathf.Cos(A) * Mathf.Sin(A);
-        var under_sqrt_term1 = Mathf.Pow(c, 2) * ((4 * Mathf.Pow(Mathf.Cos(A), 2)) + Mathf.Pow(Mathf.Sin(A), 2));
-        var under_sqrt_term2 = 4 * Mathf.Pow((x), 2) * Mathf.Pow((Mathf.Pow(Mathf.Cos(A), 2) + Mathf.Pow(Mathf.Sin(A), 2)), 2);
+        var under_sqrt_term1 = Mathf.Pow(c, 2) * 
+            ((4 * Mathf.Pow(Mathf.Cos(A), 2)) + Mathf.Pow(Mathf.Sin(A), 2));
+        var under_sqrt_term2 = 4 * Mathf.Pow((x), 2) 
+            * Mathf.Pow((Mathf.Pow(Mathf.Cos(A), 2) 
+            + Mathf.Pow(Mathf.Sin(A), 2)), 2);
         var under_sqrt = under_sqrt_term1 - under_sqrt_term2;
-        var bottom_term = ((4 * Mathf.Pow(Mathf.Cos(A), 2)) + Mathf.Pow(Mathf.Sin(A), 2));
+        var bottom_term = ((4 * Mathf.Pow(Mathf.Cos(A), 2)) 
+            + Mathf.Pow(Mathf.Sin(A), 2));
 
         if (top) {
             return (first_term - Mathf.Sqrt(under_sqrt)) / bottom_term;
@@ -141,18 +144,21 @@ public class Leg : MonoBehaviour {
 
     void recompute_wf_x()
     {
-        wf_x = ((float)Mathf.Abs(walk_seq_step) * (wf_x_max)) / (float) walkfunc_steps;
+        wf_x = ((float)Mathf.Abs(walk_seq_step) 
+            * (wf_x_max)) / (float) walkfunc_steps;
         if (walk_seq_step < 0) wf_x *= -1;
     }
 
     void recompute_wf_domain()
     {
-        wf_x_max = Mathf.Sqrt(Mathf.Pow(c, 2.0f) * ((3.0f * Mathf.Cos(2.0f * A)) + 5.0f)) / (2.0f * Mathf.Sqrt(2.0f));
+        wf_x_max = Mathf.Sqrt(Mathf.Pow(c, 2.0f) 
+            * ((3.0f * Mathf.Cos(2.0f * A)) + 5.0f)) 
+            / (2.0f * Mathf.Sqrt(2.0f));
     }
 
     Vector3 get_target_pos() {
         float wf_y = ellipse(wf_x, up_step);
-        Vector3 pos = new Vector3(wf_x, wf_y);
+        Vector3 pos = new Vector3(wf_x, wf_y, 0f);
         return pos;
     }
     
@@ -184,8 +190,21 @@ public class Leg : MonoBehaviour {
     // while not putting the feet through any object
 
     void ik_leg() {
+        
+        var ellipse_target = get_target_pos();
 
-        target_pos = hip.position + foot_rest + get_target_pos();
+        var pos = offset_target.transform.localPosition;
+        pos.x += ellipse_target.x;
+        pos.y += ellipse_target.y;
+        //offset_target.transform.localPosition = pos;
+
+        target_pos = offset_target.transform.position;
+
+        Debug.DrawLine(rest_target.transform.position, target_pos);
+
+        Debug.DrawLine(offset_target.transform.position, offset_target.transform.up, Color.green);
+        Debug.DrawLine(offset_target.transform.position, offset_target.transform.forward, Color.blue);
+
         Vector3 floor_pos = get_floor_spot();
         Vector3 hip_pos = hip.position;
         Vector3 target_vector;
@@ -246,31 +265,66 @@ public class Leg : MonoBehaviour {
 	void Update () {
         if (walking)
         {
+            var offset_dt = Time.deltaTime * 1.5f;
             if (direction > 0)
             {
                 // walkin forwards
-
                 increment_walk_seq_step(-1);
-
+                
+                offset_ratio -= offset_dt;
+                if (offset_ratio < -1) {
+                    offset_ratio = -1;
+                }
             }
             else
             {
                 //walkin backwards
-
                 increment_walk_seq_step(1);
+
+                offset_ratio += offset_dt;
+                if (offset_ratio > 1) {
+                    offset_ratio = 1;
+                }
             }
+
+            change_wf_size(c *= (1.250f));
         }
         else
         {
-            
+            change_wf_size(c *= (0.750f));
+            if (offset_ratio > 0 ) {
+                offset_ratio -= .1f;
+            }
+            if (offset_ratio < 0 ) {
+                offset_ratio += .1f;
+            }
         }
+
+        //offset = hip.transform.TransformPoint(new Vector3(.35f,-1.635f,0));
+        if (offset_ratio > 0) {
+            offset = Vector3.Lerp(
+                rest_target.transform.position, 
+                back_target.transform.position, 
+                offset_ratio);
+        }
+        if (offset_ratio < 0) {
+            offset = Vector3.Lerp(
+                rest_target.transform.position, 
+                front_target.transform.position, 
+                Mathf.Abs(offset_ratio));
+        }
+
+        offset_target.transform.position = offset;
+        //offset_target.transform.rotation = hip.rotation;
 
         recompute_wf_x();
         ik_leg();
 
         Debug.DrawLine(hip.position, target_pos, Color.magenta);
-        Debug.DrawLine(hip.position, bottom.position, Color.green);
-        Debug.DrawLine(bottom.position, foot.position, Color.blue);
+
+        Debug.DrawLine(rest_target.transform.position, front_target.transform.position, Color.white);
+        Debug.DrawLine(rest_target.transform.position, back_target.transform.position, Color.gray);
+
 
     }
 

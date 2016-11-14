@@ -14,13 +14,14 @@ public class WalkerTest : MonoBehaviour {
 
     Vector2 _smoothMouse;
 
+    int walking = 0;
+
     // Use this for initialization
     void Start () {
         walker_char = walker.GetComponent<SceneCharacter3D>();
         var legs = walker.GetComponents<Leg>();
         left_leg = legs[0];
         right_leg = legs[1];
-        right_leg.up_step = true;
     }
 	
 	// Update is called once per frame
@@ -39,8 +40,40 @@ public class WalkerTest : MonoBehaviour {
 
         walker_char.Look(_smoothMouse.x, _smoothMouse.y);
 
+        var vert = Input.GetAxis("Vertical");
 
-        left_leg.change_wf_size(left_leg.c + Input.GetAxis("Mouse ScrollWheel"));
-        right_leg.change_wf_size(right_leg.c + Input.GetAxis("Mouse ScrollWheel"));
+        if (vert > 0 && walking == 0) {
+            walking = 1;
+            right_leg.up_step = !left_leg.up_step;
+
+            left_leg.walking = true;
+            right_leg.walking = true;
+        }
+        if (vert < 0 && walking == 0) {
+            walking = -1;
+            left_leg.up_step = !right_leg.up_step;
+
+            left_leg.walking = true;
+            right_leg.walking = true;
+        }
+
+        if (vert == 0 && walking != 0) {
+            walking = 0;
+            left_leg.walking = false;
+            right_leg.walking = false;
+
+            //right_leg.up_step = false;
+            //left_leg.up_step = false;
+            //right_leg.walk_seq_step = 0;
+            //left_leg.walk_seq_step = 0;
+        }
+
+        left_leg.direction = vert;
+        right_leg.direction = vert;
+
+        //left_leg.change_wf_size(left_leg.c + Input.GetAxis("Mouse ScrollWheel"));
+        //right_leg.change_wf_size(right_leg.c + Input.GetAxis("Mouse ScrollWheel"));
+
+
     }
 }
