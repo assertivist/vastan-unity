@@ -29,7 +29,7 @@ namespace ServerSideCalculations.Characters
 
 		public string Team { get; set; }
 
-        public Color Color { get; set; }
+        //public Color Color { get; set; }
 		
 		public float ArmLength{ get { return Height * ARM_LENGTH_RATIO; } }
 		
@@ -67,7 +67,7 @@ namespace ServerSideCalculations.Characters
 			Team = CharName;
 			Height = 2f;
 
-            Color = new Color(0.5f, 0.5f, 0.5f);
+            //Color = new Color(0.5f, 0.5f, 0.5f);
 			
 			IsAlive = true;
 			MaxHealth = 100;

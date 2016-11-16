@@ -61,7 +61,7 @@ public abstract class SceneCharacter : MonoBehaviour
 
     public Vector3 MoveDirection;
 
-    public Vector2 HeadRot;
+    public Quaternion HeadRot;
 
     public string PlayerName;
 
@@ -119,7 +119,7 @@ public abstract class SceneCharacter : MonoBehaviour
 
     public void recolor()
     {
-        Debug.Log(this.BaseCharacter.Color);
+        //Debug.Log(this.BaseCharacter.Color);
         string[] recolor = {
             "central_bottom_body",
             "central_rear_body",
@@ -137,7 +137,7 @@ public abstract class SceneCharacter : MonoBehaviour
             var renderer = go.GetComponent<SkinnedMeshRenderer>();
             foreach (Material m in renderer.materials)
             {
-                m.color = this.BaseCharacter.Color;
+                //m.color = this.BaseCharacter.Color;
             }
         }
     }
