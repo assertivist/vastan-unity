@@ -9,4 +9,4 @@ Building/running this source requires the Unity Engine (version 5.3+ or so). The
 
 The current version of networking code _requires_ that the project setting "Run in Background" be checked. Without this set you may have issues connecting to a server/hosting clients on a server.
 
-[Come chat](irc://avaraline.net/avaraline) [about the project!](irc://avaraline.net/vastan)
+Come chat about the project on IRC: `avaraline.net` port 6667, `#vastan` & `#avaraline`
