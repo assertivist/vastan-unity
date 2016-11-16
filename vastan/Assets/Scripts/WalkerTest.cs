@@ -61,19 +61,10 @@ public class WalkerTest : MonoBehaviour {
             walking = 0;
             left_leg.walking = false;
             right_leg.walking = false;
-
-            //right_leg.up_step = false;
-            //left_leg.up_step = false;
-            //right_leg.walk_seq_step = 0;
-            //left_leg.walk_seq_step = 0;
         }
 
         left_leg.direction = vert;
         right_leg.direction = vert;
-
-        //left_leg.change_wf_size(left_leg.c + Input.GetAxis("Mouse ScrollWheel"));
-        //right_leg.change_wf_size(right_leg.c + Input.GetAxis("Mouse ScrollWheel"));
-
 
     }
 }

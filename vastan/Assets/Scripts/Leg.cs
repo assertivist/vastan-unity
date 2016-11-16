@@ -16,10 +16,11 @@ public class Leg : MonoBehaviour {
     private const float max_walkfunc_size_factor = 1.0f;
 
     // steps (points on the ellipse)
-    public const int walkfunc_steps = 20;
+    private const int walkfunc_steps = 35;
 
-    private float top_length = 1;
-    private float bottom_length = 1.21f;
+    // length of our leg pieces (distance between joints)
+    private float top_length;
+    private float bottom_length;
 
     // current point on ellipse
     public int walk_seq_step = 0;
@@ -51,32 +52,36 @@ public class Leg : MonoBehaviour {
     private GameObject wf_target;
 
     // the maximum amount that these targets 
-    // will get offset
-    private float max_lean = .8f;
-    // ultimate goal offset that gets
-    // lerped for smoothness
-    private Vector3 offset;
+    // will get offset 
+    private float max_lean = .4f;
+
+    // current ratio, -1 is full backwards
+    // and 1 is full forwards. we move between
+    // these states smoothly
     private float offset_ratio = 0;
 
     // yo we walkin'?
     public bool walking = false;
 
-    // the ultimate final target for the foot
-    private Vector3 target_pos;
-
-    // Use this for initialization
+    // initialization
     void Start () {
+        // calculate our leg piece lengths
         top_length = (bottom.position - hip.position).magnitude;
         bottom_length = (foot.position - bottom.position).magnitude;
         
+        // initial ellipse function domain
         recompute_wf_domain();
 
+        // create our reference nodes
         foot_ref = new GameObject(GetInstanceID() + "_foot_ref");
         foot_ref.transform.SetParent(walker);
         foot_ref.transform.position = foot.transform.position;
 
         wf_target = new GameObject(GetInstanceID() + "_wf_target");
         wf_target.transform.SetParent(foot_ref.transform);
+
+        
+
     }
 
     float ellipse(float x, bool top) { 
@@ -143,7 +148,8 @@ public class Leg : MonoBehaviour {
     Vector3 get_target_pos() {
         float wf_y = ellipse(wf_x, up_step);
         Vector3 pos = new Vector3(wf_x, wf_y, 0f);
-        pos.x += (offset_ratio * -0.4f);
+        // add lean offset
+        pos.x += (offset_ratio * -max_lean);
         pos.z = 0; // we are in plane of leg until transform below
         var transformed_pos = foot_ref.transform.TransformPoint(pos);
         if (!float.IsNaN(transformed_pos.x)) 
@@ -175,11 +181,12 @@ public class Leg : MonoBehaviour {
     // places the legs according to the target spot
     // while not putting the feet through any object
 
-    void ik_leg() {
+    void place_leg() {
 
-        target_pos = get_target_pos();
+        var target_pos = get_target_pos();
 
-        Debug.DrawLine(hip.position, target_pos, Color.magenta);
+        if (Debug.isDebugBuild)
+            Debug.DrawLine(hip.position, target_pos, Color.magenta);
         Vector3 floor_pos = get_floor_spot();
         Vector3 hip_pos = hip.position;
         Vector3 target_vector;
@@ -189,8 +196,8 @@ public class Leg : MonoBehaviour {
             floor_pos.z = target_pos.z;
             target_vector = hip_pos - floor_pos;
             on_ground = true;
-
-            Debug.DrawLine(hip_pos, floor_pos, Color.yellow);
+            if (Debug.isDebugBuild)
+                Debug.DrawLine(hip_pos, floor_pos, Color.yellow);
         }
         else {
             target_vector = hip_pos - target_pos;
@@ -236,7 +243,7 @@ public class Leg : MonoBehaviour {
         else return;
     }
 
-	// Update is called once per frame
+	// called once per frame
 	void Update () {
         if (walking) {
             var offset_dt = Time.deltaTime * 1.5f;
@@ -262,6 +269,8 @@ public class Leg : MonoBehaviour {
             change_wf_size(c *= (1.250f));
         }
         else {
+            // not walking anymore
+            // move towards rest position
             change_wf_size(c *= (0.80f));
             if (offset_ratio > 0) {
                 offset_ratio -= .1f;
@@ -269,13 +278,23 @@ public class Leg : MonoBehaviour {
             if (offset_ratio < 0) {
                 offset_ratio += .1f;
             }
+            if (walk_seq_step > 0) {
+                walk_seq_step--;
+            }
+            if (walk_seq_step < 0) {
+                walk_seq_step++;
+            }
         }
 
+        var temp = hip.transform.localPosition;
+        temp.z -= crouch_factor;
+        hip.transform.localPosition = temp;
+
         recompute_wf_x();
-        ik_leg();
+        place_leg();
 
-
-        Debug.DrawLine(foot_ref.transform.position, wf_target.transform.position, Color.cyan);
+        if (Debug.isDebugBuild)
+            Debug.DrawLine(foot_ref.transform.position, wf_target.transform.position, Color.cyan);
 
     }
 
