@@ -73,7 +73,7 @@ public class SceneCharacter3D : SceneCharacter
 		}
 
 
-        var crouch_dt = 5f * Time.deltaTime;
+        var crouch_dt = 5f * duration;
         if (jump) {
             crouch_factor = Mathf.Min(1.0f - bob_amount, crouch_factor + crouch_dt);
         }
