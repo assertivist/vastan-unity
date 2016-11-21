@@ -6,13 +6,27 @@ public class SceneCharacter3D : SceneCharacter
 {
 	public CharacterController Controller { get; set; }
     public GameObject head;
+
+    public GameObject walker;
+    private SceneCharacter3D walker_char;
+
+    public Leg left_leg;
+    public Leg right_leg;
+
     public Vector2 targetDirection;
 	public float PitchAngle { get; set; }
     private Vector2 _headRot;
 
+    private const float bob_amount = .08f;
+    private const float crouch_dist = 1.0f;
+    public float crouch_factor = 0f;
+    private float head_rest;
 
-	// Use this for initialization
-	public void Start ()
+    int walking = 0;
+
+
+    // Use this for initialization
+    public void Start ()
 	{
 		Controller = GetComponent<CharacterController> ();
 		
@@ -21,8 +35,13 @@ public class SceneCharacter3D : SceneCharacter
 			GetComponent<Rigidbody> ().freezeRotation = true;
 		}
 
-        targetDirection = head.transform.localRotation.eulerAngles;
-        //targetDirection.y += 90;
+        targetDirection = head.transform.TransformDirection(head.transform.localRotation.eulerAngles);
+        targetDirection.y += 90;
+
+        var legs = walker.GetComponents<Leg>();
+        left_leg = legs[0];
+        right_leg = legs[1];
+        head_rest = head.transform.localPosition.z;
     }
 
 
@@ -46,17 +65,65 @@ public class SceneCharacter3D : SceneCharacter
 	public void Move (float forward, float turn, float duration, bool jump)
 	{
 		if (jump) {
-			((Character)this).AttemptJump ();
+			//((Character)this).AttemptJump ();
 		}
 		
 		if (Controller == null) {
 			return;
 		}
-		
-		//Debug.Log ("Moving character " + name + " " + forward + " x " + duration + (!Controller.isGrounded ? " not" : "") + " grounded");
-		
-		// Only allow movement control when touching the ground
-		if (Controller.isGrounded) {
+
+
+        var crouch_dt = 5f * Time.deltaTime;
+        if (jump) {
+            crouch_factor = Mathf.Min(1.0f - bob_amount, crouch_factor + crouch_dt);
+        }
+        else {
+            crouch_factor = Mathf.Max(0f, crouch_factor - crouch_dt);
+        }
+
+        var vert = forward;
+
+        if (vert > 0 && walking == 0) {
+            walking = 1;
+            right_leg.up_step = !left_leg.up_step;
+
+            left_leg.walking = true;
+            right_leg.walking = true;
+        }
+        if (vert < 0 && walking == 0) {
+            walking = -1;
+            left_leg.up_step = !right_leg.up_step;
+
+            left_leg.walking = true;
+            right_leg.walking = true;
+
+        }
+
+        if (vert == 0 && walking != 0) {
+            walking = 0;
+            left_leg.walking = false;
+            right_leg.walking = false;
+        }
+
+        if (walking != 0) {
+            var bob_factor = Mathf.Abs(left_leg.walk_seq_step) / 300f;
+            crouch_factor = Mathf.Min(1.0f, crouch_factor + (bob_amount * bob_factor));
+        }
+
+        left_leg.direction = vert;
+        right_leg.direction = vert;
+
+        left_leg.crouch_factor = crouch_factor;
+        right_leg.crouch_factor = crouch_factor;
+
+        var temp = head.transform.localPosition;
+        temp.z = head_rest - crouch_factor * crouch_dist;
+        head.transform.localPosition = temp;
+
+        //Debug.Log ("Moving character " + name + " " + forward + " x " + duration + (!Controller.isGrounded ? " not" : "") + " grounded");
+
+        // Only allow movement control when touching the ground
+        if (Controller.isGrounded) {
             // Rotate self based on turn input.
             this.transform.localEulerAngles = new Vector3(0, this.transform.localEulerAngles.y + turn, 0);
             // Feed moveDirection with input.
@@ -96,9 +163,7 @@ public class SceneCharacter3D : SceneCharacter
 
     public Vector2 clampInDegrees = new Vector2(195, 85);
 
-    /**
-		* Turn/tilt the player's head as needed
-		*/
+    // Turn/tilt the player's head as needed
     public void Look (float yawAmount, float pitchAmount)
 	{
         var _smoothMouse = new Vector2(yawAmount, pitchAmount);

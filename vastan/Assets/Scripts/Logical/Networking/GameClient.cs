@@ -428,6 +428,7 @@ public class GameClient : Game
         }
 
         Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
 
 
         // Flag that the scene is finished loading
@@ -470,7 +471,7 @@ public class GameClient : Game
         CurrentControlCommand.Turn = Input.GetAxis("Horizontal");
 
         //Jumping
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButton("Jump"))
         {
             // 9D: Send a jump request to the server and make the local player character jump
             CurrentControlCommand.Jump = true;

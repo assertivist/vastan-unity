@@ -281,10 +281,10 @@ public class GeomBuilder {
         int start_verts = new_verts.Count;
         float two_pi = Mathf.PI * 2;
         float half_pi = Mathf.PI / 2;
-        var azimuths = from x in Enumerable.Range(0, samples + 1) 
-            select (two_pi * x) / samples;
-        var elevations = from x in Enumerable.Range(0, planes) 
-        select (half_pi * x) / (planes - 1);
+        var azimuths = (from x in Enumerable.Range(0, samples + 1) 
+            select (two_pi * x) / samples).ToList<float>();
+        var elevations = (from x in Enumerable.Range(0, planes) 
+            select (half_pi * x) / (planes - 1)).ToList<float>();
         AddVertV3 add_vert = delegate(Vector3 v) {
             new_verts.Add(rot * v + center);
         };

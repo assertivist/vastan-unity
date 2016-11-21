@@ -11,6 +11,8 @@ public class Leg : MonoBehaviour {
     public bool on_ground = false;
     public float crouch_factor = 0;
 
+    private const float crouch_dist = 1.0f;
+
     // min/max radius of ellipse
     private const float min_walkfunc_size_factor = .001f;
     private const float max_walkfunc_size_factor = 1.0f;
@@ -130,9 +132,8 @@ public class Leg : MonoBehaviour {
     public void change_wf_size(float new_size)
     {
         c = new_size;
-        if (c > max_walkfunc_size_factor) {
-            c = max_walkfunc_size_factor;
-        }
+        var max = max_walkfunc_size_factor - (.5f * crouch_factor);
+        if (c > max) c = max;
         else if (c < min_walkfunc_size_factor) {
             c = min_walkfunc_size_factor;
         }
@@ -157,7 +158,7 @@ public class Leg : MonoBehaviour {
         float wf_y = ellipse(wf_x, up_step);
         Vector3 pos = new Vector3(wf_x, wf_y, 0f);
         // add lean offset
-        pos.x += (offset_ratio * -max_lean);
+        pos.x += (offset_ratio * -max_lean * -(crouch_factor * max_lean));
         var transformed_pos = foot_ref.transform.TransformPoint(pos);
         if (!float.IsNaN(transformed_pos.x)) 
             wf_target.transform.position = transformed_pos; 
@@ -297,7 +298,7 @@ public class Leg : MonoBehaviour {
         }
 
         var temp = hip.transform.localPosition;
-        temp.z = hip_rest - (crouch_factor * .9f);
+        temp.z = hip_rest - (crouch_factor * crouch_dist);
         hip.transform.localPosition = temp;
 
         recompute_wf_x();
