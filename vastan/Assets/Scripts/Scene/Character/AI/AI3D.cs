@@ -16,7 +16,6 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
 		return this; 
 	}
 
-
 	// Update is called once per frame
 	void Update ()
 	{
@@ -43,16 +42,31 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
 		if (!((Character)Target).IsAlive) {
 			return;
 		}
-		
-		////Debug.Log ("Turning toward " + Target.transform.position + " at " + MaxTurnSpeed + "*" + Time.deltaTime);
-		
-		
-		// Turn toward the Target
-		this.transform.rotation = Quaternion.Slerp (this.transform.rotation, Quaternion.LookRotation (Target.transform.position - this.transform.position), MaxTurnSpeed * Time.deltaTime);
-		
-		// Move toward the Target
-		if (Vector3.Distance (Target.transform.position, transform.position) >= ((Character)this).ArmLength) {
-			this.Move (1f, 0f, Time.deltaTime, false);
+
+        ////Debug.Log ("Turning toward " + Target.transform.position + " at " + MaxTurnSpeed + "*" + Time.deltaTime);
+
+
+        // Turn toward the Target
+        //this.transform.rotation = Quaternion.Slerp (this.transform.rotation, Quaternion.LookRotation (Target.transform.position - this.transform.position), MaxTurnSpeed * Time.deltaTime);
+        var look_quat = Quaternion.LookRotation(Target.transform.position - this.transform.position, Vector3.up);
+        head.transform.LookAt(Target.transform.position, Vector3.up);
+        var angles = look_quat.eulerAngles;
+        var turn = 0f;
+        if (angles.y < 0) {
+            turn = 1.0f;
+        }
+        else {
+            turn = -1.0f;
+        }
+
+        // Move toward the Target
+        if (Vector3.Distance (Target.transform.position, transform.position) >= ((Character)this).ArmLength) {
+            try {
+                this.Move(1f, turn, Time.deltaTime, false);
+            }
+            catch {
+                this.Start();
+            }
 		}
 	}
     
