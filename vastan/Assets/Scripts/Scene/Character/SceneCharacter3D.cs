@@ -20,6 +20,10 @@ public class SceneCharacter3D : SceneCharacter
     private const float bob_amount = .08f;
     private const float crouch_dist = 1.0f;
     public float crouch_factor = 0f;
+
+    private float bounce_impulse;
+    private float bounce_factor;
+
     private float head_rest;
 
     int walking = 0;
