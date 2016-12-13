@@ -138,6 +138,7 @@ public class GameClient : Game
     public bool CharacterInterpolation = true;
     public Dictionary<int, ObjectState> CharacterIntendedStates { get; set; }
 
+    //TODO: This may just need to have jump in it...
     [RPC]
     public void UpdateCharacter(int charId, Vector3 position, Vector3 direction, Vector3 moveDirection, Quaternion headRot)
     {
@@ -156,6 +157,9 @@ public class GameClient : Game
         SceneCharacter character = SceneCharacters[charId];
         ObjectState charState = new ObjectState(charId, position, direction, headRot);
         character.MoveDirection = moveDirection;
+
+        // TODO: fix this to call a special method just updating the legs
+        character.GetComponent<SceneCharacter3D>().Move(1f, 0f, Time.deltaTime, false);
 
         if (!CharacterInterpolation)
         {
@@ -428,6 +432,7 @@ public class GameClient : Game
         }
 
         Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
 
 
         // Flag that the scene is finished loading
@@ -470,7 +475,7 @@ public class GameClient : Game
         CurrentControlCommand.Turn = Input.GetAxis("Horizontal");
 
         //Jumping
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButton("Jump"))
         {
             // 9D: Send a jump request to the server and make the local player character jump
             CurrentControlCommand.Jump = true;
@@ -643,69 +648,11 @@ public class GameClient : Game
                 Application.Quit();
             }
 
-            DrawStatusBars();
-
             GUILayout.EndHorizontal();
         }
     }
 
 
-    #region Status Bars
-
-    public Texture2D HealthIndicatorTexture;
-    public float HealthIndicatorSizeRatio = .01f;
-    public float HealthIndicatorHeightRatio = 2f;
-    public float HealthIndicatorOffsetX = .05f;
-    public float HealthIndicatorOffsetY = .0f;
-
-    /// <summary>
-    /// Draws a red drop for each 10 health
-    /// </summary>
-    public void DrawStatusBars()
-    {
-        if (MyCamera == null)
-        {
-            return;
-        }
-
-        foreach (var sceneChar in SceneCharacters.Values)
-        {
-            var headPosition = new Vector3(
-                sceneChar.transform.position.x,
-                sceneChar.transform.position.y + .7f,
-                sceneChar.transform.position.z);
-
-            var coordinates = MyCamera.WorldToScreenPoint(headPosition);
-            //Debug.Log( sceneChar.BaseCharacter.CharName + "'s coordinates are " + coordinates.x + ", " + coordinates.y );
-
-            if (coordinates.x >= 0
-                && coordinates.x <= Screen.width
-                && coordinates.y >= 0
-                && coordinates.y <= Screen.height)
-            {
-
-                float width = HealthIndicatorSizeRatio * Screen.width;
-                float height = width * HealthIndicatorHeightRatio;
-                float y = Screen.height - coordinates.y - HealthIndicatorOffsetY * Screen.height;
-
-                int h = 0;
-                //Debug.Log( "Current health is " + sceneChar.BaseCharacter.CurrentHealth);
-
-                while (h * 10 + 1 <= sceneChar.BaseCharacter.CurrentHealth)
-                {
-                    float x = coordinates.x - HealthIndicatorOffsetX * Screen.width + h * width * 1.2f;
-
-                    //Debug.Log("Drawing texture at " + x + ", " + y + " - " + width + " x " + height);
-
-                    GUI.DrawTexture(new Rect(x, y, width, height), HealthIndicatorTexture);
-
-                    h++;
-                }
-            }
-        }
-    }
-
-    #endregion Status Bars
 
 
     /// <summary>

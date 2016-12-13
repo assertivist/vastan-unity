@@ -1,0 +1,93 @@
+129,"UnderWaterLoop V0"
+130,"JungleLoop V0"
+131,"Artic Wind V0"
+132,"Cousteau loop V0"
+133,"Birds2"
+150,"TextBlip V0"
+151,"MessageBlip V0"
+152,"MessageBlip V2"
+160,"Footstep V0"
+161,"Footstep V1"
+162,"Metal Step V0"
+163,"short step V0"
+164,"EchoStep V0"
+200,"Shot V2"
+201,"Shot V0"
+210,"Dull Hit V0"
+211,"Dull Hit V1"
+220,"Shield Hit V0"
+221,"Shield Hit V1"
+222,"Shield Hit V2"
+230,"Blast V0 amp"
+231,"Blast V1 amp S"
+240,"Switch V0"
+250,"PowerUp V0"
+300,"MineActiveBleep V0"
+301,"MineBlow V0"
+310,"Parasite Death V1"
+311,"Parasite Clamp V1"
+400,"Door V0"
+401,"Door Clang V0"
+410,"TransporterSound V2"
+411,"Incarnation V2"
+412,"Win V0"
+413,"Turbo V3"
+430,"Ball Buzz V0"
+431,"Ball Snap V0"
+432,"Ball Eject V0"
+433,"Ball Reprogram V0"
+434,"Ball Suck V0"
+440,"GobbleSound8 V0"
+
+hull 128 
+"Hull Res ID",215
+"Max Missiles",3
+"Max Grenades",6
+"Max boosters",3
+"Mass",140.0
+"Max Energy",0.899994
+"Energy Charge",1.050003
+"Max Shields",0.89994
+"Shield Charge",1.050003
+"Min Shot",1.0
+"Max Shot",0.899994
+"Shot Charge",1.050003
+"Riding Height",0.25
+"Acceleration",1.0
+"Jump Power",1.0
+
+hull 129
+"Hull Res ID",216
+"Max Missiles",4
+"Max Grenades",8
+"Max boosters",4
+"Mass",155.0
+"Max Energy",1.100006
+"Energy Charge",1.024994
+"Max Shields",1.0
+"Shield Charge",1.0
+"Min Shot",1.0
+"Max Shot",1.0
+"Shot Charge",1.0
+"Riding Height",0.350006
+"Acceleration",1.100006
+"Jump Power",1.0
+
+hull 130
+"Hull Res ID",217
+"Max Missiles",8
+"Max Grenades",12
+"Max boosters",5
+"Mass",170.0
+"Max Energy",1.100006
+"Energy Charge",1.050003
+"Max Shields",1.10006
+"Shield Charge",1.0
+"Min Shot",1.100006
+"Max Shot",1.0
+"Shot Charge",1.050003
+"Riding Height",0.350006
+"Acceleration",1.0
+"Jump Power",1.100006
+
+

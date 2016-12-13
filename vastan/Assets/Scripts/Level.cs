@@ -121,47 +121,38 @@ public class Level {
             }
         }
     }
-    private void parse_block(XmlNode block_node) {
-        Vector3 center = parse_vec3(block_node.Attributes["center"]);
-        Vector3 size = parse_vec3(block_node.Attributes["size"]);
-        Color c = parse_color(block_node);
-        Quaternion rot = Quaternion.identity;
-
-        Vector3 angles = rot.eulerAngles;
-        angles.x += parse_float(block_node, "pitch");
-        angles.y += parse_float(block_node, "yaw");
-        angles.z += parse_float(block_node, "roll");
-        rot.eulerAngles = angles;
-        
+    private void parse_block(XmlNode node) {
+        Vector3 center = parse_vec3(node, "center");
+        Vector3 size = parse_vec3(node, "size", new Vector3(4, 4, 4));
+        Color c = parse_color(node);
+        Quaternion rot = parse_euler_angles(node);
         current_gb = current_gb.add_block(c, center, size, rot);
-        
     }
 
-    private void parse_ramp(XmlNode ramp_node) {
-        Vector3 ramp_base = parse_vec3(ramp_node.Attributes["base"]);
-        Vector3 ramp_top = parse_vec3(ramp_node.Attributes["top"]);
-        float width = parse_float(ramp_node, "width");
-        float thickness = parse_float(ramp_node, "thickness");
-        Color c = parse_color(ramp_node);
-        Quaternion rot = Quaternion.identity;
-
+    private void parse_ramp(XmlNode node) {
+        Vector3 ramp_base = parse_vec3(node, "base");
+        Vector3 ramp_top = parse_vec3(node, "top", new Vector3(0, 4, 4));
+        float width = parse_float(node, "width", 8.0f);
+        float thickness = parse_float(node, "thickness");
+        Color c = parse_color(node);
+        Quaternion rot = parse_euler_angles(node);
         current_gb.add_ramp(c, ramp_base, ramp_top, width, thickness, rot);
     }
 
-    private void parse_wedge(XmlNode wedge_node) {
-        Vector3 wedge_base = parse_vec3(wedge_node.Attributes["base"]);
-        Vector3 wedge_top = parse_vec3(wedge_node.Attributes["top"]);
-        float width = parse_float(wedge_node, "width");
-        Color c = parse_color(wedge_node);
-        Quaternion rot = Quaternion.identity;
+    private void parse_wedge(XmlNode node) {
+        Vector3 wedge_base = parse_vec3(node, "base");
+        Vector3 wedge_top = parse_vec3(node, "top", new Vector3(0, 4, 4));
+        float width = parse_float(node, "width", 8.0f);
+        Color c = parse_color(node);
+        Quaternion rot = parse_euler_angles(node);
 
         current_gb.add_wedge(c, wedge_base, wedge_top, width, rot);
 
     }
 
-    private void parse_incarnator(XmlNode incarn_node) {
-        Vector3 incarn_pos = parse_vec3(incarn_node.Attributes["location"]);
-        float rot = parse_float(incarn_node, "heading");
+    private void parse_incarnator(XmlNode node) {
+        Vector3 incarn_pos = parse_vec3(node, "location");
+        float rot = parse_float(node, "heading");
 
         GameObject nsp = new GameObject("incarn_"+incarn_count);
         incarn_count++;
@@ -172,13 +163,22 @@ public class Level {
         nsp.AddComponent<NetworkStartPosition>();
     }
 
-    private void parse_dome(XmlNode dome_node) {
-
+    private void parse_dome(XmlNode node) {
+        Vector3 center = parse_vec3(node, "center");
+        float radius = parse_float(node, "radius", 2.5f);
+        int samples = parse_int(node, "samples", 8);
+        int planes = parse_int(node, "planes", 5);
+        Color c = parse_color(node);
+        Quaternion rot = parse_euler_angles(node);
+        current_gb.add_dome(c, center, radius, samples, planes, rot);
     }
 
-    private void parse_ground(XmlNode ground_node) {
-        Color c = parse_color(ground_node);
-        current_gb.add_block(c, new Vector3(0, -.01f, 0), new Vector3(1000, .01f, 1000), Quaternion.identity);
+    private void parse_ground(XmlNode node) {
+        Color c = parse_color(node);
+        current_gb.add_block(c, 
+            new Vector3(0, -.01f, 0), 
+            new Vector3(1000, .01f, 1000), 
+            Quaternion.identity);
     }
 
     private Color parse_color(XmlNode node) {
@@ -192,8 +192,27 @@ public class Level {
         return new Color(r, g, b);
     }
 
-    private Vector3 parse_vec3(XmlAttribute vec3_attrib) {
-        string value = vec3_attrib.Value;
+    private Quaternion parse_euler_angles(XmlNode n) {
+        var rot = Quaternion.identity;
+        Vector3 angles = rot.eulerAngles;
+        angles.x += parse_float(n, "pitch");
+        // ``LEFT-HANDED''
+        angles.y -= parse_float(n, "yaw");
+        angles.z += parse_float(n, "roll");
+        rot.eulerAngles = angles;
+        return rot;
+    }
+
+    private Vector3 parse_vec3(XmlNode n, string key) {
+        return parse_vec3(n, key, new Vector3(0, 0, 0));
+    }
+
+    private Vector3 parse_vec3(XmlNode n, string key, Vector3 def) {
+        if (n.Attributes[key] == null) {
+            return def;
+        }
+
+        string value = n.Attributes[key].Value;
         string[] values = value.Split(',');
         float x = float.Parse(values[2]);
         float y = float.Parse(values[1]);
@@ -201,24 +220,34 @@ public class Level {
         return new Vector3(x, y, z);
     }
 
-    private static string parse_string(XmlNode n, string key) {
+    private static string parse_string(XmlNode n, string key, string def = "") {
         if (n.Attributes[key] == null) {
-            return "";
+            return def;
         }
         else return n.Attributes[key].Value;
     }
 
-    private static float parse_float(XmlNode n, string key) {
+    private static float parse_float(XmlNode n, string key, float def = 0.0f) {
         if (n.Attributes[key] == null) {
-            return 0;
+            return def;
         }
         else return float.Parse(n.Attributes[key].Value);
+    }
+
+    private static int parse_int(XmlNode n, string key, int def = 0) {
+        if (n.Attributes[key] == null) {
+            return def;
+        }
+        else {
+            return int.Parse(n.Attributes[key].Value);
+        }
     }
 
     public GameObject game_object() {
         cycle_mesh(current_is_hologram);
         foreach (Mesh m in statics) {
-            GameObject geom = GameObject.Instantiate(static_fab, Vector3.zero, Quaternion.identity) as GameObject;
+            var go = GameObject.Instantiate(static_fab, Vector3.zero, Quaternion.identity);
+            GameObject geom = go as GameObject;
             geom.GetComponent<MeshFilter>().mesh = m;
             geom.AddComponent<Static>();
 
@@ -226,12 +255,12 @@ public class Level {
             var mc = geom.GetComponent<MeshCollider>();
             mc.sharedMesh = m;
 
-
             geom.transform.SetParent(parent.transform);
 
         }
         foreach (Mesh m in holograms) {
-            GameObject geom = GameObject.Instantiate(static_fab, Vector3.zero, Quaternion.identity) as GameObject;
+            var go = GameObject.Instantiate(static_fab, Vector3.zero, Quaternion.identity);
+            GameObject geom = go as GameObject;
             geom.GetComponent<MeshFilter>().mesh = m;
             geom.transform.SetParent(parent.transform);
         }
