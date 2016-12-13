@@ -11,7 +11,7 @@ public class WalkerTest : MonoBehaviour {
     // Use this for initialization
     void Start () {
         walker_char = walker.GetComponent<SceneCharacter3D>();
-        Cursor.visible = false;
+        // Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
 
@@ -26,10 +26,12 @@ public class WalkerTest : MonoBehaviour {
         // Scale input against the sensitivity setting and multiply that against the smoothing value.
         mouseDelta = Vector2.Scale(mouseDelta, new Vector2(sensitivity.x * smoothing.x, sensitivity.y * smoothing.y));
 
+        Debug.Log("mouseDelta " + mouseDelta);
+
         // Interpolate mouse movement over time to apply smoothing delta.
         _smoothMouse.x = Mathf.Lerp(_smoothMouse.x, mouseDelta.x, 1f / smoothing.x);
         _smoothMouse.y = Mathf.Lerp(_smoothMouse.y, mouseDelta.y, 1f / smoothing.y);
-        Debug.Log(_smoothMouse);
+        Debug.Log("smoothmouse " + _smoothMouse);
         walker_char.Look(_smoothMouse.x, _smoothMouse.y);
     }
 }

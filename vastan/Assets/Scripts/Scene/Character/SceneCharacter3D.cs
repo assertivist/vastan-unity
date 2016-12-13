@@ -161,7 +161,7 @@ public class SceneCharacter3D : SceneCharacter
 		Controller.Move (MoveDirection * duration);
 	}
 
-    public Vector2 clampInDegrees = new Vector2(195, 85);
+    public Vector2 clampInDegrees = new Vector2(194, 84);
 
     // Turn/tilt the player's head as needed
     public void Look (float yawAmount, float pitchAmount)
@@ -175,21 +175,18 @@ public class SceneCharacter3D : SceneCharacter
 
         // Clamp and apply the local x value first, so as not to be affected by world transforms.
         if (clampInDegrees.x < 360)
-            HeadRot.x = Mathf.Clamp(HeadRot.x, -clampInDegrees.x * 0.5f, clampInDegrees.x * 0.5f);
+            _headRot.x = Mathf.Clamp(_headRot.x, -clampInDegrees.x * 0.5f, clampInDegrees.x * 0.5f);
 
         // Then clamp and apply the global y value.
         if (clampInDegrees.y < 360)
-            HeadRot.y = Mathf.Clamp(HeadRot.y, -clampInDegrees.y * 0.5f, clampInDegrees.y * 0.5f);
+            _headRot.y = Mathf.Clamp(_headRot.y, -clampInDegrees.y * 0.5f, clampInDegrees.y * 0.5f);
 
-        var xRotation = Quaternion.AngleAxis(HeadRot.x, targetOrientation * Vector3.right);
-        var yRotation = Quaternion.AngleAxis(HeadRot.y, targetOrientation * Vector3.up);
-
+        var xRotation = Quaternion.AngleAxis(_headRot.x, targetOrientation * Vector3.right);
+        var yRotation = Quaternion.AngleAxis(_headRot.y, targetOrientation * Vector3.up);
+        
         head.transform.localRotation = xRotation;
         head.transform.localRotation *= yRotation;
-
         head.transform.localRotation *= targetOrientation;
-        HeadRot = head.transform.localRotation;
-        _headRot = new Vector2(HeadRot.x, HeadRot.y);
     }
 
 	public override float GetCurrentSpeed ()
