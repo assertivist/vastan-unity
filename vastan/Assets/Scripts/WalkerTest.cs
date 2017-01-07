@@ -3,6 +3,7 @@ using System.Collections;
 
 public class WalkerTest : MonoBehaviour {
     public GameObject walker;
+    public GameObject floor;
     private SceneCharacter3D walker_char;
 
     Vector2 _smoothMouse;
@@ -33,5 +34,22 @@ public class WalkerTest : MonoBehaviour {
         _smoothMouse.y = Mathf.Lerp(_smoothMouse.y, mouseDelta.y, 1f / smoothing.y);
         Debug.Log("smoothmouse " + _smoothMouse);
         walker_char.Look(_smoothMouse.x, _smoothMouse.y);
+
+
+        if (Input.GetKey(KeyCode.I)) {
+            floor.transform.eulerAngles = new Vector3(30, 0);
+        }
+        else if (Input.GetKey(KeyCode.K)) {
+            floor.transform.eulerAngles = new Vector3(-30, 0);
+        }
+        else if (Input.GetKey(KeyCode.J)) {
+            floor.transform.eulerAngles = new Vector3(0, 0, 30);
+        }
+        else if (Input.GetKey(KeyCode.L)) {
+            floor.transform.eulerAngles = new Vector3(0, 0, -30);
+        }
+        else {
+            floor.transform.eulerAngles = Vector3.zero;
+        }
     }
 }
