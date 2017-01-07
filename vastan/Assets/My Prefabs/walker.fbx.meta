@@ -1,0 +1,152 @@
+fileFormatVersion: 2
+guid: 4fe0c92503d75c344b3bcf0b7e6b8f94
+timeCreated: 1477849416
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: Armature
+    100002: central_bottom_body
+    100004: central_rear_body
+    100006: char_bone
+    100008: head
+    100010: left_body
+    100012: left_bottom
+    100014: left_bottom_leg
+    100016: left_cannon
+    100018: left_cannon_end
+    100020: left_foot
+    100022: left_foot_end
+    100024: left_gun
+    100026: left_hip
+    100028: left_top
+    100030: left_top_leg
+    100032: right_body
+    100034: right_bottom
+    100036: right_bottom_leg
+    100038: right_cannon
+    100040: right_cannon_end
+    100042: right_foot
+    100044: right_foot_end
+    100046: right_gun
+    100048: right_hip
+    100050: right_top
+    100052: right_top_leg
+    100054: visor
+    100056: //RootNode
+    400000: Armature
+    400002: central_bottom_body
+    400004: central_rear_body
+    400006: char_bone
+    400008: head
+    400010: left_body
+    400012: left_bottom
+    400014: left_bottom_leg
+    400016: left_cannon
+    400018: left_cannon_end
+    400020: left_foot
+    400022: left_foot_end
+    400024: left_gun
+    400026: left_hip
+    400028: left_top
+    400030: left_top_leg
+    400032: right_body
+    400034: right_bottom
+    400036: right_bottom_leg
+    400038: right_cannon
+    400040: right_cannon_end
+    400042: right_foot
+    400044: right_foot_end
+    400046: right_gun
+    400048: right_hip
+    400050: right_top
+    400052: right_top_leg
+    400054: visor
+    400056: //RootNode
+    4300000: right_bottom_leg
+    4300002: right_top_leg
+    4300004: left_top_leg
+    4300006: left_bottom_leg
+    4300008: central_bottom_body
+    4300010: visor
+    4300012: central_rear_body
+    4300014: left_body
+    4300016: right_body
+    4300018: right_gun
+    4300020: left_gun
+    9500000: //RootNode
+    13700000: central_bottom_body
+    13700002: central_rear_body
+    13700004: left_body
+    13700006: left_bottom_leg
+    13700008: left_gun
+    13700010: left_top_leg
+    13700012: right_body
+    13700014: right_bottom_leg
+    13700016: right_gun
+    13700018: right_top_leg
+    13700020: visor
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
