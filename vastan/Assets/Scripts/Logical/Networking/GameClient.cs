@@ -1,3 +1,5 @@
+#pragma warning disable 0618
+
 using System.Collections.Generic;
 using ServerSideCalculations;
 using ServerSideCalculations.Characters;
