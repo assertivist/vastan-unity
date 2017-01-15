@@ -10,6 +10,8 @@ public class SceneCharacter3D : SceneCharacter
     public GameObject walker;
     private SceneCharacter3D walker_char;
 
+    public PhysicalState state;
+
     public Leg left_leg;
     public Leg right_leg;
 
@@ -46,6 +48,8 @@ public class SceneCharacter3D : SceneCharacter
         left_leg = legs[0];
         right_leg = legs[1];
         head_rest = head.transform.localPosition.z;
+
+        state = new PhysicalState(155f, walker.transform.position, Vector3.zero, Vector3.zero, 0f);
     }
 
 
@@ -125,7 +129,7 @@ public class SceneCharacter3D : SceneCharacter
         head.transform.localPosition = temp;
 
         //Debug.Log ("Moving character " + name + " " + forward + " x " + duration + (!Controller.isGrounded ? " not" : "") + " grounded");
-
+        /*
         // Only allow movement control when touching the ground
         if (Controller.isGrounded) {
             // Rotate self based on turn input.
@@ -159,10 +163,23 @@ public class SceneCharacter3D : SceneCharacter
 				
 				MoveDirection = new Vector3 (0, 0, 0);
 			}
-		}
-		
-		//Making the character move
-		Controller.Move (MoveDirection * duration);
+		}*/
+
+        var fwd = Vector3.forward;
+        fwd = this.transform.TransformDirection(fwd);
+        
+        var previous_pos = state.pos;
+        state.on_ground = Controller.isGrounded;
+        state.forward_vector = fwd;
+        state.integrate(Time.fixedTime - Time.deltaTime, Time.deltaTime, forward, turn);
+
+        //Making the character move
+        //Controller.Move(MoveDirection * duration);
+        this.transform.localEulerAngles = new Vector3(0, state.angle, 0);
+        var tp = head.transform.position;
+        tp.y -= .5f;
+        Debug.DrawLine(tp, tp + (state.velocity * 100), Color.red);
+        Controller.Move((previous_pos - state.pos) * -1f);
 	}
 
     public Vector2 clampInDegrees = new Vector2(194, 84);
