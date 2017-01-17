@@ -1,0 +1,188 @@
+fileFormatVersion: 2
+guid: 9a1d595e29310304d876bc19ac2e5401
+timeCreated: 1484547050
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: Armature
+    100002: char_bone
+    100004: char_bone_fw
+    100006: char_bone_fw_end
+    100008: head
+    100010: left_bottom
+    100012: left_cannon
+    100014: left_cannon_end
+    100016: left_cannon_fw
+    100018: left_cannon_fw_end
+    100020: left_foot
+    100022: left_foot_end
+    100024: left_hip
+    100026: left_top
+    100028: right_bottom
+    100030: right_cannon
+    100032: right_cannon_end
+    100034: right_cannon_fw
+    100036: right_cannon_fw_end
+    100038: right_foot
+    100040: right_foot_end
+    100042: right_hip
+    100044: right_top
+    100046: Walker.Head.Glass
+    100048: Walker.Head.Main
+    100050: Walker.Head.Tubes
+    100052: Walker.Leg.High.Left
+    100054: Walker.Leg.High.Right
+    100056: Walker.Leg.Low.Left
+    100058: Walker.Leg.Low.Right
+    100060: //RootNode
+    100062: Camera
+    100064: Empty
+    100066: Lamp
+    100068: Armature_broken
+    100070: char_bone 1
+    100072: head 1
+    100074: left_bottom 1
+    100076: left_cannon 1
+    100078: left_cannon_end 1
+    100080: left_foot 1
+    100082: left_foot_end 1
+    100084: left_hip 1
+    100086: left_top 1
+    100088: right_bottom 1
+    100090: right_cannon 1
+    100092: right_cannon_end 1
+    100094: right_foot 1
+    100096: right_foot_end 1
+    100098: right_hip 1
+    100100: right_top 1
+    400000: Armature
+    400002: char_bone
+    400004: char_bone_fw
+    400006: char_bone_fw_end
+    400008: head
+    400010: left_bottom
+    400012: left_cannon
+    400014: left_cannon_end
+    400016: left_cannon_fw
+    400018: left_cannon_fw_end
+    400020: left_foot
+    400022: left_foot_end
+    400024: left_hip
+    400026: left_top
+    400028: right_bottom
+    400030: right_cannon
+    400032: right_cannon_end
+    400034: right_cannon_fw
+    400036: right_cannon_fw_end
+    400038: right_foot
+    400040: right_foot_end
+    400042: right_hip
+    400044: right_top
+    400046: Walker.Head.Glass
+    400048: Walker.Head.Main
+    400050: Walker.Head.Tubes
+    400052: Walker.Leg.High.Left
+    400054: Walker.Leg.High.Right
+    400056: Walker.Leg.Low.Left
+    400058: Walker.Leg.Low.Right
+    400060: //RootNode
+    400062: Camera
+    400064: Empty
+    400066: Lamp
+    400068: Armature_broken
+    400070: char_bone 1
+    400072: head 1
+    400074: left_bottom 1
+    400076: left_cannon 1
+    400078: left_cannon_end 1
+    400080: left_foot 1
+    400082: left_foot_end 1
+    400084: left_hip 1
+    400086: left_top 1
+    400088: right_bottom 1
+    400090: right_cannon 1
+    400092: right_cannon_end 1
+    400094: right_foot 1
+    400096: right_foot_end 1
+    400098: right_hip 1
+    400100: right_top 1
+    4300000: Walker.Leg.Low.Right
+    4300002: Walker.Leg.High.Right
+    4300004: Walker.Head.Glass
+    4300006: Walker.Head.Main
+    4300008: Walker.Head.Tubes
+    4300010: Walker.Leg.High.Left
+    4300012: Walker.Leg.Low.Left
+    9500000: //RootNode
+    13700000: Walker.Head.Glass
+    13700002: Walker.Head.Main
+    13700004: Walker.Head.Tubes
+    13700006: Walker.Leg.High.Left
+    13700008: Walker.Leg.High.Right
+    13700010: Walker.Leg.Low.Left
+    13700012: Walker.Leg.Low.Right
+  materials:
+    importMaterials: 0
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 1
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 48
+    normalImportMode: 0
+    tangentImportMode: 2
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
