@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Linq;
 
 public class WalkerTest : MonoBehaviour {
     public GameObject walker;
@@ -14,6 +15,25 @@ public class WalkerTest : MonoBehaviour {
         walker_char = walker.GetComponent<SceneCharacter3D>();
         // Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
+        recolor_walker(walker, new Color(.7f, 0f, .3f));
+        
+    }
+
+    void recolor_walker(GameObject w, Color c) {
+        recolor_object(w, "Walker.Head.Glass", new Color(56f / 255f, 69f / 255f, 188f / 255f));
+        recolor_object(w, "Walker.Head.Tubes", new Color(75f / 255f, 71f / 255f, 71f / 255f));
+        recolor_object(w, "Walker.Head.Main", c);
+        recolor_object(w, "Walker.Leg.High.Left", c);
+        recolor_object(w, "Walker.Leg.High.Right", c);
+        recolor_object(w, "Walker.Leg.Low.Left", c);
+        recolor_object(w, "Walker.Leg.Low.Right", c);
+    }
+
+    void recolor_object(GameObject parent, string name, Color c) {
+        GameObject go = parent.transform.Find("walker_orig/" + name).gameObject;
+        Mesh m = go.GetComponent<SkinnedMeshRenderer>().sharedMesh;
+        var colors = from n in Enumerable.Range(0, m.vertices.Length) select c;
+        m.colors = colors.ToArray();
     }
 
     // Update is called once per frame
@@ -47,6 +67,10 @@ public class WalkerTest : MonoBehaviour {
         }
         else {
             floor.transform.eulerAngles = Vector3.zero;
+        }
+
+        if (Input.GetKeyDown(KeyCode.E)) {
+            walker_char.state.velocity = new Vector3(0f, 10f, 0f);
         }
     }
 }

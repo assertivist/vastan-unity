@@ -94,6 +94,7 @@ public class PhysicalState
         else {
             d.x -= momentum.x * friction * 5f;
             d.z -= momentum.z * friction * 5f;
+            d.y = 0;
         }
         return d;
     }

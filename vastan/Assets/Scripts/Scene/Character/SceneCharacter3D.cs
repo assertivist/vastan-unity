@@ -20,7 +20,8 @@ public class SceneCharacter3D : SceneCharacter
     private Vector2 _headRot;
 
     private const float bob_amount = .08f;
-    private const float crouch_dist = 1.0f;
+    private const float crouch_dist = .007f;
+    private float base_crouch_factor;
     public float crouch_factor = 0f;
 
     private float bounce_impulse;
@@ -41,14 +42,15 @@ public class SceneCharacter3D : SceneCharacter
 			GetComponent<Rigidbody> ().freezeRotation = true;
 		}
 
-        targetDirection = head.transform.TransformDirection(head.transform.localRotation.eulerAngles);
+        targetDirection = head.transform.localRotation.eulerAngles;
         targetDirection.y += 90;
-
+        /*
         var legs = walker.GetComponents<Leg>();
         left_leg = legs[0];
         right_leg = legs[1];
+        */
         head_rest = head.transform.localPosition.z;
-
+        
         state = new PhysicalState(155f, walker.transform.position, Vector3.zero, Vector3.zero, 0f);
     }
 
@@ -79,7 +81,7 @@ public class SceneCharacter3D : SceneCharacter
 		if (Controller == null) {
 			return;
 		}
-
+        crouch_factor -= base_crouch_factor;
 
         var crouch_dt = 5f * duration;
         if (jump) {
@@ -118,6 +120,8 @@ public class SceneCharacter3D : SceneCharacter
             crouch_factor = Mathf.Min(1.0f, crouch_factor + (bob_amount * bob_factor));
         }
 
+        crouch_factor += base_crouch_factor;
+
         left_leg.direction = vert;
         right_leg.direction = vert;
 
@@ -128,43 +132,6 @@ public class SceneCharacter3D : SceneCharacter
         temp.z = head_rest - crouch_factor * crouch_dist;
         head.transform.localPosition = temp;
 
-        //Debug.Log ("Moving character " + name + " " + forward + " x " + duration + (!Controller.isGrounded ? " not" : "") + " grounded");
-        /*
-        // Only allow movement control when touching the ground
-        if (Controller.isGrounded) {
-            // Rotate self based on turn input.
-            this.transform.localEulerAngles = new Vector3(0, this.transform.localEulerAngles.y + turn, 0);
-            // Feed moveDirection with input.
-            MoveDirection = new Vector3 (0, 0, forward);
-			MoveDirection = this.transform.TransformDirection (MoveDirection);
-			//Debug.Log("   Grounded - Direction: " + MoveDirection + " Move Speed: " + ((Character)this).MoveSpeed);
-			
-			// Multiply it by speed.
-			MoveDirection *= ((Character)this).MoveSpeed;
-			
-			// Sometimes the character isn't exactly touching the ground when jump is pressed, so give it a little time if it needs
-			if (TimeToJump ()) {
-				//Debug.Log("Attempting to jump!");
-				MoveDirection = new Vector3 (MoveDirection.x, ((Character)this).JumpSpeed, MoveDirection.z);
-			}
-		} else {	
-			//Debug.Log( "Not grounded - making the character fall");
-			//Applying gravity to the controller
-			MoveDirection = new Vector3 (MoveDirection.x, MoveDirection.y - (Game.GRAVITY * duration), MoveDirection.z);
-			
-			// Make sure nobody falls through the ground
-			if (transform.position.y < -100) {
-				Debug.Log ("Falling through the ground!");
-				transform.position = new Vector3 (
-					transform.position.x,
-					10f,
-					transform.position.z
-				);
-				
-				MoveDirection = new Vector3 (0, 0, 0);
-			}
-		}*/
-
         var fwd = Vector3.forward;
         fwd = this.transform.TransformDirection(fwd);
         
@@ -172,13 +139,13 @@ public class SceneCharacter3D : SceneCharacter
         state.on_ground = Controller.isGrounded;
         state.forward_vector = fwd;
         state.integrate(Time.fixedTime - Time.deltaTime, Time.deltaTime, forward, turn);
-
-        //Making the character move
-        //Controller.Move(MoveDirection * duration);
+        
         this.transform.localEulerAngles = new Vector3(0, state.angle, 0);
+
         var tp = head.transform.position;
         tp.y -= .5f;
-        Debug.DrawLine(tp, tp + (state.velocity * 100), Color.red);
+        Debug.DrawLine(tp, tp + (state.velocity * 10), Color.red);
+
         Controller.Move((previous_pos - state.pos) * -1f);
 	}
 
@@ -208,6 +175,9 @@ public class SceneCharacter3D : SceneCharacter
         head.transform.localRotation = xRotation;
         head.transform.localRotation *= yRotation;
         head.transform.localRotation *= targetOrientation;
+
+        base_crouch_factor = _headRot.y / clampInDegrees.y * .8f;
+        Debug.Log(base_crouch_factor);
     }
 
 	public override float GetCurrentSpeed ()

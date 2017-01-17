@@ -11,7 +11,7 @@ public class Leg : MonoBehaviour {
     public bool on_ground = false;
     public float crouch_factor = 0;
 
-    private const float crouch_dist = 1.0f;
+    private const float crouch_dist = .007f;
 
     // min/max radius of ellipse
     private const float min_walkfunc_size_factor = .001f;
@@ -225,11 +225,15 @@ public class Leg : MonoBehaviour {
 
             var angles = top.localEulerAngles;
             var l_vec = foot_ref.transform.InverseTransformDirection(target_vector);
-            angles.y = 180.0f - target_top_angle;
+            angles.x = 180.0f - target_top_angle;
+            
             if (l_vec.x < 0) {
-                angles.y -= delta;
+                angles.x -= delta;
             }
-            else angles.y += delta;
+            else angles.x += delta;
+            angles.z = 0f;
+            angles.y = 0f;
+
             top.localEulerAngles = angles;
 
             float tb_angle_cos = ((Mathf.Pow(top_length, 2) + 
@@ -238,7 +242,10 @@ public class Leg : MonoBehaviour {
             float target_bottom_angle = Mathf.Rad2Deg * Mathf.Acos(tb_angle_cos);
 
             angles = bottom.localEulerAngles;
-            angles.y = (180.0f - target_bottom_angle);
+            angles.x = (180.0f - target_bottom_angle);
+            angles.z = 0;
+            angles.y = 0;
+
             bottom.localEulerAngles = angles;
         }
         else return;
