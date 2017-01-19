@@ -10,7 +10,7 @@ public class SceneCharacter3D : SceneCharacter
     public GameObject walker;
     private SceneCharacter3D walker_char;
 
-    public PhysicalState state;
+    public WalkerPhysics state;
 
     public Leg left_leg;
     public Leg right_leg;
@@ -19,8 +19,8 @@ public class SceneCharacter3D : SceneCharacter
 	public float PitchAngle { get; set; }
     private Vector2 _headRot;
 
-    private const float bob_amount = .08f;
-    private const float crouch_dist = .007f;
+    private const float bob_amount = .05f;
+    private const float crouch_dist = .0083f;
     private float base_crouch_factor;
     public float crouch_factor = 0f;
 
@@ -51,7 +51,7 @@ public class SceneCharacter3D : SceneCharacter
         */
         head_rest = head.transform.localPosition.z;
         
-        state = new PhysicalState(155f, walker.transform.position, Vector3.zero, Vector3.zero, 0f);
+        state = new WalkerPhysics(155f, walker.transform.position, Vector3.zero, Vector3.zero, 0f);
     }
 
 
@@ -138,7 +138,8 @@ public class SceneCharacter3D : SceneCharacter
         var previous_pos = state.pos;
         state.on_ground = Controller.isGrounded;
         state.forward_vector = fwd;
-        state.integrate(Time.fixedTime - Time.deltaTime, Time.deltaTime, forward, turn);
+        InputTuple i = new InputTuple(forward, turn);
+        state.integrate(Time.fixedTime - Time.deltaTime, Time.deltaTime, i);
         
         this.transform.localEulerAngles = new Vector3(0, state.angle, 0);
 
@@ -177,7 +178,7 @@ public class SceneCharacter3D : SceneCharacter
         head.transform.localRotation *= targetOrientation;
 
         base_crouch_factor = _headRot.y / clampInDegrees.y * .8f;
-        Debug.Log(base_crouch_factor);
+        //Debug.Log(base_crouch_factor);
     }
 
 	public override float GetCurrentSpeed ()

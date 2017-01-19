@@ -70,7 +70,7 @@ public class WalkerTest : MonoBehaviour {
         }
 
         if (Input.GetKeyDown(KeyCode.E)) {
-            walker_char.state.velocity = new Vector3(0f, 10f, 0f);
+            walker_char.state.accel = new Vector3(0f, 10f, 0f);
         }
     }
 }

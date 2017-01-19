@@ -11,7 +11,7 @@ public class Leg : MonoBehaviour {
     public bool on_ground = false;
     public float crouch_factor = 0;
 
-    private const float crouch_dist = .007f;
+    private const float crouch_dist = .0083f;
 
     // min/max radius of ellipse
     private const float min_walkfunc_size_factor = .001f;
