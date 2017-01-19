@@ -116,29 +116,4 @@ public abstract class SceneCharacter : MonoBehaviour
 		Debug.Log ("Rosebud...");
 		Destroy (gameObject);
 	}
-
-    public void recolor()
-    {
-        //Debug.Log(this.BaseCharacter.Color);
-        string[] recolor = {
-            "central_bottom_body",
-            "central_rear_body",
-            "left_body",
-            "right_body",
-            "left_top_leg",
-            "right_top_leg",
-            "left_bottom_leg",
-            "right_bottom_leg"
-        };
-        var walker = transform.FindChild("walker");
-        foreach (string name in recolor)
-        {
-            var go = walker.FindChild(name);
-            var renderer = go.GetComponent<SkinnedMeshRenderer>();
-            foreach (Material m in renderer.materials)
-            {
-                //m.color = this.BaseCharacter.Color;
-            }
-        }
-    }
 }

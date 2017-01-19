@@ -11,6 +11,7 @@ public class SceneCharacter3D : SceneCharacter
     private SceneCharacter3D walker_char;
 
     public WalkerPhysics state;
+    public DampenedSpring crouch_spring;
 
     public Leg left_leg;
     public Leg right_leg;
@@ -33,14 +34,13 @@ public class SceneCharacter3D : SceneCharacter
 
 
     // Use this for initialization
-    public void Start ()
-	{
-		Controller = GetComponent<CharacterController> ();
-		
-		// Make the rigid body not change rotation
-		if (GetComponent<Rigidbody> ()) {
-			GetComponent<Rigidbody> ().freezeRotation = true;
-		}
+    public void Start() {
+        Controller = GetComponent<CharacterController>();
+
+        // Make the rigid body not change rotation
+        if (GetComponent<Rigidbody>()) {
+            GetComponent<Rigidbody>().freezeRotation = true;
+        }
 
         targetDirection = head.transform.localRotation.eulerAngles;
         targetDirection.y += 90;
@@ -50,8 +50,10 @@ public class SceneCharacter3D : SceneCharacter
         right_leg = legs[1];
         */
         head_rest = head.transform.localPosition.z;
-        
+
         state = new WalkerPhysics(155f, walker.transform.position, Vector3.zero, Vector3.zero, 0f);
+        var spring_rest = head.transform.position.y;
+        crouch_spring = new DampenedSpring(crouch_factor, crouch_factor);
     }
 
 
@@ -121,6 +123,7 @@ public class SceneCharacter3D : SceneCharacter
         }
 
         crouch_factor += base_crouch_factor;
+        crouch_factor = crouch_spring.pos;
 
         left_leg.direction = vert;
         right_leg.direction = vert;
@@ -136,12 +139,18 @@ public class SceneCharacter3D : SceneCharacter
         fwd = this.transform.TransformDirection(fwd);
         
         var previous_pos = state.pos;
+        if (!state.on_ground && Controller.isGrounded) {
+            // Just landed
+            Debug.Log(this.name + " Landed");
+            crouch_spring.vel = -state.velocity.y * 100f;
+
+        }
         state.on_ground = Controller.isGrounded;
         state.forward_vector = fwd;
         InputTuple i = new InputTuple(forward, turn);
         state.integrate(Time.fixedTime - Time.deltaTime, Time.deltaTime, i);
         
-        this.transform.localEulerAngles = new Vector3(0, state.angle, 0);
+        transform.localEulerAngles = new Vector3(0, state.angle, 0);
 
         var tp = head.transform.position;
         tp.y -= .5f;

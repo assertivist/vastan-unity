@@ -110,8 +110,8 @@ public class Integrator
         velocity = momentum * (1f / mass);
        
 
-        var mag_sq = Math.Pow(velocity.magnitude, 2f);
-        if (mag_sq > Math.Pow(maxSpeed, 2f) && mag_sq > 0) {
+        var mag_sq = Mathf.Pow(velocity.magnitude, 2f);
+        if (mag_sq > Mathf.Pow(maxSpeed, 2f) && mag_sq > 0) {
             var ratio = maxSpeed / velocity.magnitude;
             velocity *= ratio;
             momentum *= ratio;
@@ -168,5 +168,72 @@ public class Integrator
         int_state.angle = new_angle;
         int_state.recalculate();
         return int_state;
+    }
+}
+
+public class DampenedSpring {
+
+    const float epsilon = 0.0001f;
+    public float pos = 0;
+    public float vel = 0;
+    float stable_pos = 0;
+    float damping_ratio = 1.0f;
+    float angular_freq = .3f;
+
+    public DampenedSpring (float pos, float stable_pos) {
+        this.pos = pos;
+        this.stable_pos = stable_pos;
+    }
+
+    void calculate(
+        float dt
+     ) {
+
+        float initial_pos = pos - stable_pos;
+        float initial_vel = vel;
+
+        if (damping_ratio > 1.0f + epsilon) {
+            //overdamp
+
+            float za = -angular_freq * damping_ratio;
+            float zb = angular_freq * Mathf.Sqrt(damping_ratio * damping_ratio - 1.0f);
+            float z1 = za - zb;
+            float z2 = za + zb;
+            float expterm1 = Mathf.Exp(z1 * dt);
+            float expterm2 = Mathf.Exp(z2 * dt);
+
+            float c1 = (initial_vel - initial_pos * z2) / (-2.0f * zb);
+            float c2 = initial_pos - c1;
+
+        }
+        else if (damping_ratio > 1.0f - epsilon) {
+            // critical damp
+            
+            float exp_term = Mathf.Exp(-angular_freq * dt);
+            float c1 = initial_vel + angular_freq * initial_pos;
+            float c2 = initial_pos;
+            float c3 = (c1 * dt + c2) * exp_term;
+            pos = stable_pos + c3;
+            vel = (c1 * exp_term) - (c3 * angular_freq);
+        }
+        else {
+            // underdamp
+
+            float omega_zeta = angular_freq * damping_ratio;
+            float alpha = angular_freq * Mathf.Sqrt(1.0f - Mathf.Pow(damping_ratio, 2));
+            float exp_term = Mathf.Exp(-omega_zeta * dt);
+            float cos_term = Mathf.Cos(alpha * dt);
+            float sin_term = Mathf.Sin(alpha * dt);
+
+            float c1 = initial_pos;
+            float c2 = (initial_vel + omega_zeta * initial_pos) / alpha;
+
+            pos = stable_pos + exp_term * (c1 * cos_term + c2 * sin_term);
+            vel = -exp_term * ((c1 * omega_zeta - c2 * alpha) * cos_term +
+                (c1 * alpha + c2 * omega_zeta) * sin_term);
+
+        }
+
+
     }
 }
