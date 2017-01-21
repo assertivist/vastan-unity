@@ -177,18 +177,15 @@ public class DampenedSpring {
     public float pos = 0;
     public float vel = 0;
     float stable_pos = 0;
-    float damping_ratio = 1.0f;
-    float angular_freq = .3f;
+    float damping_ratio = .3f;
+    float angular_freq = 10f;
 
     public DampenedSpring (float pos, float stable_pos) {
         this.pos = pos;
         this.stable_pos = stable_pos;
     }
 
-    void calculate(
-        float dt
-     ) {
-
+    public void calculate(float dt) {
         float initial_pos = pos - stable_pos;
         float initial_vel = vel;
 

@@ -85,12 +85,13 @@ public class SceneCharacter3D : SceneCharacter
 		}
         crouch_factor -= base_crouch_factor;
 
-        var crouch_dt = 5f * duration;
+        //var crouch_dt = 5f * duration;
         if (jump) {
-            crouch_factor = Mathf.Min(1.0f - bob_amount, crouch_factor + crouch_dt);
+            //crouch_factor = Mathf.Min(1.0f - bob_amount, crouch_factor + crouch_dt);
+            crouch_spring.vel = 1f;
         }
         else {
-            crouch_factor = Mathf.Max(0f, crouch_factor - crouch_dt);
+            //crouch_factor = Mathf.Max(0f, crouch_factor - crouch_dt);
         }
 
         var vert = forward;
@@ -119,11 +120,15 @@ public class SceneCharacter3D : SceneCharacter
 
         if (walking != 0) {
             var bob_factor = Mathf.Abs(left_leg.walk_seq_step) / 300f;
-            crouch_factor = Mathf.Min(1.0f, crouch_factor + (bob_amount * bob_factor));
+            //crouch_factor = Mathf.Min(1.0f, crouch_factor + (bob_amount * bob_factor));
+            crouch_spring.vel += bob_factor * .1f;
         }
 
         crouch_factor += base_crouch_factor;
-        crouch_factor = crouch_spring.pos;
+        crouch_factor += crouch_spring.pos;
+
+        crouch_factor = Mathf.Max(-.7f, crouch_factor);
+        crouch_factor = Mathf.Min(1.0f, crouch_factor);
 
         left_leg.direction = vert;
         right_leg.direction = vert;
@@ -142,9 +147,15 @@ public class SceneCharacter3D : SceneCharacter
         if (!state.on_ground && Controller.isGrounded) {
             // Just landed
             Debug.Log(this.name + " Landed");
-            crouch_spring.vel = -state.velocity.y * 100f;
-
+            crouch_spring.vel = -state.velocity.y * 10f;
         }
+
+        if (Mathf.Abs(crouch_spring.pos) < .001) {
+            //crouch_spring.pos = 0;
+            //crouch_spring.vel = 0;
+        }
+
+        crouch_spring.calculate(Time.deltaTime);
         state.on_ground = Controller.isGrounded;
         state.forward_vector = fwd;
         InputTuple i = new InputTuple(forward, turn);
