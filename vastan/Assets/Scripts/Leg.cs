@@ -7,6 +7,7 @@ public class Leg : MonoBehaviour {
     public Transform top;
     public Transform bottom;
     public Transform foot;
+    public float speed;
 
     public bool on_ground = false;
     public float crouch_factor = 0;
@@ -129,17 +130,6 @@ public class Leg : MonoBehaviour {
         }
     }
 
-    public void change_wf_size(float new_size)
-    {
-        c = new_size;
-        var max = max_walkfunc_size_factor - (.5f * crouch_factor);
-        if (c > max) c = max;
-        else if (c < min_walkfunc_size_factor) {
-            c = min_walkfunc_size_factor;
-        }
-        recompute_wf_domain();
-    }
-
     void recompute_wf_x()
     {
         wf_x = ((float)Mathf.Abs(walk_seq_step) 
@@ -253,56 +243,39 @@ public class Leg : MonoBehaviour {
 
 	// called once per frame
 	void Update () {
-        // framerate independence
-        var c_dt = Time.deltaTime * 5.0f;
-        var offset_dt = Time.deltaTime * 5.0f;
-        var walk_seq_dt = Mathf.Max(Mathf.FloorToInt(Time.deltaTime * 1000f), 1);
-
+        float sp = speed * 10;
+        int walkstep_sp = Mathf.RoundToInt(speed * 180);
         if (walking) {
             if (direction > 0) {
                 // walkin forwards
-                increment_walk_seq_step(-walk_seq_dt);
-
-                offset_ratio -= offset_dt;
-                if (offset_ratio < -1) {
-                    offset_ratio = -1;
-                }
+                increment_walk_seq_step(-walkstep_sp);
             }
             else {
                 //walkin backwards
-                increment_walk_seq_step(walk_seq_dt);
-
-                offset_ratio += offset_dt;
-                if (offset_ratio > 1) {
-                    offset_ratio = 1;
-                }
+                increment_walk_seq_step(walkstep_sp);
             }
-
-            change_wf_size(c += c_dt);
         }
         else {
-            // not walking anymore
-            // move towards rest position
-            change_wf_size(c -= c_dt);
-            if (Mathf.Abs(offset_ratio) < offset_dt) {
-                offset_ratio = 0;
-            }
-            if (offset_ratio > 0) {
-                offset_ratio -= offset_dt;
-            }
-            if (offset_ratio < 0) {
-                offset_ratio += offset_dt;
-            }
-            if (Mathf.Abs(walk_seq_step) < walk_seq_dt) {
+            int return_step = Mathf.RoundToInt(Time.deltaTime * 1000f);
+            if (Mathf.Abs(walk_seq_step) < return_step) {
                 walk_seq_step = 0;
             }
             if (walk_seq_step > 0) {
-                walk_seq_step -= walk_seq_dt;
+                walk_seq_step -= return_step;
             }
             if (walk_seq_step < 0) {
-                walk_seq_step += walk_seq_dt;
+                walk_seq_step += return_step;
             }
         }
+
+        offset_ratio = Mathf.Clamp(speed * 10, 0, 1.0f);
+
+        c = Mathf.Clamp(
+            speed * 10, 
+            min_walkfunc_size_factor, 
+            max_walkfunc_size_factor - (.5f * crouch_factor));
+
+        recompute_wf_domain();
 
         var temp = hip.transform.localPosition;
         temp.z = hip_rest - (crouch_factor * crouch_dist);

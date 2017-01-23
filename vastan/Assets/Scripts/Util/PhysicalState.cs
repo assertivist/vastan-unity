@@ -39,7 +39,7 @@ public class WalkerPhysics : Integrator
             friction = .02f;
         }
 
-        var d = accel - v;
+        var d = new Vector3(accel.x, 0, accel.z) - v;
         if (d.magnitude > friction / 5f) {
             d = d.normalized;
             d *= friction * 70f;
@@ -49,13 +49,15 @@ public class WalkerPhysics : Integrator
         }
 
         if (!on_ground) {
-            d.y -= 9.8f;
+            accel.y = Mathf.Max(accel.y - 9.8f, -18.8f);
+
         }
         else {
             d.x -= momentum.x * friction * 5f;
             d.z -= momentum.z * friction * 5f;
-            d.y = 0;
         }
+
+        d.y = accel.y;
         return d;
     }
 
@@ -104,7 +106,7 @@ public class Integrator
     public Vector3 accel;
     public float spin;
     public float friction = .02f;
-    public float maxSpeed = 1f;
+    public float maxSpeed = 100f;
 
     public void recalculate() {
         velocity = momentum * (1f / mass);
@@ -176,9 +178,9 @@ public class DampenedSpring {
     const float epsilon = 0.0001f;
     public float pos = 0;
     public float vel = 0;
-    float stable_pos = 0;
-    float damping_ratio = .3f;
-    float angular_freq = 10f;
+    public float stable_pos = 0;
+    float damping_ratio = .7f;
+    float angular_freq = 18f;
 
     public DampenedSpring (float pos, float stable_pos) {
         this.pos = pos;
