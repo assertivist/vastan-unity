@@ -56,7 +56,7 @@ public class Leg : MonoBehaviour {
 
     // the maximum amount that these targets 
     // will get offset 
-    private float max_lean = .4f;
+    private float max_lean = .6f;
 
     // current ratio, -1 is full backwards
     // and 1 is full forwards. we move between
@@ -148,7 +148,7 @@ public class Leg : MonoBehaviour {
         float wf_y = ellipse(wf_x, up_step);
         Vector3 pos = new Vector3(wf_x, wf_y, 0f);
         // add lean offset
-        pos.x += (offset_ratio * -max_lean * -(crouch_factor * max_lean));
+        pos.x += -(offset_ratio * -max_lean) * direction;
         var transformed_pos = foot_ref.transform.TransformPoint(pos);
         if (!float.IsNaN(transformed_pos.x)) 
             wf_target.transform.position = transformed_pos; 
@@ -244,7 +244,7 @@ public class Leg : MonoBehaviour {
 	// called once per frame
 	void Update () {
         float sp = speed * 10;
-        int walkstep_sp = Mathf.RoundToInt(speed * 450);
+        int walkstep_sp = Mathf.RoundToInt(speed * 200);
         if (walking) {
             if (direction > 0) {
                 // walkin forwards
@@ -268,10 +268,10 @@ public class Leg : MonoBehaviour {
             }
         }
 
-        offset_ratio = Mathf.Clamp(sp, 0, 1.0f);
+        offset_ratio = Mathf.Clamp(sp * 2, 0, 1.0f);
 
         c = Mathf.Clamp(
-            sp, 
+            sp * 2, 
             min_walkfunc_size_factor, 
             max_walkfunc_size_factor - (.5f * crouch_factor));
 

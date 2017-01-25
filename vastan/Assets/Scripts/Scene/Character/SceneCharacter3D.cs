@@ -153,7 +153,7 @@ public class SceneCharacter3D : SceneCharacter
         if (!state.on_ground && Controller.isGrounded) {
             // Just landed
             Debug.Log(this.name + " Landed");
-            crouch_spring.vel = -state.velocity.y * 450f;
+            crouch_spring.vel = -state.velocity.y * 250f;
             state.velocity.y = 0;
             state.momentum.y = -0.1f;
             state.accel.y = 0;
