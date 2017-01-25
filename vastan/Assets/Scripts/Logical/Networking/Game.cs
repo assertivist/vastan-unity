@@ -183,9 +183,8 @@ public abstract class Game : MonoBehaviour
 
     public Dictionary<string, Dictionary<string,string>> getLevelInfoList()
     {
-        DirectoryInfo resources = new DirectoryInfo(Application.dataPath + "/Resources/");
-
-        FileInfo[] fileInfo = resources.GetFiles("*.*");
+        //DirectoryInfo resources = new DirectoryInfo(Application.dataPath + "/Resources/");
+        //FileInfo[] fileInfo = resources.GetFiles("*.xml");
 
         List<string> levelfiles =
         new List<string>{

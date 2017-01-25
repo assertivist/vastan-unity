@@ -9,7 +9,7 @@ public class VastanPlayer : NetworkBehaviour {
     public GameObject plasma_fab;
 
     private PlayerState ps;
-    private Look look;
+    //private Look look;
     private List<Leg> legs;
 
     public Transform cockpit;
@@ -21,7 +21,7 @@ public class VastanPlayer : NetworkBehaviour {
     // Use this for initialization
     void Start () {
 	    ps = GetComponent<PlayerState>();
-        look = cockpit.gameObject.GetComponent<Look>();
+        //look = cockpit.gameObject.GetComponent<Look>();
         legs = new List<Leg>(GetComponents<Leg>());
 
         

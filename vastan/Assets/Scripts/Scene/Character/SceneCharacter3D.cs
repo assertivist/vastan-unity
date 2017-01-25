@@ -52,8 +52,7 @@ public class SceneCharacter3D : SceneCharacter
         head_rest = head.transform.localPosition.z;
 
         state = new WalkerPhysics(155f, walker.transform.position, Vector3.zero, Vector3.zero, 0f);
-        var spring_rest = head.transform.position.y;
-        crouch_spring = new DampenedSpring(crouch_factor, crouch_factor);
+        crouch_spring = new DampenedSpring(crouch_factor);
     }
 
 
@@ -88,14 +87,13 @@ public class SceneCharacter3D : SceneCharacter
         //var crouch_dt = 5f * duration;
         if (jump) {
             //crouch_factor = Mathf.Min(1.0f - bob_amount, crouch_factor + crouch_dt);
-            crouch_spring.vel = 10f;
+            crouch_spring.vel += 400f * Time.deltaTime;
         }
         else {
             if (state.on_ground) {
                 if (crouch_spring.vel < -10) {
-
                     Debug.Log(crouch_spring.vel);
-                    state.accel.y = crouch_spring.vel * -11f;
+                    state.accel.y = Mathf.Max(crouch_spring.vel, -16f) * -25f;
                 }
             }
         }
@@ -123,13 +121,12 @@ public class SceneCharacter3D : SceneCharacter
             left_leg.walking = false;
             right_leg.walking = false;
         }
+
         float bob_factor = 0f;
         if (walking != 0) {
             bob_factor = Mathf.Abs(left_leg.walk_seq_step) / 300f;
         }
-
-
-        crouch_spring.stable_pos = 0f + base_crouch_factor;
+        crouch_spring.stable_pos = 0f + base_crouch_factor + (bob_factor * bob_amount);
         crouch_factor = crouch_spring.pos;
 
         crouch_factor = Mathf.Clamp(crouch_spring.pos, -1.0f, 1.2f);
@@ -156,7 +153,7 @@ public class SceneCharacter3D : SceneCharacter
         if (!state.on_ground && Controller.isGrounded) {
             // Just landed
             Debug.Log(this.name + " Landed");
-            crouch_spring.vel = -state.velocity.y * 100f;
+            crouch_spring.vel = -state.velocity.y * 450f;
             state.velocity.y = 0;
             state.momentum.y = -0.1f;
             state.accel.y = 0;

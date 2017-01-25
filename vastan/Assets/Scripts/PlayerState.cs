@@ -35,8 +35,8 @@ public class PlayerState : NetworkBehaviour {
 
     private PlayerUI sliders;
 
-    private float respawn = 0;
-    private float respawn_max = 10.0f;
+    //private float respawn = 0;
+    //private float respawn_max = 10.0f;
 
     void Start() {
         sliders = GameObject.Find("Canvas").GetComponent<PlayerUI>();

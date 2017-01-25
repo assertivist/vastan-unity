@@ -42,14 +42,14 @@ public class WalkerPhysics : Integrator
         var d = new Vector3(accel.x, 0, accel.z) - v;
         if (d.magnitude > friction / 5f) {
             d = d.normalized;
-            d *= friction * 70f;
+            d *= friction * 35f;
         } 
         else {
-            d *= friction * 70f;
+            d *= friction * 35f;
         }
 
         if (!on_ground) {
-            accel.y = Mathf.Max(accel.y - 9.8f, -18.8f);
+            accel.y = -9.8f;
 
         }
         else {
@@ -182,9 +182,9 @@ public class DampenedSpring {
     float damping_ratio = .7f;
     float angular_freq = 18f;
 
-    public DampenedSpring (float pos, float stable_pos) {
-        this.pos = pos;
-        this.stable_pos = stable_pos;
+    public DampenedSpring (float init_pos) {
+        pos = init_pos;
+        stable_pos = init_pos;
     }
 
     public void calculate(float dt) {

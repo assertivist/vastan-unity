@@ -244,7 +244,7 @@ public class Leg : MonoBehaviour {
 	// called once per frame
 	void Update () {
         float sp = speed * 10;
-        int walkstep_sp = Mathf.RoundToInt(speed * 180);
+        int walkstep_sp = Mathf.RoundToInt(speed * 450);
         if (walking) {
             if (direction > 0) {
                 // walkin forwards
@@ -268,10 +268,10 @@ public class Leg : MonoBehaviour {
             }
         }
 
-        offset_ratio = Mathf.Clamp(speed * 10, 0, 1.0f);
+        offset_ratio = Mathf.Clamp(sp, 0, 1.0f);
 
         c = Mathf.Clamp(
-            speed * 10, 
+            sp, 
             min_walkfunc_size_factor, 
             max_walkfunc_size_factor - (.5f * crouch_factor));
 
