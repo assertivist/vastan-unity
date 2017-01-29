@@ -1,1 +1,1 @@
-language: objective-cosx_image: xcode61rvm:    - 2.1.2install:    - curl -o Unity.pkg http://download.unity3d.com/download_unity/5a3967d8c55d/MacEditorInstaller/Unity-5.4.4f1.pkg    - sudo installer -dumplog -package Unity.pkg -target /script:    - ./build.sh
+language: objective-cosx_image: xcode61rvm:    - 2.1.2install:    - git clone https://github.com/sttz/install-unity	- ./install-unity/install-unity.py --package Unity 5.4.4	- ./install-unity/install-unity.py --package Linux --package Windows 5.4.4script:    - ./build.sh
