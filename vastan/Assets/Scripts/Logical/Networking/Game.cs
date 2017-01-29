@@ -3,7 +3,7 @@ using System.IO;
 using ServerSideCalculations;
 using ServerSideCalculations.Characters;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+//using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Game functionality used by both Client and Server
@@ -91,7 +91,8 @@ public abstract class Game : MonoBehaviour
 		}
 		
 		CurrentGameState = GameStates.MainMenu;
-        SceneManager.LoadScene("level_scene");
+        //SceneManager.LoadScene("level_scene");
+        Application.LoadLevel("level_scene");
 	}
 
 

@@ -6,7 +6,7 @@ using ServerSideCalculations.Characters;
 using ServerSideCalculations.Networking;
 using UnityEngine;
 using System.Linq;
-using UnityEngine.SceneManagement;
+//using UnityEngine.SceneManagement;
 
 public class GameClient : Game
 {
@@ -418,8 +418,8 @@ public class GameClient : Game
         // All network views loaded from a level will get a prefix into their NetworkViewID.
         // This will prevent old updates from clients leaking into a newly created scene.
         Network.SetLevelPrefix(levelPrefix);
-        //Application.LoadLevel (level);
-        SceneManager.LoadScene("level_scene");
+        Application.LoadLevel (level);
+        //SceneManager.LoadScene("level_scene");
         GameLevelFile = level;
 
         // Allow receiving data again
