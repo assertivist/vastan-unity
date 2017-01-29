@@ -56,7 +56,7 @@ public class Leg : MonoBehaviour {
 
     // the maximum amount that these targets 
     // will get offset 
-    private float max_lean = .6f;
+    private float max_lean = .35f;
 
     // current ratio, -1 is full backwards
     // and 1 is full forwards. we move between
@@ -244,7 +244,7 @@ public class Leg : MonoBehaviour {
 	// called once per frame
 	void Update () {
         float sp = speed * 10;
-        int walkstep_sp = Mathf.RoundToInt(speed * 200);
+        int walkstep_sp = Mathf.RoundToInt(speed * 320f);
         if (walking) {
             if (direction > 0) {
                 // walkin forwards

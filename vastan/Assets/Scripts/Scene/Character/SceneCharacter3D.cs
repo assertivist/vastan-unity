@@ -88,14 +88,21 @@ public class SceneCharacter3D : SceneCharacter
         if (jump) {
             //crouch_factor = Mathf.Min(1.0f - bob_amount, crouch_factor + crouch_dt);
             crouch_spring.vel += 400f * Time.deltaTime;
+            will_jump = true;
         }
         else {
             if (state.on_ground) {
-                if (crouch_spring.vel < -10) {
+                if (crouch_spring.vel < -6.5f) {
                     Debug.Log(crouch_spring.vel);
-                    state.accel.y = Mathf.Max(crouch_spring.vel, -16f) * -25f;
+                    // bounce 
+                    var j = crouch_spring.vel;
+                    if (will_jump) { // limit maximum jumping
+                        Mathf.Max(crouch_spring.vel, -9f);
+                    }
+                    state.accel.y = j * -150f;
                 }
             }
+            will_jump = false;
         }
 
         var vert = forward;
@@ -153,7 +160,7 @@ public class SceneCharacter3D : SceneCharacter
         if (!state.on_ground && Controller.isGrounded) {
             // Just landed
             Debug.Log(this.name + " Landed");
-            crouch_spring.vel = -state.velocity.y * 250f;
+            crouch_spring.vel = -state.velocity.y * 100f;
             state.velocity.y = 0;
             state.momentum.y = -0.1f;
             state.accel.y = 0;
@@ -165,7 +172,7 @@ public class SceneCharacter3D : SceneCharacter
         state.on_ground = Controller.isGrounded;
         state.forward_vector = fwd;
         InputTuple i = new InputTuple(forward, turn);
-        state.integrate(Time.fixedTime - Time.deltaTime, Time.deltaTime, i);
+        state.integrate(Time.fixedTime, Time.deltaTime, i);
         
         transform.localEulerAngles = new Vector3(0, state.angle, 0);
 
@@ -180,6 +187,7 @@ public class SceneCharacter3D : SceneCharacter
 	}
 
     public Vector2 clampInDegrees = new Vector2(194, 84);
+    private bool will_jump;
 
     // Turn/tilt the player's head as needed
     public void Look (float yawAmount, float pitchAmount)

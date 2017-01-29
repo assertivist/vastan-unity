@@ -27,7 +27,7 @@ public class WalkerPhysics : Integrator
 
     }
 
-    public override Vector3 acceleration(InputTuple i) {
+    public override Vector3 acceleration(float dt, InputTuple i) {
 
         var v = get_forward() * i.forward;
 
@@ -42,27 +42,26 @@ public class WalkerPhysics : Integrator
         var d = new Vector3(accel.x, 0, accel.z) - v;
         if (d.magnitude > friction / 5f) {
             d = d.normalized;
-            d *= friction * 35f;
+            d *= friction * 22000f * dt;
         } 
         else {
-            d *= friction * 35f;
+            d *= friction * 22000f * dt;
         }
 
         if (!on_ground) {
-            accel.y = -9.8f;
-
+            accel.y = -9800f * dt;
         }
         else {
-            d.x -= momentum.x * friction * 5f;
-            d.z -= momentum.z * friction * 5f;
+            d.x -= momentum.x * friction * 2500f * dt;
+            d.z -= momentum.z * friction * 2500f * dt;
         }
 
         d.y = accel.y;
         return d;
     }
 
-    public override float torque (InputTuple i) {
-        spin = i.turn * 40f;
+    public override float torque (float dt, InputTuple i) {
+        spin = i.turn * 6000f * dt;
         return spin;
     }
 
@@ -123,7 +122,7 @@ public class Integrator
     }
 
     private Derivative evaluate1(float t, InputTuple i) {
-        return new Derivative(velocity, acceleration(i), torque(i));
+        return new Derivative(velocity, acceleration(0, i), torque(0,i));
     }
 
     private Derivative evaluate2(float t, float dt, Derivative d, InputTuple i) {
@@ -132,12 +131,10 @@ public class Integrator
         var a = angle + d.torque * dt;
         var s = new Integrator(mass, p, Vector3.zero, m, a);
         s.recalculate();
-        return new Derivative(s.velocity, acceleration(i), torque(i));
+        return new Derivative(s.velocity, acceleration(dt, i), torque(dt, i));
     }
 
-    public void integrate(float current_t, float dt, InputTuple i) {
-        t = current_t;
-
+    public void integrate(float t, float dt, InputTuple i) {
         var a = evaluate1(t, i);
         var b = evaluate2(t, dt * .05f, a, i);
         var c = evaluate2(t, dt * .05f, b, i);
@@ -155,8 +152,8 @@ public class Integrator
     }
 
     
-    public virtual float torque(InputTuple i) { return 0; }
-    public virtual Vector3 acceleration(InputTuple i) { return Vector3.zero; }
+    public virtual float torque(float dt, InputTuple i) { return 0; }
+    public virtual Vector3 acceleration(float dt, InputTuple i) { return Vector3.zero; }
 
     public static Integrator interpolate(Integrator previous_state, Integrator new_state, float alpha) {
         var int_state = new_state;
