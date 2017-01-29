@@ -1,1 +1,12 @@
-language: objective-cosx_image: xcode61rvm:    - 2.1.2install:    - curl -o Unity.pkg http://download.unity3d.com/download_unity/5a3967d8c55d/MacEditorInstaller/Unity-5.4.4f1.pkg    - sudo installer -dumplog -package Unity.pkg -target /script:    - ./build.sh
+language: objective-c
+osx_image: xcode61
+rvm:
+- 2.1.2
+install:
+- curl -o Unity.pkg http://download.unity3d.com/download_unity/5a3967d8c55d/MacEditorInstaller/Unity-5.4.4f1.pkg
+- sudo installer -dumplog -package Unity.pkg -target /
+script:
+- "./build.sh"
+before_install:
+- openssl aes-256-cbc -K $encrypted_c0435a387948_key -iv $encrypted_c0435a387948_iv
+  -in deploy_rsa.enc -out deploy_rsa -d
