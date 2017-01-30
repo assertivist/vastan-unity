@@ -1,9 +1,5 @@
 language: objective-c
 osx_image: xcode61
-env:
-  - package_dir=$TRAVIS_BUILD_DIR/Package/
-  - deploy_target="vastan@vastan.net:/home/vastan/public_html/release"
-  - rsync_command=rsync -r --delete-after -e 'ssh -o StrictHostKeyChecking=no'
 rvm:
   - 2.1.2
 install:
@@ -20,11 +16,11 @@ before_deploy:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: $rsync_command $package_dir $deploy_target/development
+    script: ./deploy.sh development
     on:
       branch: development
   - provider: script
     skip_cleanup: true
-    script: $rsync_command $package_dir $deploy_target/production
+    script: ./deploy.sh production
     on:
       branch: master
