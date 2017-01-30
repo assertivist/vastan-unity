@@ -7,6 +7,7 @@ options="-batchmode -nographics -silent-crashes -projectPath $(pwd)/$project"
 workspace="$(pwd)/Build"
 packages="$(pwd)/Package"
 myhome="$(pwd)"
+commit=`echo $TRAVIS_COMMIT | tail -c 7`
 
 mkdir $workspace
 mkdir $packages
@@ -25,7 +26,7 @@ build_for_target()
     -quit
 
   cd $workspace
-  zip -r9 $packages/$project-$target-$TRAVIS_COMMIT.zip $target
+  zip -r9 $packages/$project-$target-$commit.zip $target
   cd $myhome
 }
 
