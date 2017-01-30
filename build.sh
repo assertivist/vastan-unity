@@ -8,8 +8,8 @@ workspace="$(pwd)/Build"
 packages="$(pwd)/Package"
 myhome="$(pwd)"
 
-mkdir workspace
-mkdir packages
+mkdir $workspace
+mkdir $packages
 
 build_for_target()
 {
