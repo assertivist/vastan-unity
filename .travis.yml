@@ -20,4 +20,4 @@ deploy:
   skip_cleanup: true
   script: rsync -r --delete-after $TRAVIS_BUILD_DIR/Build/ vastan@vastan.net:/home/vastan/public_html/release/development
   on:
-    branch: dev
+    branch: development
