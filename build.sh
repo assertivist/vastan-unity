@@ -31,6 +31,6 @@ echo "Attempting to build $project for Linux"
   -projectPath $(pwd)/$project \
   -buildLinuxUniversalPlayer "$(pwd)/Build/linux/$project.exe" \
   -quit
-  
-find .
+
+find ./Build/
 

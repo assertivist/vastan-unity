@@ -4,10 +4,12 @@ rvm:
   - 2.1.2
 install:
   - git clone https://github.com/sttz/install-unity
-  - sudo ./install-unity/install-unity.py --package Unity 5.4.4
-  - sudo ./install-unity/install-unity.py --package Linux --package Windows 5.4.4
+  #- sudo ./install-unity/install-unity.py --package Unity 5.4.4
+  #- sudo ./install-unity/install-unity.py --package Linux --package Windows 5.4.4
 script:
-  - ./build.sh
+  #- ./build.sh
+  - mkdir Build
+  - touch Build/testfile
 before_deploy:
   - openssl aes-256-cbc -K $encrypted_c0435a387948_key -iv $encrypted_c0435a387948_iv -in deploy_rsa.enc -out deploy_rsa -d
   - eval "$(ssh-agent -s)"
@@ -17,4 +19,5 @@ deploy:
   provider: script
   skip_cleanup: true
   script: rsync -r --delete-after $TRAVIS_BUILD_DIR/Build/ vastan@vastan.net:/home/vastan/public_html/release/development
-  all_branches: true
+  on:
+    branch: dev
