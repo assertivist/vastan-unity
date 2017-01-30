@@ -6,7 +6,7 @@ before_install:
   - openssl aes-256-cbc -K $encrypted_c0435a387948_key -iv $encrypted_c0435a387948_iv -in deploy_rsa.enc -out deploy_rsa -d
 install:
   - git clone https://github.com/sttz/install-unity
-  - ./install-unity/install-unity.py --package Unity 5.4.4
-  - ./install-unity/install-unity.py --package Linux --package Windows 5.4.4
+  - sudo ./install-unity/install-unity.py --package Unity 5.4.4
+  - sudo ./install-unity/install-unity.py --package Linux --package Windows 5.4.4
 script:
   - ./build.sh

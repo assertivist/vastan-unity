@@ -12,7 +12,7 @@ echo "Attempting to build $project for Windows"
   -buildWindowsPlayer "$(pwd)/Build/windows/$project.exe" \
   -quit
 
-echo 'Logs from build'
+echo 'Logs from WINDOWS build'
 cat $(pwd)/unity.log
 
 echo "Attempting to build $project for OS X"
@@ -25,7 +25,7 @@ echo "Attempting to build $project for OS X"
   -buildOSXUniversalPlayer "$(pwd)/Build/osx/$project.app" \
   -quit
 
-echo 'Logs from build'
+echo 'Logs from MAC build'
 cat $(pwd)/unity.log
 
 echo "Attempting to build $project for Linux"
@@ -38,5 +38,6 @@ echo "Attempting to build $project for Linux"
   -buildLinuxUniversalPlayer "$(pwd)/Build/linux/$project.exe" \
   -quit
 
-echo 'Logs from build'
+echo 'Logs from LINUX build'
+find .
 cat $(pwd)/unity.log
