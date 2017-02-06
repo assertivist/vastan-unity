@@ -5,6 +5,9 @@ using System.Linq;
 public class WalkerTest : MonoBehaviour {
     public GameObject walker;
     public GameObject floor;
+    public Camera cam;
+    public GameObject side_spot;
+    private bool cam_is_static = true;
     private SceneCharacter3D walker_char;
 
     Vector2 _smoothMouse;
@@ -72,5 +75,31 @@ public class WalkerTest : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.E)) {
             walker_char.state.accel.y += 100;
         }
+
+        if (Input.GetKeyDown(KeyCode.Tab)) {
+            if (cam_is_static) {
+                attach_cam_to_walker(walker_char);
+            }
+            else {
+                cam.transform.position = side_spot.transform.position;
+                cam.transform.eulerAngles = new Vector3(0, 90, 0);
+                cam.transform.SetParent(side_spot.transform);
+            }
+            cam_is_static = !cam_is_static;
+        }
+    }
+
+    void attach_cam_to_walker(SceneCharacter3D walker) {
+        cam.transform.position = walker.head.transform.position;
+        cam.transform.rotation = walker.head.transform.rotation;
+        var angles = cam.transform.eulerAngles;
+        angles.z -= 90;
+        cam.transform.eulerAngles = angles;
+
+        var pos = cam.transform.position;
+        pos += walker.state.forward_vector * .3f;
+        cam.transform.position = pos;
+
+        cam.transform.SetParent(walker.head.transform);
     }
 }
