@@ -32,6 +32,9 @@ public class SceneCharacter3D : SceneCharacter
 
     int walking = 0;
 
+    public float jump_factor = 90f;
+    public float spring_body_conversion = 100f;
+
 
     // Use this for initialization
     public void Start() {
@@ -85,25 +88,7 @@ public class SceneCharacter3D : SceneCharacter
         //crouch_factor -= base_crouch_factor;
 
         //var crouch_dt = 5f * duration;
-        if (jump) {
-            //crouch_factor = Mathf.Min(1.0f - bob_amount, crouch_factor + crouch_dt);
-            crouch_spring.vel += 400f * Time.deltaTime;
-            will_jump = true;
-        }
-        else {
-            if (state.on_ground) {
-                if (crouch_spring.vel < -6.5f) {
-                    Debug.Log(crouch_spring.vel);
-                    // bounce 
-                    var j = crouch_spring.vel;
-                    if (will_jump) { // limit maximum jumping
-                        Mathf.Max(crouch_spring.vel, -9f);
-                    }
-                    state.accel.y = j * -150f;
-                }
-            }
-            will_jump = false;
-        }
+        
 
         var vert = forward;
 
@@ -157,15 +142,37 @@ public class SceneCharacter3D : SceneCharacter
         fwd = this.transform.TransformDirection(fwd);
         
         var previous_pos = state.pos;
+
+        if (jump) {
+            //crouch_factor = Mathf.Min(1.0f - bob_amount, crouch_factor + crouch_dt);
+            crouch_spring.vel += 400f * Time.deltaTime;
+            will_jump = true;
+        }
+        else {
+            if (state.on_ground && state.accel.y < .3) {
+                if (crouch_spring.vel < -8.5f) {
+                    Debug.Log(crouch_spring.vel);
+                    // bounce 
+                    var j = crouch_spring.vel;
+                    if (will_jump) { // limit maximum jumping
+                        Mathf.Max(crouch_spring.vel, -9f);
+                    }
+                    state.accel.y = 900f;// jump_factor;
+                    state.momentum.y = .5f;
+                    //state.on_ground = false;
+                }
+            }
+            will_jump = false;
+        }
+
         if (!state.on_ground && Controller.isGrounded) {
             // Just landed
             Debug.Log(this.name + " Landed");
-            crouch_spring.vel = -state.velocity.y * 100f;
+            crouch_spring.vel = -state.velocity.y * spring_body_conversion;
             state.velocity.y = 0;
             state.momentum.y = -0.1f;
             state.accel.y = 0;
 
-            //state.pos.y = Controller.transform.position.y;
         }
 
         crouch_spring.calculate(Time.deltaTime);
@@ -178,7 +185,7 @@ public class SceneCharacter3D : SceneCharacter
 
         var tp = head.transform.position;
         tp.y -= .5f;
-        Debug.DrawLine(tp, tp + (state.velocity * 10), Color.red);
+        Debug.DrawLine(tp, tp + (state.velocity * 100), Color.red);
         Debug.DrawLine(tp, tp + (state.accel * 10), Color.cyan);
         Debug.DrawLine(tp, tp + (state.momentum * .1f), Color.black);
         var move = (previous_pos - state.pos);

@@ -555,6 +555,21 @@ public class GameServer : Game
     public bool TargetMoved = false;
 
     [RPC]
+    public void RequestProjectile(NetworkMessageInfo info) {
+        if (!IsActive) return;
+        var attacker_player = Players[info.sender.guid];
+        Character attacker = attacker_player.BaseCharacter;
+        SceneCharacter scene_attacker = SceneCharacters[attacker.Id];
+
+        var can_fire = false;
+
+        if (can_fire) {
+            GetComponent<NetworkView>().RPC("InstantiateProjectile", RPCMode.Others, attacker.Id);
+        }
+        
+    }
+
+    [RPC]
     // 14: Server processes attack request
     public void RequestAttack(NetworkMessageInfo info)
     {

@@ -8,8 +8,7 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.SceneManagement;
 
-public class GameClient : Game
-{
+public class GameClient : Game {
 
     #region Attributes
 
@@ -25,6 +24,7 @@ public class GameClient : Game
     public string GameLevelFile;
 
     public List<Character> CharactersToInstantiate = new List<Character>();
+    public List<Projectile> ProjectilesToInstantiate = new List<Projectile>();
 
     public Dictionary<int, ControlCommand> ControlCommands { get; set; }
     public int CurrentControlCommandId { get; set; }
@@ -35,8 +35,7 @@ public class GameClient : Game
 
     #region Initialization
 
-    new void Start()
-    {
+    new void Start() {
         base.Start();
 
         ControlCommands = new Dictionary<int, ControlCommand>();
@@ -60,21 +59,17 @@ public class GameClient : Game
     /// <summary>
     /// Update is called once per frame
     /// </summary>
-    void Update()
-    {
-        if (!IsActive)
-        {
+    void Update() {
+        if (!IsActive) {
             return;
         }
 
         Debug.Log("Level: " + Application.loadedLevelName + "\n MyCharacterx: " + MyCharacter);
-        if (MyCharacter == null || Application.loadedLevelName == MainMenuScene)
-        {
+        if (MyCharacter == null || Application.loadedLevelName == MainMenuScene) {
             return;
         }
 
-        if (SceneInformation == null)
-        {
+        if (SceneInformation == null) {
             LoadSceneInfo();
             GameLevel = new Level();
             GameLevel.load(GameLevelFile);
@@ -84,18 +79,15 @@ public class GameClient : Game
 
 
 
-        if (CharactersToInstantiate.Count > 0)
-        {
-            foreach (var character in CharactersToInstantiate)
-            {
+        if (CharactersToInstantiate.Count > 0) {
+            foreach (var character in CharactersToInstantiate) {
                 InstantiateSceneCharacter(character);
             }
 
             CharactersToInstantiate.Clear();
         }
 
-        if (MyPlayer == null && SceneCharacters != null && SceneCharacters.ContainsKey(MyCharacter.Id))
-        {
+        if (MyPlayer == null && SceneCharacters != null && SceneCharacters.ContainsKey(MyCharacter.Id)) {
             MyPlayer = SceneCharacters[MyCharacter.Id];
             MyPlayer.Client = this;
             MyPlayer.BaseCharacter = MyCharacter;
@@ -105,8 +97,7 @@ public class GameClient : Game
         }
 
         if (CurrentGameState != GameStates.LevelLoaded ||
-            MyPlayer == null)
-        {
+            MyPlayer == null) {
             return;
         }
 
@@ -125,8 +116,7 @@ public class GameClient : Game
     public float TimeRoundLastReceived { get; set; }
 
     [RPC]
-    public void NewRound(int newRound)
-    {
+    public void NewRound(int newRound) {
         //8A: Client takes note of the new round and time that it was received
         RoundLastReceived = newRound;
         TimeRoundLastReceived = Time.time;
@@ -142,8 +132,7 @@ public class GameClient : Game
 
     //TODO: This may just need to have jump in it...
     [RPC]
-    public void UpdateCharacter(int charId, Vector3 position, Vector3 direction, Vector3 moveDirection, Quaternion headRot)
-    {
+    public void UpdateCharacter(int charId, Vector3 position, Vector3 direction, Vector3 moveDirection, Quaternion headRot) {
         ////Debug.Log ("Update called for " + charId + " at " + position.x + ", " + position.y + ", " + position.z);
 
         // Don't update self if using client-side prediction
@@ -151,8 +140,7 @@ public class GameClient : Game
             || MyPlayer == null
             || (ClientSidePredition && charId.Equals(((Character)MyPlayer).Id))
             || !SceneCharacters.ContainsKey(charId)
-            )
-        {
+            ) {
             return;
         }
 
@@ -163,16 +151,14 @@ public class GameClient : Game
         // TODO: fix this to call a special method just updating the legs
         character.GetComponent<SceneCharacter3D>().Move(1f, 0f, Time.deltaTime, false);
 
-        if (!CharacterInterpolation)
-        {
+        if (!CharacterInterpolation) {
             character.transform.position = position;
             character.transform.forward = direction;
             return;
         }
 
         // 7A) Store the character state from the server
-        if (CharacterIntendedStates.ContainsKey(charId))
-        {
+        if (CharacterIntendedStates.ContainsKey(charId)) {
             CharacterIntendedStates.Remove(charId);
             CharacterPositionDiffs.Remove(charId);
             CharacterDirectionDiffs.Remove(charId);
@@ -200,8 +186,7 @@ public class GameClient : Game
     }
 
     [RPC]
-    public void UpdateCharacterName(int charId, byte[] name)
-    {
+    public void UpdateCharacterName(int charId, byte[] name) {
         SceneCharacter character = SceneCharacters[charId];
         string player_name = (string)name.Deserialize();
         character.name = player_name;
@@ -219,10 +204,8 @@ public class GameClient : Game
     public Dictionary<int, Vector3> CharacterDirectionDiffs { get; set; }
 
     // 7D: Move each character closer toward its intended location
-    public void InterpolateCharacters()
-    {
-        foreach (int charId in CharacterIntendedStates.Keys)
-        {
+    public void InterpolateCharacters() {
+        foreach (int charId in CharacterIntendedStates.Keys) {
             SceneCharacter character = SceneCharacters[charId];
             float portionOfDiffToMove = Mathf.Min(Time.deltaTime / ROUND_LENGTH, 1f);
 
@@ -267,17 +250,14 @@ public class GameClient : Game
     private int LastCorrectionRespondedTo;
 
     // 11: Valdidate the player character's position with the server
-    private void ValidateMyPosition()
-    {
-        if (MyPlayer.MissingController() || !PositionCorrection)
-        {
+    private void ValidateMyPosition() {
+        if (MyPlayer.MissingController() || !PositionCorrection) {
             return;
         }
 
         ////Debug.Log ("Current speed: " + MyPlayer.GetCurrentSpeed ());
         // 11A: Make a validation requests multiple times per second as long as the player is moving
-        if (MyPlayer.GetCurrentSpeed() >= .1 && Time.time >= (LastTimeValidatedPosition + ValidatePositionInterval))
-        {
+        if (MyPlayer.GetCurrentSpeed() >= .1 && Time.time >= (LastTimeValidatedPosition + ValidatePositionInterval)) {
             //Debug.Log( "Validating my position @ " + Time.time );
             Debug.Log("Validating my position " + MyPlayer.GetCurrentSpeed());
             GetComponent<NetworkView>().RPC("ValidatePosition", RPCMode.Server, LastCorrectionRespondedTo, CurrentControlCommandId, MyPlayer.transform.position, MyPlayer.transform.forward);
@@ -290,8 +270,7 @@ public class GameClient : Game
 	 * 12: Reposition the player to match the server
 	*/
     [RPC]
-    public void CorrectPosition(int lastControlCommandApplied, Vector3 correctPosition, Vector3 correctMomentum, Vector3 correctDirection)
-    {
+    public void CorrectPosition(int lastControlCommandApplied, Vector3 correctPosition, Vector3 correctMomentum, Vector3 correctDirection) {
         ////Debug.Log (MyPlayer.networkView.viewID + ") " + "Correcting my position");
         LastCorrectionRespondedTo = lastControlCommandApplied;
 
@@ -301,8 +280,7 @@ public class GameClient : Game
 
         // 12B: Make up for control commands which were sent between when the server sent the correction and now
         ////Debug.Log (MyPlayer.networkView.viewID + ") " + "Applying missing commands, starting with " + (lastControlCommandApplied + 1) + ", up to " + CurrentControlCommandId);
-        while (ControlCommands.ContainsKey(lastControlCommandApplied + 1))
-        {
+        while (ControlCommands.ContainsKey(lastControlCommandApplied + 1)) {
             Debug.Log(MyPlayer.GetComponent<NetworkView>().viewID + ") " + "Applying CC " + lastControlCommandApplied + 1);
             MyPlayer.ExecuteControlCommand(ControlCommands[lastControlCommandApplied + 1]);
             lastControlCommandApplied++;
@@ -317,8 +295,7 @@ public class GameClient : Game
     #region Connection
 
     // What to do when we connect to a server
-    public void OnConnectedToServer()
-    {
+    public void OnConnectedToServer() {
 
         Debug.Log("Sucessfully connected to Server");
 
@@ -326,23 +303,19 @@ public class GameClient : Game
         //nv.RPC("ClientColor", RPCMode.Server, MyColor);
         //nv.RPC("ClientName", RPCMode.Server, MyName.Serialize());
 
-        if (!IsActive)
-        {
+        if (!IsActive) {
             return;
         }
 
         // Notify our objects that the level and the network is ready
-        foreach (GameObject go in FindObjectsOfType(typeof(GameObject)))
-        {
+        foreach (GameObject go in FindObjectsOfType(typeof(GameObject))) {
             go.SendMessage("OnNetworkLoadedLevel", SendMessageOptions.DontRequireReceiver);
         }
     }
 
     [RPC]
-    public void PlayerDisconnected(int id)
-    {
-        if (CharacterIntendedStates.ContainsKey(id))
-        {
+    public void PlayerDisconnected(int id) {
+        if (CharacterIntendedStates.ContainsKey(id)) {
             CharacterIntendedStates.Remove(id);
         }
 
@@ -358,11 +331,14 @@ public class GameClient : Game
     #region Character Data
 
     [RPC]
-    public void InitNewSceneCharacter(byte[] characterData)
-    {
-        CharactersToInstantiate.Add((Character)characterData.Deserialize());
+    public void ReceiveProjectile(int type, int attacker) {
+        ProjectilesToInstantiate.Add(new Projectile(type));
     }
 
+    [RPC]
+    public void InitNewSceneCharacter(byte[] characterData) {
+        CharactersToInstantiate.Add((Character)characterData.Deserialize());
+    }
 
     // 4C: Assign the player's character the tag of "Player" so the client know which one to follow
     [RPC]
