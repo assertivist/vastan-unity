@@ -561,6 +561,8 @@ public class GameServer : Game
         Character attacker = attacker_player.BaseCharacter;
         SceneCharacter scene_attacker = SceneCharacters[attacker.Id];
 
+
+
         var can_fire = false;
 
         if (can_fire) {

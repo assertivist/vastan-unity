@@ -47,11 +47,6 @@ public class SceneCharacter3D : SceneCharacter
 
         targetDirection = head.transform.localRotation.eulerAngles;
         targetDirection.y += 90;
-        /*
-        var legs = walker.GetComponents<Leg>();
-        left_leg = legs[0];
-        right_leg = legs[1];
-        */
         head_rest = head.transform.localPosition.z;
 
         state = new WalkerPhysics(155f, walker.transform.position, Vector3.zero, Vector3.zero, 0f);
@@ -78,18 +73,10 @@ public class SceneCharacter3D : SceneCharacter
 	*/
 	public void Move (float forward, float turn, float duration, bool jump)
 	{
-		if (jump) {
-			//((Character)this).AttemptJump ();
-		}
-		
 		if (Controller == null) {
 			return;
+
 		}
-        //crouch_factor -= base_crouch_factor;
-
-        //var crouch_dt = 5f * duration;
-        
-
         var vert = forward;
 
         if (vert > 0 && walking == 0) {
@@ -170,7 +157,7 @@ public class SceneCharacter3D : SceneCharacter
             Debug.Log(this.name + " Landed");
             crouch_spring.vel = -state.velocity.y * spring_body_conversion;
             state.velocity.y = 0;
-            state.momentum.y = -0.1f;
+            // state.momentum.y = -0.1f * state.momentum.y * Time.deltaTime;
             state.accel.y = 0;
 
         }
