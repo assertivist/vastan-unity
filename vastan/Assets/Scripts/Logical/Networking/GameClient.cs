@@ -277,6 +277,10 @@ public class GameClient : Game {
         // 12A: Reposition the player to match when the server sent the correction 
         MyPlayer.transform.position = correctPosition;
         MyPlayer.transform.forward = correctDirection;
+        SceneCharacter3D p = (SceneCharacter3D)MyPlayer;
+        p.state.pos = correctPosition;
+        p.state.momentum = correctMomentum;
+        // p.state.forward_vector = correctDirection;
 
         // 12B: Make up for control commands which were sent between when the server sent the correction and now
         ////Debug.Log (MyPlayer.networkView.viewID + ") " + "Applying missing commands, starting with " + (lastControlCommandApplied + 1) + ", up to " + CurrentControlCommandId);

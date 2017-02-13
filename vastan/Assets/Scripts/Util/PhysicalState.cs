@@ -2,6 +2,7 @@
 using UnityEngine;
 
 
+
 public class InputTuple
 {
     public float forward;
@@ -227,9 +228,6 @@ public class DampenedSpring {
             pos = stable_pos + exp_term * (c1 * cos_term + c2 * sin_term);
             vel = -exp_term * ((c1 * omega_zeta - c2 * alpha) * cos_term +
                 (c1 * alpha + c2 * omega_zeta) * sin_term);
-
         }
-
-
     }
 }

@@ -523,7 +523,8 @@ public class GameServer : Game
 
             // Send the current position
             // If we send the correction to the old position, it forces the client to apply more contorl commands on its own, creating a larger margin of error
-            GetComponent<NetworkView>().RPC("CorrectPosition", info.sender, player.LastControlNumApplied, player.InGameCharacter.transform.position, new Vector3(), player.InGameCharacter.transform.forward);
+            SceneCharacter3D scenechar = (SceneCharacter3D)player.InGameCharacter;
+            GetComponent<NetworkView>().RPC("CorrectPosition", info.sender, player.LastControlNumApplied, player.InGameCharacter.transform.position, scenechar.state.momentum, player.InGameCharacter.transform.forward);
         }
         #endregion 11D
     }

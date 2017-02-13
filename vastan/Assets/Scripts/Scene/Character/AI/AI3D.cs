@@ -7,15 +7,22 @@ using System.Collections.Generic;
 
 public class AI3D : SceneCharacter3D, IArtificialIntelligence
 {
+    
 	public SceneCharacter Target { get; set; }
 
 	public GameServer Server { get; set; }
+
+    public new WalkerPhysics state;
 
 	public SceneCharacter GetSceneChar ()
 	{
 		return this; 
 	}
-
+    new void Start () {
+        state = new WalkerPhysics(100, transform.position, Vector3.zero, Vector3.zero, 0);
+        //fwd = Vector3.zero;
+        base.Start();
+    }
 	// Update is called once per frame
 	void Update ()
 	{

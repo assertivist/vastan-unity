@@ -10,7 +10,7 @@ public class SceneCharacter3D : SceneCharacter
     public GameObject walker;
     private SceneCharacter3D walker_char;
 
-    public WalkerPhysics state;
+    new public WalkerPhysics state;
     public DampenedSpring crouch_spring;
 
     public Leg left_leg;
@@ -124,9 +124,8 @@ public class SceneCharacter3D : SceneCharacter
         var temp = head.transform.localPosition;
         temp.z = head_rest - crouch_factor * crouch_dist;
         head.transform.localPosition = temp;
-
-        var fwd = Vector3.forward;
-        fwd = this.transform.TransformDirection(fwd);
+        
+        var fwd = this.transform.TransformDirection(Vector3.forward);
         
         var previous_pos = state.pos;
 
