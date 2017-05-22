@@ -19,7 +19,7 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
 		return this; 
 	}
     new void Start () {
-        state = new WalkerPhysics(100, transform.position, Vector3.zero, Vector3.zero, 0);
+        state = new WalkerPhysics(100, transform, Vector3.zero, Vector3.zero, 0);
         //fwd = Vector3.zero;
         base.Start();
     }

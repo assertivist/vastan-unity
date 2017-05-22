@@ -89,7 +89,7 @@ public abstract class SceneCharacter : MonoBehaviour
 		return new ObjectState (
 			BaseCharacter.Id, 
 			this.transform.position, 
-			this.transform.forward,
+			((SceneCharacter3D)this).state.forward_vector,
             this.HeadRot);
 	}
 	

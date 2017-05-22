@@ -49,7 +49,7 @@ public class SceneCharacter3D : SceneCharacter
         targetDirection.y += 90;
         head_rest = head.transform.localPosition.z;
 
-        state = new WalkerPhysics(155f, walker.transform.position, Vector3.zero, Vector3.zero, 0f);
+        state = new WalkerPhysics(155f, walker.transform, Vector3.zero, Vector3.zero, 0f);
         crouch_spring = new DampenedSpring(crouch_factor);
     }
 
@@ -125,7 +125,6 @@ public class SceneCharacter3D : SceneCharacter
         temp.z = head_rest - crouch_factor * crouch_dist;
         head.transform.localPosition = temp;
         
-        var fwd = this.transform.TransformDirection(Vector3.forward);
         
         var previous_pos = state.pos;
 
@@ -163,7 +162,7 @@ public class SceneCharacter3D : SceneCharacter
 
         crouch_spring.calculate(Time.deltaTime);
         state.on_ground = Controller.isGrounded;
-        state.forward_vector = fwd;
+
         InputTuple i = new InputTuple(forward, turn);
         state.integrate(Time.fixedTime, Time.deltaTime, i);
         

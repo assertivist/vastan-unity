@@ -15,22 +15,24 @@ public class InputTuple
 
 public class WalkerPhysics : Integrator
 {
-    public Vector3 forward_vector = Vector3.zero;
+    public Vector3 forward_vector;
+    public Transform transform;
     public bool on_ground;
 
     public WalkerPhysics(
         float mass, 
-        Vector3 pos, 
+        Transform transform, 
         Vector3 velocity, 
         Vector3 momentum, 
         float angle) :
-        base(mass, pos, velocity, momentum, angle) {
-
+        base(mass, transform.position, velocity, momentum, angle) {
+        this.transform = transform;
     }
 
     public override Vector3 acceleration(float dt, InputTuple i) {
+        forward_vector = transform.TransformDirection(Vector3.forward) * -1;
 
-        var v = get_forward() * i.forward;
+        var v = forward_vector * i.forward;
 
         // friction
         if (on_ground) {
@@ -65,11 +67,6 @@ public class WalkerPhysics : Integrator
         spin = i.turn * 6000f * dt;
         return spin;
     }
-
-    private Vector3 get_forward() {
-        return forward_vector * -1;
-    }
-
 }
 
 public class Integrator
