@@ -92,7 +92,14 @@ public class GameServer : Game
             return;
         }
         // 2A: Load the character and assign it to the player
-        Player player = new Player(client, new Character { Id = newPlayerId, CharName = "Player" + newPlayerId });
+        Player player = new Player(client,
+            new Character {
+                Id = newPlayerId,
+                CharName = "Player" + newPlayerId,
+                R = UnityEngine.Random.Range(0, 1),
+                G = UnityEngine.Random.Range(0, 1),
+                B = UnityEngine.Random.Range(0, 1)
+            }); 
         Players.Add(player.Id, player);
         newPlayerId++;
 

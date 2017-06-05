@@ -10,7 +10,7 @@ public class SceneCharacter3D : SceneCharacter
     public GameObject walker;
     private SceneCharacter3D walker_char;
 
-    new public WalkerPhysics state;
+    public WalkerPhysics state;
     public DampenedSpring crouch_spring;
 
     public Leg left_leg;
@@ -28,12 +28,16 @@ public class SceneCharacter3D : SceneCharacter
     private float bounce_impulse;
     private float bounce_factor;
 
-    private float head_rest;
+    private float head_rest_y;
+    private bool will_jump;
 
     int walking = 0;
 
-    public float jump_factor = 90f;
+    public float jump_factor = 700.0f;
     public float spring_body_conversion = 100f;
+
+    public float spring_min_liftoff_factor = 8.5f;
+    public float spring_max_liftoff_factor = 9f;
 
 
     // Use this for initialization
@@ -44,12 +48,12 @@ public class SceneCharacter3D : SceneCharacter
         if (GetComponent<Rigidbody>()) {
             GetComponent<Rigidbody>().freezeRotation = true;
         }
-
-        targetDirection = head.transform.localRotation.eulerAngles;
+        var ea = head.transform.localRotation.eulerAngles;
+        targetDirection = new Vector2(ea.x, ea.y);
         targetDirection.y += 90;
-        head_rest = head.transform.localPosition.z;
+        head_rest_y = head.transform.localPosition.z;
 
-        state = new WalkerPhysics(155f, walker.transform, Vector3.zero, Vector3.zero, 0f);
+        state = new WalkerPhysics(155f, walker.transform, Vector3.zero, Vector3.zero, transform.localEulerAngles.y);
         crouch_spring = new DampenedSpring(crouch_factor);
     }
 
@@ -75,10 +79,37 @@ public class SceneCharacter3D : SceneCharacter
 	{
 		if (Controller == null) {
 			return;
-
 		}
-        var vert = forward;
+        
+        LegUpdate(forward);
 
+        var temp = head.transform.localPosition;
+        temp.z = head_rest_y - crouch_factor * crouch_dist;
+        head.transform.localPosition = temp;
+        
+        var previous_pos = state.pos;
+
+        JumpUpdate(jump, duration);
+
+        crouch_spring.calculate(duration);
+        state.on_ground = Controller.isGrounded;
+
+        InputTuple i = new InputTuple(forward, turn * 4f);
+        state.integrate(Time.fixedTime, duration, i);
+        
+        transform.localEulerAngles = new Vector3(0, state.angle, 0);
+
+        var tp = head.transform.position;
+        tp.y -= .5f;
+        Debug.DrawLine(tp, tp + (state.velocity * 100), Color.red);
+        Debug.DrawLine(tp, tp + (state.accel * 10), Color.cyan);
+        Debug.DrawLine(tp, tp + (state.momentum * .1f), Color.black);
+        var move = (previous_pos - state.pos);
+        if (move.magnitude > .001) 
+            Controller.Move(move * -1f);
+	}
+
+    private void LegUpdate(float vert) {
         if (vert > 0 && walking == 0) {
             walking = 1;
             right_leg.up_step = !left_leg.up_step;
@@ -92,7 +123,6 @@ public class SceneCharacter3D : SceneCharacter
 
             left_leg.walking = true;
             right_leg.walking = true;
-
         }
 
         if (vert == 0 && walking != 0) {
@@ -116,35 +146,25 @@ public class SceneCharacter3D : SceneCharacter
         left_leg.crouch_factor = crouch_factor;
         right_leg.crouch_factor = crouch_factor;
 
-        var xz_vel = state.velocity;
+        var xz_vel = state.velocity * .8f;
         xz_vel.y = 0;
         left_leg.speed = xz_vel.magnitude;
         right_leg.speed = xz_vel.magnitude;
+    }
 
-        var temp = head.transform.localPosition;
-        temp.z = head_rest - crouch_factor * crouch_dist;
-        head.transform.localPosition = temp;
-        
-        
-        var previous_pos = state.pos;
-
+    private void JumpUpdate(bool jump, float duration) {
+        // jump key is being pressed
         if (jump) {
             //crouch_factor = Mathf.Min(1.0f - bob_amount, crouch_factor + crouch_dt);
-            crouch_spring.vel += 400f * Time.deltaTime;
+            crouch_spring.vel += 400f * duration;
             will_jump = true;
         }
         else {
             if (state.on_ground && state.accel.y < .3) {
-                if (crouch_spring.vel < -8.5f) {
+                if (crouch_spring.vel < -spring_min_liftoff_factor) {
                     Debug.Log(crouch_spring.vel);
-                    // bounce 
-                    var j = crouch_spring.vel;
-                    if (will_jump) { // limit maximum jumping
-                        Mathf.Max(crouch_spring.vel, -9f);
-                    }
-                    state.accel.y = 900f;// jump_factor;
-                    state.momentum.y = .5f;
-                    //state.on_ground = false;
+                    state.accel.y = jump_factor;
+                    state.momentum.y = 1f;
                 }
             }
             will_jump = false;
@@ -157,29 +177,10 @@ public class SceneCharacter3D : SceneCharacter
             state.velocity.y = 0;
             // state.momentum.y = -0.1f * state.momentum.y * Time.deltaTime;
             state.accel.y = 0;
-
         }
-
-        crouch_spring.calculate(Time.deltaTime);
-        state.on_ground = Controller.isGrounded;
-
-        InputTuple i = new InputTuple(forward, turn);
-        state.integrate(Time.fixedTime, Time.deltaTime, i);
-        
-        transform.localEulerAngles = new Vector3(0, state.angle, 0);
-
-        var tp = head.transform.position;
-        tp.y -= .5f;
-        Debug.DrawLine(tp, tp + (state.velocity * 100), Color.red);
-        Debug.DrawLine(tp, tp + (state.accel * 10), Color.cyan);
-        Debug.DrawLine(tp, tp + (state.momentum * .1f), Color.black);
-        var move = (previous_pos - state.pos);
-        if (move.magnitude > .001) 
-            Controller.Move(move * -1f);
-	}
+    }
 
     public Vector2 clampInDegrees = new Vector2(194, 84);
-    private bool will_jump;
 
     // Turn/tilt the player's head as needed
     public void Look (float yawAmount, float pitchAmount)
@@ -211,6 +212,7 @@ public class SceneCharacter3D : SceneCharacter
 
 	public override float GetCurrentSpeed ()
 	{
+        return state.velocity.magnitude;
 		if (Controller != null) {
 			return Controller.velocity.magnitude;
 		} else {

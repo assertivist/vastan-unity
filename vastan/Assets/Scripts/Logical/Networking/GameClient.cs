@@ -55,7 +55,6 @@ public class GameClient : Game {
 
     #endregion
 
-
     /// <summary>
     /// Update is called once per frame
     /// </summary>
@@ -138,7 +137,7 @@ public class GameClient : Game {
         // Don't update self if using client-side prediction
         if (CurrentGameState != Game.GameStates.LevelLoaded
             || MyPlayer == null
-            || (ClientSidePredition && charId.Equals(((Character)MyPlayer).Id))
+            || (ClientSidePrediction && charId.Equals(((Character)MyPlayer).Id))
             || !SceneCharacters.ContainsKey(charId)
             ) {
             return;
@@ -236,6 +235,7 @@ public class GameClient : Game {
                 newYDir,
                 newZDir
             );
+            ((SceneCharacter3D)character).state.angle = character.transform.localEulerAngles.y;
         }
     }
 
@@ -260,6 +260,7 @@ public class GameClient : Game {
         if (MyPlayer.GetCurrentSpeed() >= .1 && Time.time >= (LastTimeValidatedPosition + ValidatePositionInterval)) {
             //Debug.Log( "Validating my position @ " + Time.time );
             Debug.Log("Validating my position " + MyPlayer.GetCurrentSpeed());
+            Debug.Log("My forward is: " + MyPlayer.transform.forward);
             GetComponent<NetworkView>().RPC("ValidatePosition", RPCMode.Server, LastCorrectionRespondedTo, CurrentControlCommandId, MyPlayer.transform.position, MyPlayer.transform.forward);
             LastTimeValidatedPosition = Time.time;
         }
@@ -279,7 +280,8 @@ public class GameClient : Game {
         MyPlayer.transform.forward = correctDirection;
         SceneCharacter3D p = (SceneCharacter3D)MyPlayer;
         p.state.pos = correctPosition;
-        p.state.momentum = correctMomentum;
+        //p.state.momentum = correctMomentum;
+        p.state.angle = MyPlayer.transform.localEulerAngles.y;
         // p.state.forward_vector = correctDirection;
 
         // 12B: Make up for control commands which were sent between when the server sent the correction and now
@@ -469,7 +471,7 @@ public class GameClient : Game {
 
     #region Look controls
 
-    public Vector2 sensitivity = new Vector2(2, 2);
+    public Vector2 sensitivity = new Vector2(3, 3);
     public Vector2 smoothing = new Vector2(3, 3);
 
     Vector2 _smoothMouse;
@@ -528,14 +530,14 @@ public class GameClient : Game {
 
     #region Movement
 
-    public bool ClientSidePredition = true;
+    public bool ClientSidePrediction = true;
 
     // 10: Move the player's character based on the control command for this frame
     private void MovePlayer()
     {
         // 10A: Move the player locally
         //Debug.Log( "Client is attempting to move player " + Player + " with character " + Player.Character + ";forward: " + CurrentControlCommand.Forward );
-        if (ClientSidePredition)
+        if (ClientSidePrediction)
         {
             MyPlayer.ExecuteControlCommand(CurrentControlCommand);
         }

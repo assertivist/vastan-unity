@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 using ServerSideCalculations;
 using ServerSideCalculations.Characters;
@@ -157,14 +158,33 @@ public abstract class Game : MonoBehaviour
 		var inGameCharacter = playerInstantiation.GetComponent<SceneCharacter> ();
 		inGameCharacter.BaseCharacter = newCharacter;
         inGameCharacter.PlayerName = newCharacter.CharName;
-        //inGameCharacter.recolor();
+
+        var sc3d = playerInstantiation.GetComponent<SceneCharacter3D>();
+        //recolor_walker(sc3d.walker, newCharacter.GetColor());
 		
 		// Add the new player's character to the list of characters on the server
 		Debug.Log ("Adding character " + inGameCharacter.BaseCharacter.CharName + " with ID " + charId);
 		SceneCharacters.Add (charId, inGameCharacter);
 	}
 
-	public void RespawnCharacter (int charId)
+    void recolor_walker(GameObject w, Color c) {
+        recolor_object(w, "Walker.Head.Glass", new Color(56f / 255f, 69f / 255f, 188f / 255f));
+        recolor_object(w, "Walker.Head.Tubes", new Color(75f / 255f, 71f / 255f, 71f / 255f));
+        recolor_object(w, "Walker.Head.Main", c);
+        recolor_object(w, "Walker.Leg.High.Left", c);
+        recolor_object(w, "Walker.Leg.High.Right", c);
+        recolor_object(w, "Walker.Leg.Low.Left", c);
+        recolor_object(w, "Walker.Leg.Low.Right", c);
+    }
+
+    void recolor_object(GameObject parent, string name, Color c) {
+        GameObject go = parent.transform.Find("walker_orig/" + name).gameObject;
+        Mesh m = go.GetComponent<SkinnedMeshRenderer>().sharedMesh;
+        var colors = from n in Enumerable.Range(0, m.vertices.Length) select c;
+        m.colors = colors.ToArray();
+    }
+
+    public void RespawnCharacter (int charId)
 	{
 		Debug.Log ("Respawning char " + charId);
 		var p = SceneInformation.PlayerSpawn.transform.position;

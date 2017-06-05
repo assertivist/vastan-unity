@@ -29,9 +29,11 @@ namespace ServerSideCalculations.Characters
 
 		public string Team { get; set; }
 
-        //public Color Color { get; set; }
-		
-		public float ArmLength{ get { return Height * ARM_LENGTH_RATIO; } }
+        public float R { get; set; }
+        public float G { get; set; }
+        public float B { get; set; }
+
+        public float ArmLength{ get { return Height * ARM_LENGTH_RATIO; } }
 		
 		public bool IsAlive { get; set; }
 		public float MaxHealth { get; set; }
@@ -45,7 +47,6 @@ namespace ServerSideCalculations.Characters
 		public Character () : this("NoName")
 		{
 		}
-
 
 		public Character (string name)
 		{
@@ -98,7 +99,10 @@ namespace ServerSideCalculations.Characters
 		
 		public float TimeAttemptedJump { get; set; } // This is used to avoid missed jumps caused by minor dips in the ground
 		
-		
+		public Color GetColor() {
+            return new Color(R, G, B);
+        }
+
 		public void AttemptJump ()
 		{	
 			// You can add other rules here
