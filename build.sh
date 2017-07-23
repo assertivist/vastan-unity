@@ -1,12 +1,13 @@
 #!/bin/sh
 
 project="vastan"
-filename="$project-$TRAVIS_COMMIT"
+filename="$project"
 unity_exe="/Applications/Unity/Unity.app/Contents/MacOS/Unity"
 options="-batchmode -nographics -silent-crashes -projectPath $(pwd)/$project"
 workspace="$(pwd)/Build"
 packages="$(pwd)/Package"
 myhome="$(pwd)"
+commit=`echo $TRAVIS_COMMIT | tail -c 7`
 
 mkdir $workspace
 mkdir $packages
@@ -25,7 +26,7 @@ build_for_target()
     -quit
 
   cd $workspace
-  zip -r9 $packages/$target.zip $target
+  zip -r9 $packages/$project-$target-$commit.zip $target
   cd $myhome
 }
 
