@@ -381,7 +381,7 @@ public class GameServer : Game
         Round newRound = new Round(CurrentRound, TimeLastRoundSent);
 
         // Update all charater locations
-        foreach (SceneCharacter character in SceneCharacters.Values)
+        foreach (SceneCharacter3D character in SceneCharacters.Values)
         {
             // Make sure nobody falls through the ground
             if (character.transform.position.y < 0)
@@ -399,7 +399,7 @@ public class GameServer : Game
 
             // 7: Send the character's state to all players
             ////Debug.Log ("Updating char " + character.BaseCharacter.Id + character.transform.ToCoordinates ());
-            GetComponent<NetworkView>().RPC("UpdateCharacter", RPCMode.Others, character.BaseCharacter.Id, character.transform.position, character.transform.forward, character.MoveDirection, character.HeadRot);
+            GetComponent<NetworkView>().RPC("UpdateCharacter", RPCMode.Others, character.BaseCharacter.Id, character.transform.position, character.transform.localEulerAngles.y, character.walking, character.head.transform.localRotation, character.state.velocity, character.state.momentum, character.crouch_factor);
         }
 
 
@@ -448,9 +448,10 @@ public class GameServer : Game
     public float XDiff { get; set; }
     public float YDiff { get; set; }
     public float ZDiff { get; set; }
-    public float XAngDiff { get; set; }
+    public float AngDiff { get; set; }
+    /*public float XAngDiff { get; set; }
     public float YAngDiff { get; set; }
-    public float ZAngDiff { get; set; }
+    public float ZAngDiff { get; set; }*/
 
     public int CommandsToKeep { get; set; }
 
@@ -482,7 +483,7 @@ public class GameServer : Game
     /// to validate their position and receive corrections
     /// </summary>
     [RPC]
-    public void ValidatePosition(int lastCorrectionRepondedTo, int lastControlApplied, Vector3 clientPosition, Vector3 clientDirection, NetworkMessageInfo info)
+    public void ValidatePosition(int lastCorrectionRepondedTo, int lastControlApplied, Vector3 clientPosition, float clientAngle, NetworkMessageInfo info)
     {
         Player player = Players[info.sender.guid];
 
@@ -503,17 +504,17 @@ public class GameServer : Game
         YDiff = clientPosition.y - serverStateAfterControl.Position.y;
         ZDiff = clientPosition.z - serverStateAfterControl.Position.z;
 
-        XAngDiff = clientDirection.x - serverStateAfterControl.Forward.x;
-        YAngDiff = clientDirection.y - serverStateAfterControl.Forward.y;
-        ZAngDiff = clientDirection.z - serverStateAfterControl.Forward.z;
+        //XAngDiff = clientDirection.x - serverStateAfterControl.Forward.x;
+        //YAngDiff = clientDirection.y - serverStateAfterControl.Forward.y;
+        //ZAngDiff = clientDirection.z - serverStateAfterControl.Forward.z;
+
+        AngDiff = clientAngle - serverStateAfterControl.Angle;
 
         Debug.Log(
             "Diff: " + XDiff.ToString() +
             ", " + YDiff.ToString() +
             ", " + ZDiff.ToString() +
-            ", " + XAngDiff.ToString() +
-            ", " + YAngDiff.ToString() +
-            ", " + ZAngDiff.ToString()
+            ", " + AngDiff.ToString()
         );
         #endregion 11C
 
@@ -521,9 +522,10 @@ public class GameServer : Game
         if (Mathf.Abs(XDiff) > PosTolerance ||
             Mathf.Abs(YDiff) > PosTolerance ||
             Mathf.Abs(ZDiff) > PosTolerance ||
-            Mathf.Abs(XAngDiff) > DirTolerance ||
-            Mathf.Abs(YAngDiff) > DirTolerance ||
-            Mathf.Abs(ZAngDiff) > DirTolerance)
+            Mathf.Abs(AngDiff) > DirTolerance )
+            //Mathf.Abs(XAngDiff) > DirTolerance ||
+            //Mathf.Abs(YAngDiff) > DirTolerance ||
+            //Mathf.Abs(ZAngDiff) > DirTolerance)
         {
             Debug.Log("Sending correction...");
             player.LastCorrectionSent = lastControlApplied;
@@ -531,7 +533,7 @@ public class GameServer : Game
             // Send the current position
             // If we send the correction to the old position, it forces the client to apply more contorl commands on its own, creating a larger margin of error
             SceneCharacter3D scenechar = (SceneCharacter3D)player.InGameCharacter;
-            GetComponent<NetworkView>().RPC("CorrectPosition", info.sender, player.LastControlNumApplied, player.InGameCharacter.transform.position, scenechar.state.momentum, player.InGameCharacter.transform.forward);
+            GetComponent<NetworkView>().RPC("CorrectPosition", info.sender, player.LastControlNumApplied, player.InGameCharacter.state.pos, scenechar.state.velocity, scenechar.state.momentum, player.InGameCharacter.state.angle, scenechar.state.velocity, scenechar.crouch_factor);
         }
         #endregion 11D
     }
@@ -593,7 +595,7 @@ public class GameServer : Game
         //Debug.Log ("Client is requesting an attack");
         var attackingPlayer = Players[info.sender.guid];
         Character attacker = attackingPlayer.BaseCharacter;
-        SceneCharacter sceneAttacker = SceneCharacters[attacker.Id];
+        SceneCharacter3D sceneAttacker = SceneCharacters[attacker.Id];
 
         // 14A: Server checks attack validation
         if (!attacker.IsAlive)
@@ -611,14 +613,25 @@ public class GameServer : Game
 
         // 16A: Server rewinds the attacker to its position when the client attacked
         #region Rewind Attacker State
-        var presentAttackerState = new ObjectState(0, sceneAttacker.transform.position, sceneAttacker.transform.forward, Quaternion.identity);
+        var presentAttackerState = new ObjectState(0,
+            sceneAttacker.transform.position,
+            sceneAttacker.state.angle,
+            Quaternion.identity,
+            sceneAttacker.state.velocity,
+            sceneAttacker.state.momentum,
+            sceneAttacker.crouch_factor,
+            sceneAttacker.walking
+        );
 
         if (LatencyCompensation)
         {
             Debug.Log("Rewinding attacker");
             var oldAttackerState = roundWhenPlayerAttacked.CurrentObjectStates[attacker.Id];
             sceneAttacker.transform.position = oldAttackerState.Position;
-            sceneAttacker.transform.forward = oldAttackerState.Forward;
+            sceneAttacker.state.angle = oldAttackerState.Angle;
+            sceneAttacker.state.velocity = oldAttackerState.Velocity;
+            sceneAttacker.state.momentum = oldAttackerState.Momentum;
+            sceneAttacker.crouch_factor = oldAttackerState.CrouchFactor;
         }
         #endregion Rewind Attacker State
 
@@ -635,14 +648,25 @@ public class GameServer : Game
 
             // 16B: Server rewinds each potential target to its position when the client attacked
             #region Rewind Target State
-            var presentTargetState = new ObjectState(0, potentialTarget.transform.position, potentialTarget.transform.forward, Quaternion.identity);
+            var presentTargetState = new ObjectState(0, 
+                potentialTarget.transform.position, 
+                potentialTarget.state.angle, 
+                Quaternion.identity, 
+                potentialTarget.state.velocity, 
+                potentialTarget.state.momentum,
+                potentialTarget.crouch_factor,
+                potentialTarget.walking
+            );
 
             if (LatencyCompensation)
             {
                 Debug.Log("Rewinding target");
                 var oldTargetState = roundWhenPlayerAttacked.CurrentObjectStates[((Character)potentialTarget).Id];
                 potentialTarget.transform.position = oldTargetState.Position;
-                potentialTarget.transform.forward = oldTargetState.Forward;
+                potentialTarget.state.angle = oldTargetState.Angle;
+                potentialTarget.state.velocity = oldTargetState.Velocity;
+                potentialTarget.state.momentum = oldTargetState.Momentum;
+                potentialTarget.crouch_factor = oldTargetState.CrouchFactor;
             }
             #endregion Rewind Target State
 
@@ -658,7 +682,10 @@ public class GameServer : Game
             {
                 Debug.Log("Unwinding target");
                 potentialTarget.transform.position = presentTargetState.Position;
-                potentialTarget.transform.forward = presentTargetState.Forward;
+                potentialTarget.state.angle = presentTargetState.Angle;
+                potentialTarget.state.velocity = presentTargetState.Velocity;
+                potentialTarget.state.momentum = presentTargetState.Momentum;
+                potentialTarget.crouch_factor = presentTargetState.CrouchFactor;
             }
             #endregion Reset Target State
         }
@@ -670,7 +697,10 @@ public class GameServer : Game
         {
             Debug.Log("Unwinding attacker");
             sceneAttacker.transform.position = presentAttackerState.Position;
-            sceneAttacker.transform.forward = presentAttackerState.Forward;
+            sceneAttacker.state.angle = presentAttackerState.Angle;
+            sceneAttacker.state.velocity = presentAttackerState.Velocity;
+            sceneAttacker.state.velocity = presentAttackerState.Momentum;
+            sceneAttacker.crouch_factor = presentAttackerState.CrouchFactor;
         }
         #endregion Reset Attacker State
 

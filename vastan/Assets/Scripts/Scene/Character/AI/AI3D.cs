@@ -14,7 +14,7 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
 
     public new WalkerPhysics state;
 
-	public SceneCharacter GetSceneChar ()
+	public SceneCharacter3D GetSceneChar ()
 	{
 		return this; 
 	}

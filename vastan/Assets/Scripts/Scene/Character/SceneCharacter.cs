@@ -61,7 +61,7 @@ public abstract class SceneCharacter : MonoBehaviour
 
     public Vector3 MoveDirection;
 
-    public Quaternion HeadRot;
+    //public Quaternion HeadRot;
 
     public string PlayerName;
 
@@ -80,18 +80,7 @@ public abstract class SceneCharacter : MonoBehaviour
 	}
 
 	
-	/// <summary>
-	/// Gets the current ObjectState to store for the server
-	/// </summary>
-	/// <returns>The current state.</returns>
-	public ObjectState GetCurrentState ()
-	{
-		return new ObjectState (
-			BaseCharacter.Id, 
-			this.transform.position, 
-			((SceneCharacter3D)this).state.forward_vector,
-            this.HeadRot);
-	}
+	
 	
 	#endregion Movement
 	

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using ServerSideCalculations.Characters;
+using ServerSideCalculations.Networking;
 
 public class SceneCharacter3D : SceneCharacter
 {
@@ -31,7 +32,7 @@ public class SceneCharacter3D : SceneCharacter
     private float head_rest_y;
     private bool will_jump;
 
-    int walking = 0;
+    public int walking = 0;
 
     public float jump_factor = 700.0f;
     public float spring_body_conversion = 100f;
@@ -48,9 +49,8 @@ public class SceneCharacter3D : SceneCharacter
         if (GetComponent<Rigidbody>()) {
             GetComponent<Rigidbody>().freezeRotation = true;
         }
-        var ea = head.transform.localRotation.eulerAngles;
-        targetDirection = new Vector2(ea.x, ea.y);
-        targetDirection.y += 90;
+
+        targetDirection = new Vector2(270f, 270f); // uhh yeah i measured this heh heh
         head_rest_y = head.transform.localPosition.z;
 
         state = new WalkerPhysics(155f, walker.transform, Vector3.zero, Vector3.zero, transform.localEulerAngles.y);
@@ -109,7 +109,7 @@ public class SceneCharacter3D : SceneCharacter
             Controller.Move(move * -1f);
 	}
 
-    private void LegUpdate(float vert) {
+    public void LegUpdate(float vert) {
         if (vert > 0 && walking == 0) {
             walking = 1;
             right_leg.up_step = !left_leg.up_step;
@@ -219,4 +219,20 @@ public class SceneCharacter3D : SceneCharacter
 			return 0;
 		}
 	}
+
+    /// <summary>
+	/// Gets the current ObjectState to store for the server
+	/// </summary>
+	/// <returns>The current state.</returns>
+	public ObjectState GetCurrentState() {
+        return new ObjectState(
+            BaseCharacter.Id,
+            transform.position,
+            state.angle,
+            head.transform.localRotation,
+            state.velocity,
+            state.momentum,
+            crouch_factor,
+            walking);
+    }
 }

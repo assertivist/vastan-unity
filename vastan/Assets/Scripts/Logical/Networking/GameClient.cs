@@ -18,7 +18,7 @@ public class GameClient : Game {
     public string MyName;
 
     public Character MyCharacter;
-    public SceneCharacter MyPlayer;
+    public SceneCharacter3D MyPlayer;
 
     public Level GameLevel;
     public string GameLevelFile;
@@ -44,7 +44,9 @@ public class GameClient : Game {
 
         CharacterIntendedStates = new Dictionary<int, ObjectState>();
         CharacterPositionDiffs = new Dictionary<int, Vector3>();
-        CharacterDirectionDiffs = new Dictionary<int, Vector3>();
+        CharacterDirectionDiffs = new Dictionary<int, float>();
+        CharacterHeadRotDiffs = new Dictionary<int, Quaternion>();
+        CharacterCrouchFactorDiffs = new Dictionary<int, float>();
 
         //CameraDistance = 3.0f;
         //CameraHeight = 2.0f;
@@ -63,7 +65,7 @@ public class GameClient : Game {
             return;
         }
 
-        Debug.Log("Level: " + Application.loadedLevelName + "\n MyCharacterx: " + MyCharacter);
+        //Debug.Log("Level: " + Application.loadedLevelName + "\n MyCharacterx: " + MyCharacter);
         if (MyCharacter == null || Application.loadedLevelName == MainMenuScene) {
             return;
         }
@@ -131,7 +133,7 @@ public class GameClient : Game {
 
     //TODO: This may just need to have jump in it...
     [RPC]
-    public void UpdateCharacter(int charId, Vector3 position, Vector3 direction, Vector3 moveDirection, Quaternion headRot) {
+    public void UpdateCharacter(int charId, Vector3 position, float direction, int walking, Quaternion headRot, Vector3 velocity, Vector3 momentum, float crouchfactor) {
         ////Debug.Log ("Update called for " + charId + " at " + position.x + ", " + position.y + ", " + position.z);
 
         // Don't update self if using client-side prediction
@@ -143,16 +145,19 @@ public class GameClient : Game {
             return;
         }
 
-        SceneCharacter character = SceneCharacters[charId];
-        ObjectState charState = new ObjectState(charId, position, direction, headRot);
-        character.MoveDirection = moveDirection;
+        SceneCharacter3D character = SceneCharacters[charId];
+        ObjectState charState = new ObjectState(charId, position, direction, headRot, velocity, momentum, crouchfactor, walking);
 
         // TODO: fix this to call a special method just updating the legs
-        character.GetComponent<SceneCharacter3D>().Move(1f, 0f, Time.deltaTime, false);
+        // character.GetComponent<SceneCharacter3D>().Move(1f, 0f, Time.deltaTime, false);
 
         if (!CharacterInterpolation) {
             character.transform.position = position;
-            character.transform.forward = direction;
+            character.state.velocity = velocity;
+            character.state.momentum = momentum;
+            character.state.angle = direction;
+            character.head.transform.localRotation = headRot;
+            character.crouch_factor = crouchfactor;
             return;
         }
 
@@ -161,6 +166,8 @@ public class GameClient : Game {
             CharacterIntendedStates.Remove(charId);
             CharacterPositionDiffs.Remove(charId);
             CharacterDirectionDiffs.Remove(charId);
+            CharacterHeadRotDiffs.Remove(charId);
+            CharacterCrouchFactorDiffs.Remove(charId);
         }
 
         CharacterIntendedStates.Add(charId, charState);
@@ -175,13 +182,27 @@ public class GameClient : Game {
         ));
 
         // Calculate the direction difference
-        Vector3 currentCharDirection = character.transform.forward;
-        Vector3 intendedCharacterDirection = charState.Forward;
-        CharacterDirectionDiffs.Add(charId, new Vector3(
+        float currentCharDirection = character.state.angle;
+        float intendedCharacterDirection = charState.Angle;
+        /*CharacterDirectionDiffs.Add(charId, new Vector3(
                     intendedCharacterDirection.x - currentCharDirection.x,
                     intendedCharacterDirection.y - currentCharDirection.y,
                     intendedCharacterDirection.z - currentCharDirection.z
         ));
+        */
+        CharacterDirectionDiffs.Add(charId, character.state.angle - charState.Angle);
+        Quaternion currentCharHeadRot = character.head.transform.localRotation;
+        Quaternion intendedCharacterHeadRot = charState.HeadRot;
+        CharacterHeadRotDiffs.Add(charId, new Quaternion(
+            intendedCharacterHeadRot.x - currentCharHeadRot.x,
+            intendedCharacterHeadRot.y - currentCharHeadRot.y,
+            intendedCharacterHeadRot.z - currentCharHeadRot.z,
+            intendedCharacterHeadRot.w - currentCharHeadRot.w
+        ));
+
+        float currentCharCrouchFactor = character.crouch_factor;
+        float intendedCharacterCrouchFactor = charState.CrouchFactor;
+        CharacterCrouchFactorDiffs.Add(charId, currentCharCrouchFactor - intendedCharacterCrouchFactor);
     }
 
     [RPC]
@@ -200,16 +221,18 @@ public class GameClient : Game {
     }*/
 
     public Dictionary<int, Vector3> CharacterPositionDiffs { get; set; }
-    public Dictionary<int, Vector3> CharacterDirectionDiffs { get; set; }
+    public Dictionary<int, float> CharacterDirectionDiffs { get; set; }
+    public Dictionary<int, Quaternion> CharacterHeadRotDiffs { get; set; }
+    public Dictionary<int, float> CharacterCrouchFactorDiffs { get; set; }
 
     // 7D: Move each character closer toward its intended location
     public void InterpolateCharacters() {
         foreach (int charId in CharacterIntendedStates.Keys) {
-            SceneCharacter character = SceneCharacters[charId];
+            SceneCharacter3D character = SceneCharacters[charId];
             float portionOfDiffToMove = Mathf.Min(Time.deltaTime / ROUND_LENGTH, 1f);
 
             // Interpolate toward the intended position
-            Vector3 curentPosition = character.transform.position;
+            Vector3 curentPosition = character.state.pos;
             Vector3 positionDiff = CharacterPositionDiffs[charId];
 
             float newXPos = curentPosition.x + (positionDiff.x * portionOfDiffToMove);
@@ -222,20 +245,54 @@ public class GameClient : Game {
                 newZPos
             );
 
-            // Interpolate toward the intended direction
-            Vector3 curentDirection = character.transform.forward;
-            Vector3 directionDiff = CharacterDirectionDiffs[charId];
 
-            float newXDir = curentDirection.x + (directionDiff.x * portionOfDiffToMove);
+            // Interpolate toward the intended direction
+            //Vector3 curentDirection = character.transform.forward;
+            float directionDiff = CharacterDirectionDiffs[charId];
+
+            /*float newXDir = curentDirection.x + (directionDiff.x * portionOfDiffToMove);
             float newYDir = curentDirection.y + (directionDiff.y * portionOfDiffToMove);
             float newZDir = curentDirection.z + (directionDiff.z * portionOfDiffToMove);
-
-            character.transform.forward = new Vector3(
+            Vector3 newDir = new Vector3(
                 newXDir,
                 newYDir,
                 newZDir
+            );*/
+            //character.transform.forward = newDir;
+            //var local = character.transform.InverseTransformDirection(newDir);
+            //var fwd = character.transform.TransformDirection(Vector3.forward);
+            //character.state.angle = Vector3.Angle(local, Vector3.forward);
+            //character.state.angle = newYDir;
+            //var angle = character.transform.localEulerAngles.y + (directionDiff * portionOfDiffToMove);
+            //if (angle > 359) angle -= 359f;
+            //if (angle < 0) angle = 359f - angle;
+            var angle = character.transform.localEulerAngles.y;
+            character.transform.localEulerAngles = new Vector3(0, angle + Time.deltaTime * 10, 0);
+
+
+            Quaternion currentHeadRot = character.head.transform.localRotation;
+            Quaternion headRotDiff = CharacterHeadRotDiffs[charId];
+            float newXHeadRot = currentHeadRot.x + (headRotDiff.x * portionOfDiffToMove);
+            float newYHeadRot = currentHeadRot.y + (headRotDiff.y * portionOfDiffToMove);
+            float newZHeadRot = currentHeadRot.z + (headRotDiff.z * portionOfDiffToMove);
+            float newWHeadRot = currentHeadRot.w + (headRotDiff.w * portionOfDiffToMove);
+
+            character.head.transform.localRotation = new Quaternion(
+                newXHeadRot,
+                newYHeadRot,
+                newZHeadRot,
+                newWHeadRot
             );
-            ((SceneCharacter3D)character).state.angle = character.transform.localEulerAngles.y;
+
+            float currentCrouchFactor = character.crouch_factor ;
+            float crouchFactorDiff = CharacterCrouchFactorDiffs[charId];
+            float newCrouchFactor = currentCrouchFactor + (crouchFactorDiff * portionOfDiffToMove);
+
+            character.crouch_factor = newCrouchFactor;
+            character.crouch_spring.pos = newCrouchFactor;
+            character.crouch_spring.calculate(portionOfDiffToMove);
+            character.state.velocity = CharacterIntendedStates[charId].Velocity;
+            character.LegUpdate(CharacterIntendedStates[charId].Walking);
         }
     }
 
@@ -259,9 +316,9 @@ public class GameClient : Game {
         // 11A: Make a validation requests multiple times per second as long as the player is moving
         if (MyPlayer.GetCurrentSpeed() >= .1 && Time.time >= (LastTimeValidatedPosition + ValidatePositionInterval)) {
             //Debug.Log( "Validating my position @ " + Time.time );
-            Debug.Log("Validating my position " + MyPlayer.GetCurrentSpeed());
-            Debug.Log("My forward is: " + MyPlayer.transform.forward);
-            GetComponent<NetworkView>().RPC("ValidatePosition", RPCMode.Server, LastCorrectionRespondedTo, CurrentControlCommandId, MyPlayer.transform.position, MyPlayer.transform.forward);
+            //Debug.Log("Validating my position " + MyPlayer.GetCurrentSpeed());
+            //Debug.Log("My forward is: " + MyPlayer.transform.forward);
+            GetComponent<NetworkView>().RPC("ValidatePosition", RPCMode.Server, LastCorrectionRespondedTo, CurrentControlCommandId, MyPlayer.transform.position, MyPlayer.state.angle);
             LastTimeValidatedPosition = Time.time;
         }
     }
@@ -271,18 +328,18 @@ public class GameClient : Game {
 	 * 12: Reposition the player to match the server
 	*/
     [RPC]
-    public void CorrectPosition(int lastControlCommandApplied, Vector3 correctPosition, Vector3 correctMomentum, Vector3 correctDirection) {
+    public void CorrectPosition(int lastControlCommandApplied, Vector3 correctPosition, Vector3 correctMomentum, float correctDirection, Vector3 correctVelocity) {
         ////Debug.Log (MyPlayer.networkView.viewID + ") " + "Correcting my position");
         LastCorrectionRespondedTo = lastControlCommandApplied;
 
         // 12A: Reposition the player to match when the server sent the correction 
         MyPlayer.transform.position = correctPosition;
-        MyPlayer.transform.forward = correctDirection;
+        MyPlayer.state.angle = correctDirection;
         SceneCharacter3D p = (SceneCharacter3D)MyPlayer;
         p.state.pos = correctPosition;
-        //p.state.momentum = correctMomentum;
-        p.state.angle = MyPlayer.transform.localEulerAngles.y;
-        // p.state.forward_vector = correctDirection;
+        p.state.momentum = correctMomentum;
+        p.state.angle = correctDirection;
+        p.state.velocity = correctVelocity;
 
         // 12B: Make up for control commands which were sent between when the server sent the correction and now
         ////Debug.Log (MyPlayer.networkView.viewID + ") " + "Applying missing commands, starting with " + (lastControlCommandApplied + 1) + ", up to " + CurrentControlCommandId);

@@ -49,7 +49,7 @@ public abstract class Game : MonoBehaviour
 		#endregion Scenes
 		
 		//UnityEngine.Debug.Log()
-		SceneCharacters = new Dictionary<int, SceneCharacter> ();
+		SceneCharacters = new Dictionary<int, SceneCharacter3D> ();
 	}
 	
 	
@@ -124,10 +124,11 @@ public abstract class Game : MonoBehaviour
 	public GameObject AIPrefab{ get { return AIPrefab3D; } }
 
 
-	public Dictionary<int, SceneCharacter> SceneCharacters { get; set; }
+	public Dictionary<int, SceneCharacter3D> SceneCharacters { get; set; }
 	
 
-	public void LoadSceneInfo ()
+
+    public void LoadSceneInfo ()
 	{
 		SceneInformation = GameObject.FindObjectOfType<SceneInfo> ();
 	}
@@ -164,10 +165,10 @@ public abstract class Game : MonoBehaviour
 		
 		// Add the new player's character to the list of characters on the server
 		Debug.Log ("Adding character " + inGameCharacter.BaseCharacter.CharName + " with ID " + charId);
-		SceneCharacters.Add (charId, inGameCharacter);
+		SceneCharacters.Add (charId, sc3d);
 	}
 
-    void recolor_walker(GameObject w, Color c) {
+    public static void recolor_walker(GameObject w, Color c) {
         recolor_object(w, "Walker.Head.Glass", new Color(56f / 255f, 69f / 255f, 188f / 255f));
         recolor_object(w, "Walker.Head.Tubes", new Color(75f / 255f, 71f / 255f, 71f / 255f));
         recolor_object(w, "Walker.Head.Main", c);
@@ -177,7 +178,7 @@ public abstract class Game : MonoBehaviour
         recolor_object(w, "Walker.Leg.Low.Right", c);
     }
 
-    void recolor_object(GameObject parent, string name, Color c) {
+    static void recolor_object(GameObject parent, string name, Color c) {
         GameObject go = parent.transform.Find("walker_orig/" + name).gameObject;
         Mesh m = go.GetComponent<SkinnedMeshRenderer>().sharedMesh;
         var colors = from n in Enumerable.Range(0, m.vertices.Length) select c;
