@@ -399,7 +399,17 @@ public class GameServer : Game
 
             // 7: Send the character's state to all players
             ////Debug.Log ("Updating char " + character.BaseCharacter.Id + character.transform.ToCoordinates ());
-            GetComponent<NetworkView>().RPC("UpdateCharacter", RPCMode.Others, character.BaseCharacter.Id, character.transform.position, character.transform.localEulerAngles.y, character.walking, character.head.transform.localRotation, character.state.velocity, character.state.momentum, character.crouch_factor);
+			GetComponent<NetworkView>().RPC(
+				"UpdateCharacter", 
+				RPCMode.Others, 
+				character.BaseCharacter.Id, 
+				character.transform.position, 
+				character.transform.localEulerAngles.y, 
+				character.walking, 
+				character.head.transform.localRotation, 
+				character.state.velocity, 
+				character.state.momentum, 
+				character.crouch_factor);
         }
 
 

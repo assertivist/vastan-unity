@@ -88,7 +88,8 @@ public class GameClient : Game {
             CharactersToInstantiate.Clear();
         }
 
-        if (MyPlayer == null && SceneCharacters != null && SceneCharacters.ContainsKey(MyCharacter.Id)) {
+        if (MyPlayer == null && SceneCharacters != null 
+			&& SceneCharacters.ContainsKey(MyCharacter.Id)) {
             MyPlayer = SceneCharacters[MyCharacter.Id];
             MyPlayer.Client = this;
             MyPlayer.BaseCharacter = MyCharacter;
@@ -158,6 +159,7 @@ public class GameClient : Game {
             character.state.angle = direction;
             character.head.transform.localRotation = headRot;
             character.crouch_factor = crouchfactor;
+			character.transform.localEulerAngles = new Vector3(0, direction, 0);
             return;
         }
 
@@ -190,7 +192,7 @@ public class GameClient : Game {
                     intendedCharacterDirection.z - currentCharDirection.z
         ));
         */
-        CharacterDirectionDiffs.Add(charId, character.state.angle - charState.Angle);
+		CharacterDirectionDiffs.Add(charId, character.transform.localRotation.eulerAngles.y - direction);
         Quaternion currentCharHeadRot = character.head.transform.localRotation;
         Quaternion intendedCharacterHeadRot = charState.HeadRot;
         CharacterHeadRotDiffs.Add(charId, new Quaternion(
@@ -203,6 +205,8 @@ public class GameClient : Game {
         float currentCharCrouchFactor = character.crouch_factor;
         float intendedCharacterCrouchFactor = charState.CrouchFactor;
         CharacterCrouchFactorDiffs.Add(charId, currentCharCrouchFactor - intendedCharacterCrouchFactor);
+
+		character.LegUpdate(1f);
     }
 
     [RPC]
@@ -264,10 +268,14 @@ public class GameClient : Game {
             //character.state.angle = Vector3.Angle(local, Vector3.forward);
             //character.state.angle = newYDir;
             //var angle = character.transform.localEulerAngles.y + (directionDiff * portionOfDiffToMove);
-            //if (angle > 359) angle -= 359f;
-            //if (angle < 0) angle = 359f - angle;
+            //
             var angle = character.transform.localEulerAngles.y;
-            character.transform.localEulerAngles = new Vector3(0, angle + Time.deltaTime * 10, 0);
+			angle = angle + (directionDiff * portionOfDiffToMove);
+			if (angle > 359) angle -= 359f;
+			if (angle < 0) angle = 359f - angle;
+			character.transform.localEulerAngles = new Vector3(
+				0, angle, 0);
+			character.state.angle = angle;
 
 
             Quaternion currentHeadRot = character.head.transform.localRotation;
@@ -292,7 +300,9 @@ public class GameClient : Game {
             character.crouch_spring.pos = newCrouchFactor;
             character.crouch_spring.calculate(portionOfDiffToMove);
             character.state.velocity = CharacterIntendedStates[charId].Velocity;
-            character.LegUpdate(CharacterIntendedStates[charId].Walking);
+			character.LegUpdate(character.walking);
+			//character.state.recalculate();
+			//character.state.integrate(Time.time, Time.deltaTime, new InputTuple(0, 0));
         }
     }
 
@@ -600,7 +610,10 @@ public class GameClient : Game {
         }
 
         // 10B: Send the control request to the server
-        GetComponent<NetworkView>().RPC("RequestControl", RPCMode.Server, CurrentControlCommand.Serialize());
+        GetComponent<NetworkView>().RPC(
+			"RequestControl", 
+			RPCMode.Server, 
+			CurrentControlCommand.Serialize());
     }
 
     #endregion
@@ -651,7 +664,7 @@ public class GameClient : Game {
             MyCamera.transform.position = pos;
 
             // Look at the player
-            MyCamera.transform.LookAt(MyPlayer.transform.position + MyPlayer.transform.up * MyPlayer.BaseCharacter.Height * ((SceneCharacter3D)MyPlayer).PitchAngle); // Without this, the camera doesn't turn L/R at all
+			MyCamera.transform.LookAt(MyPlayer.transform.position + MyPlayer.transform.up * MyPlayer.BaseCharacter.Height * ((SceneCharacter3D)MyPlayer).PitchAngle); // Without this, the camera doesn't turn L/R at all
         }
         else
         {
