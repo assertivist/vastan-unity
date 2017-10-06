@@ -160,6 +160,7 @@ public class GameClient : Game {
             character.head.transform.localRotation = headRot;
             character.crouch_factor = crouchfactor;
 			character.transform.localEulerAngles = new Vector3(0, direction, 0);
+            Debug.Log("Not interpolating");
             return;
         }
 
@@ -184,7 +185,7 @@ public class GameClient : Game {
         ));
 
         // Calculate the direction difference
-        float currentCharDirection = character.state.angle;
+        float currentCharDirection = character.transform.localRotation.eulerAngles.y;
         float intendedCharacterDirection = charState.Angle;
         /*CharacterDirectionDiffs.Add(charId, new Vector3(
                     intendedCharacterDirection.x - currentCharDirection.x,
@@ -192,7 +193,9 @@ public class GameClient : Game {
                     intendedCharacterDirection.z - currentCharDirection.z
         ));
         */
-		CharacterDirectionDiffs.Add(charId, character.transform.localRotation.eulerAngles.y - direction);
+		CharacterDirectionDiffs.Add(charId, intendedCharacterDirection - currentCharDirection);
+
+
         Quaternion currentCharHeadRot = character.head.transform.localRotation;
         Quaternion intendedCharacterHeadRot = charState.HeadRot;
         CharacterHeadRotDiffs.Add(charId, new Quaternion(
@@ -205,8 +208,6 @@ public class GameClient : Game {
         float currentCharCrouchFactor = character.crouch_factor;
         float intendedCharacterCrouchFactor = charState.CrouchFactor;
         CharacterCrouchFactorDiffs.Add(charId, currentCharCrouchFactor - intendedCharacterCrouchFactor);
-
-		character.LegUpdate(1f);
     }
 
     [RPC]
@@ -236,7 +237,7 @@ public class GameClient : Game {
             float portionOfDiffToMove = Mathf.Min(Time.deltaTime / ROUND_LENGTH, 1f);
 
             // Interpolate toward the intended position
-            Vector3 curentPosition = character.state.pos;
+            Vector3 curentPosition = character.transform.position;
             Vector3 positionDiff = CharacterPositionDiffs[charId];
 
             float newXPos = curentPosition.x + (positionDiff.x * portionOfDiffToMove);
@@ -301,6 +302,8 @@ public class GameClient : Game {
             character.crouch_spring.calculate(portionOfDiffToMove);
             character.state.velocity = CharacterIntendedStates[charId].Velocity;
 			character.LegUpdate(character.walking);
+            //Debug.Log(CharacterIntendedStates[charId].Velocity);
+            //Debug.Log("InterpolateCharacter");
 			//character.state.recalculate();
 			//character.state.integrate(Time.time, Time.deltaTime, new InputTuple(0, 0));
         }
