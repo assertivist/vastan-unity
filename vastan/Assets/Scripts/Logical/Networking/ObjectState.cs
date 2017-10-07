@@ -16,9 +16,7 @@ namespace ServerSideCalculations.Networking
         public Quaternion HeadRot { get; set; }
 
         public Vector3 Velocity { get; set; }
-
-        public Vector3 Momentum { get; set; }
-
+        
         public float CrouchFactor { get; set; }
         
         public float Walking { get; set; }
@@ -34,7 +32,6 @@ namespace ServerSideCalculations.Networking
             float angle, 
             Quaternion headRot,
             Vector3 velocity,
-            Vector3 momentum,
             float crouchfactor,
             int walking)
 		{
@@ -43,7 +40,6 @@ namespace ServerSideCalculations.Networking
             Angle = angle;
             HeadRot = headRot;
             Velocity = velocity;
-            Momentum = momentum;
             CrouchFactor = crouchfactor;
             Walking = walking;
 		}

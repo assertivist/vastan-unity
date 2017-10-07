@@ -134,7 +134,7 @@ public class GameClient : Game {
 
     //TODO: This may just need to have jump in it...
     [RPC]
-    public void UpdateCharacter(int charId, Vector3 position, float direction, int walking, Quaternion headRot, Vector3 velocity, Vector3 momentum, float crouchfactor) {
+    public void UpdateCharacter(int charId, Vector3 position, float direction, int walking, Quaternion headRot, Vector3 velocity, float crouchfactor) {
         ////Debug.Log ("Update called for " + charId + " at " + position.x + ", " + position.y + ", " + position.z);
 
         // Don't update self if using client-side prediction
@@ -147,7 +147,7 @@ public class GameClient : Game {
         }
 
         SceneCharacter3D character = SceneCharacters[charId];
-        ObjectState charState = new ObjectState(charId, position, direction, headRot, velocity, momentum, crouchfactor, walking);
+        ObjectState charState = new ObjectState(charId, position, direction, headRot, velocity, crouchfactor, walking);
 
         // TODO: fix this to call a special method just updating the legs
         // character.GetComponent<SceneCharacter3D>().Move(1f, 0f, Time.deltaTime, false);
@@ -155,12 +155,10 @@ public class GameClient : Game {
         if (!CharacterInterpolation) {
             character.transform.position = position;
             character.state.velocity = velocity;
-            character.state.momentum = momentum;
             character.state.angle = direction;
             character.head.transform.localRotation = headRot;
             character.crouch_factor = crouchfactor;
 			character.transform.localEulerAngles = new Vector3(0, direction, 0);
-            Debug.Log("Not interpolating");
             return;
         }
 
@@ -185,7 +183,7 @@ public class GameClient : Game {
         ));
 
         // Calculate the direction difference
-        float currentCharDirection = character.transform.localRotation.eulerAngles.y;
+        float currentCharDirection = character.transform.localEulerAngles.y;
         float intendedCharacterDirection = charState.Angle;
         /*CharacterDirectionDiffs.Add(charId, new Vector3(
                     intendedCharacterDirection.x - currentCharDirection.x,
@@ -193,7 +191,18 @@ public class GameClient : Game {
                     intendedCharacterDirection.z - currentCharDirection.z
         ));
         */
-		CharacterDirectionDiffs.Add(charId, intendedCharacterDirection - currentCharDirection);
+        var directiondiff = intendedCharacterDirection - currentCharDirection;
+        if (Mathf.Abs(directiondiff) > 10) {
+            float instead = 0f;
+            if (directiondiff > 0) {
+                instead = directiondiff - 360;
+            }
+            else {
+                instead = 360 + directiondiff;
+            }
+            directiondiff = instead;
+        }
+        CharacterDirectionDiffs.Add(charId, directiondiff);
 
 
         Quaternion currentCharHeadRot = character.head.transform.localRotation;
@@ -207,7 +216,7 @@ public class GameClient : Game {
 
         float currentCharCrouchFactor = character.crouch_factor;
         float intendedCharacterCrouchFactor = charState.CrouchFactor;
-        CharacterCrouchFactorDiffs.Add(charId, currentCharCrouchFactor - intendedCharacterCrouchFactor);
+        CharacterCrouchFactorDiffs.Add(charId, intendedCharacterCrouchFactor - currentCharCrouchFactor);
     }
 
     [RPC]
@@ -271,12 +280,15 @@ public class GameClient : Game {
             //var angle = character.transform.localEulerAngles.y + (directionDiff * portionOfDiffToMove);
             //
             var angle = character.transform.localEulerAngles.y;
+            if (directionDiff > 10) {
+                Debug.Log(directionDiff);
+            }
 			angle = angle + (directionDiff * portionOfDiffToMove);
 			if (angle > 359) angle -= 359f;
 			if (angle < 0) angle = 359f - angle;
 			character.transform.localEulerAngles = new Vector3(
 				0, angle, 0);
-			character.state.angle = angle;
+			//character.state.angle = angle;
 
 
             Quaternion currentHeadRot = character.head.transform.localRotation;
@@ -293,19 +305,18 @@ public class GameClient : Game {
                 newWHeadRot
             );
 
-            float currentCrouchFactor = character.crouch_factor ;
+            float currentCrouchFactor = character.crouch_factor;
             float crouchFactorDiff = CharacterCrouchFactorDiffs[charId];
             float newCrouchFactor = currentCrouchFactor + (crouchFactorDiff * portionOfDiffToMove);
-
-            character.crouch_factor = newCrouchFactor;
-            character.crouch_spring.pos = newCrouchFactor;
-            character.crouch_spring.calculate(portionOfDiffToMove);
+            
             character.state.velocity = CharacterIntendedStates[charId].Velocity;
-			character.LegUpdate(character.walking);
-            //Debug.Log(CharacterIntendedStates[charId].Velocity);
-            //Debug.Log("InterpolateCharacter");
-			//character.state.recalculate();
-			//character.state.integrate(Time.time, Time.deltaTime, new InputTuple(0, 0));
+            character.crouch_factor = newCrouchFactor;
+            character.LegUpdate(CharacterIntendedStates[charId].Walking);
+
+
+            var temp = character.head.transform.localPosition;
+            temp.z = character.head_rest_y - newCrouchFactor * SceneCharacter3D.crouch_dist;
+            character.head.transform.localPosition = temp;
         }
     }
 

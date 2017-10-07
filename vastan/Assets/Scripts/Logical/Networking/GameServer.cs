@@ -408,7 +408,6 @@ public class GameServer : Game
 				character.walking, 
 				character.head.transform.localRotation, 
 				character.state.velocity, 
-				character.state.momentum, 
 				character.crouch_factor);
         }
 
@@ -579,13 +578,12 @@ public class GameServer : Game
         if (!IsActive) return;
         var attacker_player = Players[info.sender.guid];
         Character attacker = attacker_player.BaseCharacter;
-        SceneCharacter scene_attacker = SceneCharacters[attacker.Id];
-
-
-
-        var can_fire = false;
+        SceneCharacter3D scene_attacker = SceneCharacters[attacker.Id];
+        
+        var can_fire = true;
 
         if (can_fire) {
+            InstantiatePlasma(scene_attacker);
             GetComponent<NetworkView>().RPC("InstantiateProjectile", RPCMode.Others, attacker.Id);
         }
         
@@ -628,7 +626,6 @@ public class GameServer : Game
             sceneAttacker.state.angle,
             Quaternion.identity,
             sceneAttacker.state.velocity,
-            sceneAttacker.state.momentum,
             sceneAttacker.crouch_factor,
             sceneAttacker.walking
         );
@@ -640,7 +637,6 @@ public class GameServer : Game
             sceneAttacker.transform.position = oldAttackerState.Position;
             sceneAttacker.state.angle = oldAttackerState.Angle;
             sceneAttacker.state.velocity = oldAttackerState.Velocity;
-            sceneAttacker.state.momentum = oldAttackerState.Momentum;
             sceneAttacker.crouch_factor = oldAttackerState.CrouchFactor;
         }
         #endregion Rewind Attacker State
@@ -662,8 +658,7 @@ public class GameServer : Game
                 potentialTarget.transform.position, 
                 potentialTarget.state.angle, 
                 Quaternion.identity, 
-                potentialTarget.state.velocity, 
-                potentialTarget.state.momentum,
+                potentialTarget.state.velocity,
                 potentialTarget.crouch_factor,
                 potentialTarget.walking
             );
@@ -675,7 +670,6 @@ public class GameServer : Game
                 potentialTarget.transform.position = oldTargetState.Position;
                 potentialTarget.state.angle = oldTargetState.Angle;
                 potentialTarget.state.velocity = oldTargetState.Velocity;
-                potentialTarget.state.momentum = oldTargetState.Momentum;
                 potentialTarget.crouch_factor = oldTargetState.CrouchFactor;
             }
             #endregion Rewind Target State
@@ -694,7 +688,6 @@ public class GameServer : Game
                 potentialTarget.transform.position = presentTargetState.Position;
                 potentialTarget.state.angle = presentTargetState.Angle;
                 potentialTarget.state.velocity = presentTargetState.Velocity;
-                potentialTarget.state.momentum = presentTargetState.Momentum;
                 potentialTarget.crouch_factor = presentTargetState.CrouchFactor;
             }
             #endregion Reset Target State
@@ -709,7 +702,6 @@ public class GameServer : Game
             sceneAttacker.transform.position = presentAttackerState.Position;
             sceneAttacker.state.angle = presentAttackerState.Angle;
             sceneAttacker.state.velocity = presentAttackerState.Velocity;
-            sceneAttacker.state.velocity = presentAttackerState.Momentum;
             sceneAttacker.crouch_factor = presentAttackerState.CrouchFactor;
         }
         #endregion Reset Attacker State

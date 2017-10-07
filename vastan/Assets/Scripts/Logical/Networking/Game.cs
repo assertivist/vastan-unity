@@ -125,6 +125,8 @@ public abstract class Game : MonoBehaviour
 
 
 	public Dictionary<int, SceneCharacter3D> SceneCharacters { get; set; }
+
+    public List<Plasma> Plasmas { get; set; }
 	
 
 
@@ -136,6 +138,7 @@ public abstract class Game : MonoBehaviour
 	/// Creates a new in-game SceneCharacter and model with the given Character data
 	/// </summary>
 	/// <param name="newCharacter">New character.</param>
+    ///
 	public void InstantiateSceneCharacter (Character newCharacter)
 	{
 		var charId = newCharacter.Id;
@@ -167,6 +170,10 @@ public abstract class Game : MonoBehaviour
 		Debug.Log ("Adding character " + inGameCharacter.BaseCharacter.CharName + " with ID " + charId);
 		SceneCharacters.Add (charId, sc3d);
 	}
+
+    public void InstantiatePlasma(SceneCharacter3D attacker) {
+        var p = new Plasma();
+    }
 
     public static void recolor_walker(GameObject w, Color c) {
         recolor_object(w, "Walker.Head.Glass", new Color(56f / 255f, 69f / 255f, 188f / 255f));

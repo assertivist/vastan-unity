@@ -22,14 +22,14 @@ public class SceneCharacter3D : SceneCharacter
     private Vector2 _headRot;
 
     private const float bob_amount = .05f;
-    private const float crouch_dist = .0083f;
+    public const float crouch_dist = .0083f;
     private float base_crouch_factor;
     public float crouch_factor = 0f;
 
     private float bounce_impulse;
     private float bounce_factor;
 
-    private float head_rest_y;
+    public float head_rest_y;
     private bool will_jump;
 
     public int walking = 0;
@@ -83,6 +83,16 @@ public class SceneCharacter3D : SceneCharacter
         
         LegUpdate(forward);
 
+        float bob_factor = 0f;
+        if (walking != 0) {
+            bob_factor = Mathf.Abs(left_leg.walk_seq_step) / 300f;
+        }
+
+        crouch_spring.stable_pos = 0f + base_crouch_factor + (bob_factor * bob_amount);
+        crouch_factor = crouch_spring.pos;
+
+        crouch_factor = Mathf.Clamp(crouch_spring.pos, -1.0f, 1.2f);
+
         var temp = head.transform.localPosition;
         temp.z = head_rest_y - crouch_factor * crouch_dist;
         head.transform.localPosition = temp;
@@ -130,15 +140,6 @@ public class SceneCharacter3D : SceneCharacter
             left_leg.walking = false;
             right_leg.walking = false;
         }
-
-        float bob_factor = 0f;
-        if (walking != 0) {
-            bob_factor = Mathf.Abs(left_leg.walk_seq_step) / 300f;
-        }
-        crouch_spring.stable_pos = 0f + base_crouch_factor + (bob_factor * bob_amount);
-        crouch_factor = crouch_spring.pos;
-
-        crouch_factor = Mathf.Clamp(crouch_spring.pos, -1.0f, 1.2f);
 
         left_leg.direction = vert;
         right_leg.direction = vert;
@@ -231,7 +232,6 @@ public class SceneCharacter3D : SceneCharacter
             state.angle,
             head.transform.localRotation,
             state.velocity,
-            state.momentum,
             crouch_factor,
             walking);
     }

@@ -274,7 +274,7 @@ public class Leg : MonoBehaviour {
             sp * 2, 
             min_walkfunc_size_factor, 
             max_walkfunc_size_factor - (.5f * crouch_factor));
-
+        
         recompute_wf_domain();
 
         var temp = hip.transform.localPosition;
