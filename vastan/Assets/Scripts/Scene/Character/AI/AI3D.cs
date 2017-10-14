@@ -12,14 +12,12 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
 
 	public GameServer Server { get; set; }
 
-    public new WalkerPhysics state;
-
 	public SceneCharacter3D GetSceneChar ()
 	{
 		return this; 
 	}
     new void Start () {
-        state = new WalkerPhysics(100, transform, Vector3.zero, Vector3.zero, 0);
+        
         //fwd = Vector3.zero;
         base.Start();
     }
@@ -50,13 +48,15 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
 			return;
 		}
 
-        ////Debug.Log ("Turning toward " + Target.transform.position + " at " + MaxTurnSpeed + "*" + Time.deltaTime);
-
+        //Debug.Log ("Turning toward " + Target.transform.position + " at " + MaxTurnSpeed + "*" + Time.deltaTime);
 
         // Turn toward the Target
         //this.transform.rotation = Quaternion.Slerp (this.transform.rotation, Quaternion.LookRotation (Target.transform.position - this.transform.position), MaxTurnSpeed * Time.deltaTime);
         var look_quat = Quaternion.LookRotation(Target.transform.position - this.transform.position, Vector3.up);
-        head.transform.LookAt(Target.transform.position, Vector3.up);
+        var pos = Target.transform.position;
+        pos.y += 1.2f;
+        head.transform.LookAt(pos, Vector3.up);
+        
         var angles = look_quat.eulerAngles;
         var turn = 0f;
         if (angles.y < 0) {
@@ -68,9 +68,13 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
 
         // Move toward the Target
         if (Vector3.Distance (Target.transform.position, transform.position) >= ((Character)this).ArmLength) {
-            this.Move(1f, turn, Time.deltaTime, false);
+            
 		}
-	}
+
+        base.Move(0f, 0, Time.deltaTime, false);
+       
+
+    }
     
     #endregion Movement
     

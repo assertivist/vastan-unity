@@ -1,11 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Linq;
 using ServerSideCalculations.Characters;
 using ServerSideCalculations.Networking;
 
 public class SceneCharacter3D : SceneCharacter
 {
 	public CharacterController Controller { get; set; }
+    public GameObject[] body_pieces;
+    public GameObject visor;
+    public GameObject guns;
     public GameObject head;
 
     public GameObject walker;
@@ -21,7 +25,7 @@ public class SceneCharacter3D : SceneCharacter
 	public float PitchAngle { get; set; }
     private Vector2 _headRot;
 
-    private const float bob_amount = .05f;
+    private const float bob_amount = .0f;
     public const float crouch_dist = .0083f;
     private float base_crouch_factor;
     public float crouch_factor = 0f;
@@ -57,8 +61,22 @@ public class SceneCharacter3D : SceneCharacter
         crouch_spring = new DampenedSpring(crouch_factor);
     }
 
+    public void recolor_walker(Color c) {
 
-	public override bool MissingController ()
+        recolor_object(visor, new Color(56f / 255f, 69f / 255f, 188f / 255f));
+        recolor_object(guns, new Color(75f / 255f, 71f / 255f, 71f / 255f));
+        foreach (GameObject g in body_pieces) {
+            recolor_object(g, c);
+        }
+    }
+
+    private void recolor_object(GameObject go, Color c) {
+        Mesh m = go.GetComponent<SkinnedMeshRenderer>().sharedMesh;
+        var colors = from n in Enumerable.Range(0, m.vertices.Length) select c;
+        m.colors = colors.ToArray();
+    }
+
+    public override bool MissingController ()
 	{
 		return Controller == null;
 	}
@@ -89,8 +107,7 @@ public class SceneCharacter3D : SceneCharacter
         }
 
         crouch_spring.stable_pos = 0f + base_crouch_factor + (bob_factor * bob_amount);
-        crouch_factor = crouch_spring.pos;
-
+        crouch_spring.calculate(duration);
         crouch_factor = Mathf.Clamp(crouch_spring.pos, -1.0f, 1.2f);
 
         var temp = head.transform.localPosition;
@@ -100,8 +117,7 @@ public class SceneCharacter3D : SceneCharacter
         var previous_pos = state.pos;
 
         JumpUpdate(jump, duration);
-
-        crouch_spring.calculate(duration);
+        
         state.on_ground = Controller.isGrounded;
 
         InputTuple i = new InputTuple(forward, turn * 4f);

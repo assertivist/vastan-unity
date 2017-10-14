@@ -548,16 +548,18 @@ public class GameServer : Game
     }
 
     #endregion
-    /*
+    
     [RPC]
-    public void ClientColor(Color color, NetworkMessageInfo info)
+    public void ClientColor(float r, float g, float b, NetworkMessageInfo info)
     {
         Player player = Players[info.sender.guid];
-        player.BaseCharacter.Color = color;
-        player.InGameCharacter.recolor();
-        GetComponent<NetworkView>().RPC("UpdateCharacterColor", RPCMode.Others, player.BaseCharacter.Id, color);
+        player.BaseCharacter.R = r;
+        player.BaseCharacter.G = g;
+        player.BaseCharacter.B = b;
+        player.InGameCharacter.recolor_walker(new Color(r, g, b));
+        GetComponent<NetworkView>().RPC("UpdateCharacterColor", RPCMode.Others, player.BaseCharacter.Id, r, g, b);
     }
-    */
+    
     public void ClientName(byte[] client_name_s, NetworkMessageInfo info)
     {
         string client_name = (string)client_name_s.Deserialize();
@@ -584,7 +586,7 @@ public class GameServer : Game
 
         if (can_fire) {
             InstantiatePlasma(scene_attacker);
-            GetComponent<NetworkView>().RPC("InstantiateProjectile", RPCMode.Others, attacker.Id);
+            GetComponent<NetworkView>().RPC("ReceiveProjectile", RPCMode.Others, attacker.Id);
         }
         
     }

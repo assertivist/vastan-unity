@@ -6,6 +6,7 @@ public class WeaponsTest : MonoBehaviour {
     public GameObject walker;
     public GameObject floor;
     public GameObject side_spot;
+    public GameObject ai;
     public Camera cam;
     private bool cam_is_static = true;
     private SceneCharacter3D walker_char;
@@ -15,17 +16,22 @@ public class WeaponsTest : MonoBehaviour {
     Vector2 _smoothMouse;
     public Vector2 sensitivity = new Vector2(3, 3);
     public Vector2 smoothing = new Vector2(3, 3);
+    
     // Use this for initialization
     void Start() {
         walker_char = walker.GetComponent<SceneCharacter3D>();
         // Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        Game.recolor_walker(walker, new Color(.7f, 0f, .3f));
+        walker_char.recolor_walker(new Color(.7f, 0f, .3f));
 
         Color c = new Color(.2f, .2f, .2f);
         Mesh m = floor.GetComponent<MeshFilter>().sharedMesh;
         var colors = from n in Enumerable.Range(0, m.vertices.Length) select c;
         m.colors = colors.ToArray();
+
+        var ai3d = ai.GetComponent<AI3D>();
+        ai3d.Target = walker_char;
+        ai3d.state.on_ground = true;
 
     }
 
@@ -40,6 +46,9 @@ public class WeaponsTest : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
+        var ai3d = ai.GetComponent<AI3D>();
+        ai3d.RunAtTarget();
+        ai3d.state.on_ground = true;
         var turn = Input.GetAxis("Horizontal");
         walker_char.Move(Input.GetAxis("Vertical"), turn, Time.deltaTime, Input.GetButton("Jump"));
 
@@ -54,7 +63,6 @@ public class WeaponsTest : MonoBehaviour {
         _smoothMouse.y = Mathf.Lerp(_smoothMouse.y, mouseDelta.y, 1f / smoothing.y);
         walker_char.Look(_smoothMouse.x, _smoothMouse.y);
 
-
         if (Input.GetKeyDown(KeyCode.Tab)) {
             if (cam_is_static) {
                 attach_cam_to_walker(walker_char);
@@ -66,7 +74,6 @@ public class WeaponsTest : MonoBehaviour {
             }
             cam_is_static = !cam_is_static;
         }
-
 
         if (Input.GetMouseButtonDown(0)) {
             make_plasma(walker_char);

@@ -5,6 +5,8 @@ using System;
 using ServerSideCalculations.Networking;
 using ServerSideCalculations;
 
+
+
 public class MainMenu : MonoBehaviour
 {
 		
@@ -15,7 +17,12 @@ public class MainMenu : MonoBehaviour
 		DontDestroyOnLoad (this);
 
 		GetComponent<NetworkView>().group = 1;
-	}
+
+        colorPicker.onValueChanged.AddListener(color => {
+            gameClient.MyColor = colorPicker.CurrentColor;
+        });
+        gameClient.MyColor = colorPicker.CurrentColor;
+    }
 
 
 	// Draw GUI objects every frame
@@ -91,6 +98,10 @@ public class MainMenu : MonoBehaviour
 
 		GUILayout.EndHorizontal ();
 	}
+
+    public void SetColor(Color c) {
+        gameClient.MyColor = c;
+    }
 }
 	
 	

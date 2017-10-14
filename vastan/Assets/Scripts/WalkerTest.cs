@@ -18,7 +18,7 @@ public class WalkerTest : MonoBehaviour {
         walker_char = walker.GetComponent<SceneCharacter3D>();
         // Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        Game.recolor_walker(walker, new Color(.7f, 0f, .3f));
+        //Game.recolor_walker(walker, new Color(.7f, 0f, .3f));
 
         Color c = new Color(0f, 1.0f, 0f);
         Mesh m = floor.GetComponent<MeshFilter>().sharedMesh;

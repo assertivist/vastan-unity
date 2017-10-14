@@ -14,7 +14,7 @@ public class GameClient : Game {
 
     public Camera MyCamera;
 
-    //public Color MyColor;
+    public Color MyColor;
     public string MyName;
 
     public Character MyCharacter;
@@ -24,7 +24,7 @@ public class GameClient : Game {
     public string GameLevelFile;
 
     public List<Character> CharactersToInstantiate = new List<Character>();
-    public List<Projectile> ProjectilesToInstantiate = new List<Projectile>();
+    public List<int> ProjectilesToInstantiate = new List<int>();
 
     public Dictionary<int, ControlCommand> ControlCommands { get; set; }
     public int CurrentControlCommandId { get; set; }
@@ -53,6 +53,8 @@ public class GameClient : Game {
         //CameraHeightDamping = 2.0f;
         //CameraRotationDamping = 10f;
         //CameraTurnCorrectionSpeed = .5f;
+
+
     }
 
     #endregion
@@ -88,14 +90,24 @@ public class GameClient : Game {
             CharactersToInstantiate.Clear();
         }
 
+        if (ProjectilesToInstantiate.Count > 0) {
+            foreach (var proj in ProjectilesToInstantiate) {
+                InstantiatePlasma(SceneCharacters[proj]);
+            }
+            ProjectilesToInstantiate.Clear();
+        }
+
         if (MyPlayer == null && SceneCharacters != null 
 			&& SceneCharacters.ContainsKey(MyCharacter.Id)) {
             MyPlayer = SceneCharacters[MyCharacter.Id];
             MyPlayer.Client = this;
             MyPlayer.BaseCharacter = MyCharacter;
             MyPlayer.tag = "Player";
-            //MyPlayer.BaseCharacter.Color = MyColor;
-            //MyPlayer.recolor();
+            MyPlayer.BaseCharacter.R = MyColor.r;
+            MyPlayer.BaseCharacter.G = MyColor.g;
+            MyPlayer.BaseCharacter.B = MyColor.b;
+            //recolor_walker(MyPlayer.gameObject, MyColor);
+            GetComponent<NetworkView>().RPC("ClientColor", RPCMode.Server, MyColor.r, MyColor.g, MyColor.b);
         }
 
         if (CurrentGameState != GameStates.LevelLoaded ||
@@ -191,18 +203,7 @@ public class GameClient : Game {
                     intendedCharacterDirection.z - currentCharDirection.z
         ));
         */
-        var directiondiff = intendedCharacterDirection - currentCharDirection;
-        if (Mathf.Abs(directiondiff) > 10) {
-            float instead = 0f;
-            if (directiondiff > 0) {
-                instead = directiondiff - 360;
-            }
-            else {
-                instead = 360 + directiondiff;
-            }
-            directiondiff = instead;
-        }
-        CharacterDirectionDiffs.Add(charId, directiondiff);
+        CharacterDirectionDiffs.Add(charId, intendedCharacterDirection - currentCharDirection);
 
 
         Quaternion currentCharHeadRot = character.head.transform.localRotation;
@@ -225,14 +226,17 @@ public class GameClient : Game {
         string player_name = (string)name.Deserialize();
         character.name = player_name;
     }
-    /*
+    
     [RPC]
-    public void UpdateCharacterColor(int charId, Color color)
+    public void UpdateCharacterColor(int charId, float r, float g, float b)
     {
         SceneCharacter character = SceneCharacters[charId];
-        character.BaseCharacter.Color = color;
-        character.recolor();
-    }*/
+        character.BaseCharacter.R = r;
+        character.BaseCharacter.G = g;
+        character.BaseCharacter.B = b;
+        if (character.gameObject)
+            ((SceneCharacter3D)character).recolor_walker(new Color(r, g, b));
+    }
 
     public Dictionary<int, Vector3> CharacterPositionDiffs { get; set; }
     public Dictionary<int, float> CharacterDirectionDiffs { get; set; }
@@ -418,8 +422,8 @@ public class GameClient : Game {
     #region Character Data
 
     [RPC]
-    public void ReceiveProjectile(int type, int attacker) {
-        ProjectilesToInstantiate.Add(new Projectile(type));
+    public void ReceiveProjectile(int attacker) {
+        ProjectilesToInstantiate.Add(attacker);
     }
 
     [RPC]
@@ -597,10 +601,11 @@ public class GameClient : Game {
             Debug.Log("CLICKED!!");
 
             // 13B: Client starts attack animation/sound/logic
-            CharacterAttacks(((Character)MyPlayer).Id);
+            //CharacterAttacks(((Character)MyPlayer).Id);
 
             // 13C: Client sends attack request to server
-            GetComponent<NetworkView>().RPC("RequestAttack", RPCMode.Server);
+            //GetComponent<NetworkView>().RPC("RequestAttack", RPCMode.Server);
+            GetComponent<NetworkView>().RPC("RequestProjectile", RPCMode.Server);
         }
     }
 

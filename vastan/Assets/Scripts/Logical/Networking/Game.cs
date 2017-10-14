@@ -120,6 +120,8 @@ public abstract class Game : MonoBehaviour
 
 	public GameObject AIPrefab3D;
 
+    public GameObject PlasmaPrefab;
+
 	public GameObject PlayerPrefab{ get { return PlayerPrefab3D; } }
 	public GameObject AIPrefab{ get { return AIPrefab3D; } }
 
@@ -164,32 +166,20 @@ public abstract class Game : MonoBehaviour
         inGameCharacter.PlayerName = newCharacter.CharName;
 
         var sc3d = playerInstantiation.GetComponent<SceneCharacter3D>();
-        //recolor_walker(sc3d.walker, newCharacter.GetColor());
+        sc3d.recolor_walker(new Color(newCharacter.R, newCharacter.G, newCharacter.B));
 		
 		// Add the new player's character to the list of characters on the server
 		Debug.Log ("Adding character " + inGameCharacter.BaseCharacter.CharName + " with ID " + charId);
 		SceneCharacters.Add (charId, sc3d);
 	}
 
-    public void InstantiatePlasma(SceneCharacter3D attacker) {
-        var p = new Plasma();
-    }
-
-    public static void recolor_walker(GameObject w, Color c) {
-        recolor_object(w, "Walker.Head.Glass", new Color(56f / 255f, 69f / 255f, 188f / 255f));
-        recolor_object(w, "Walker.Head.Tubes", new Color(75f / 255f, 71f / 255f, 71f / 255f));
-        recolor_object(w, "Walker.Head.Main", c);
-        recolor_object(w, "Walker.Leg.High.Left", c);
-        recolor_object(w, "Walker.Leg.High.Right", c);
-        recolor_object(w, "Walker.Leg.Low.Left", c);
-        recolor_object(w, "Walker.Leg.Low.Right", c);
-    }
-
-    static void recolor_object(GameObject parent, string name, Color c) {
-        GameObject go = parent.transform.Find("walker_orig/" + name).gameObject;
-        Mesh m = go.GetComponent<SkinnedMeshRenderer>().sharedMesh;
-        var colors = from n in Enumerable.Range(0, m.vertices.Length) select c;
-        m.colors = colors.ToArray();
+    public void InstantiatePlasma(SceneCharacter3D character) {
+        var pos = character.head.transform.position;
+        pos += character.head.transform.forward * 1.1f;
+        var plasma = (GameObject)GameObject.Instantiate(
+            PlasmaPrefab,
+            pos,
+            character.head.transform.rotation);
     }
 
     public void RespawnCharacter (int charId)
