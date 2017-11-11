@@ -6,6 +6,8 @@ public class Plasma : MonoBehaviour {
     public int energy = 100;
     public float decay = 0;
     public float speed = 25f;
+    public bool alive = true;
+    public bool hit_something = false;
 
     public AudioSource plasma_sound;
 
@@ -34,9 +36,9 @@ public class Plasma : MonoBehaviour {
         }
 
         RaycastHit hit_info;
-        Debug.DrawRay(transform.position, transform.forward * .3f);
+        Debug.DrawRay(transform.position, transform.forward * .5f);
         var r = new Ray(transform.position, transform.forward);
-        if (Physics.Raycast(transform.position, transform.forward, out hit_info, .3f)) {
+        if (Physics.Raycast(transform.position, transform.forward, out hit_info, .5f)) {
 
             var hit = hit_info.collider.gameObject;
 
@@ -59,15 +61,19 @@ public class Plasma : MonoBehaviour {
             if (hit_static != null) {
                 asplode();
             }
+            else {
+                asplode();
+            }
             Debug.Log(hit);
         }
     }
 
     void peterout() {
-        Destroy(gameObject);
+        alive = false;
     }
 
     void asplode() {
-        Destroy(gameObject);
+        alive = false;
+        hit_something = true;
     }
 }

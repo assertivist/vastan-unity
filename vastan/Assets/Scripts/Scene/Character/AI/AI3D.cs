@@ -43,7 +43,8 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
 	float MaxTurnSpeed = 10;
 	
 	public void RunAtTarget ()
-	{	
+	{
+        return;
 		if (!((Character)Target).IsAlive) {
 			return;
 		}

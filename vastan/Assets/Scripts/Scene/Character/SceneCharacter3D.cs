@@ -12,6 +12,7 @@ public class SceneCharacter3D : SceneCharacter
     public GameObject guns;
     public GameObject head;
 
+    public GameObject TriangleExplosionPrefab;
     public GameObject walker;
     private SceneCharacter3D walker_char;
 
@@ -71,9 +72,10 @@ public class SceneCharacter3D : SceneCharacter
     }
 
     private void recolor_object(GameObject go, Color c) {
-        Mesh m = go.GetComponent<SkinnedMeshRenderer>().sharedMesh;
+        Mesh m = Instantiate(go.GetComponent<SkinnedMeshRenderer>().sharedMesh);
         var colors = from n in Enumerable.Range(0, m.vertices.Length) select c;
         m.colors = colors.ToArray();
+        go.GetComponent<SkinnedMeshRenderer>().sharedMesh = m;
     }
 
     public override bool MissingController ()

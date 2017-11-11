@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Linq;
+using System.Collections.Generic;
 
 public class WeaponsTest : MonoBehaviour {
     public GameObject walker;
@@ -10,6 +11,10 @@ public class WeaponsTest : MonoBehaviour {
     public Camera cam;
     private bool cam_is_static = true;
     private SceneCharacter3D walker_char;
+
+    public GameObject TriangleExplosionPrefab;
+
+    public List<Plasma> Plasmas { get; set; }
 
     public GameObject plasma_prefab;
 
@@ -33,6 +38,8 @@ public class WeaponsTest : MonoBehaviour {
         ai3d.Target = walker_char;
         ai3d.state.on_ground = true;
 
+        Plasmas = new List<Plasma>();
+
     }
 
     void make_plasma(SceneCharacter3D character) {
@@ -42,6 +49,7 @@ public class WeaponsTest : MonoBehaviour {
             plasma_prefab, 
             pos, 
             character.head.transform.rotation);
+        Plasmas.Add(plasma.GetComponent<Plasma>());
     }
 
     // Update is called once per frame
@@ -78,6 +86,7 @@ public class WeaponsTest : MonoBehaviour {
         if (Input.GetMouseButtonDown(0)) {
             make_plasma(walker_char);
         }
+        HandlePlasmas();
     }
     void attach_cam_to_walker(SceneCharacter3D walker) {
         cam.transform.position = walker.head.transform.position;
@@ -87,5 +96,22 @@ public class WeaponsTest : MonoBehaviour {
         cam.transform.eulerAngles = angles;
 
         cam.transform.SetParent(walker.head.transform);
+    }
+
+    void HandlePlasmas() {
+        foreach (var p in Plasmas) {
+            if (p.hit_something) {
+                var pos = p.transform.position;
+                var exp = (GameObject)GameObject.Instantiate(
+                    TriangleExplosionPrefab,
+                    pos,
+                    Quaternion.identity);
+                exp.GetComponent<Explosion>().set_color(Color.red);
+            }
+            if (!p.alive) {
+                Destroy(p.gameObject);
+            }
+        }
+        Plasmas = (from p in Plasmas where p.alive select p).ToList();
     }
 }

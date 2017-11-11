@@ -355,6 +355,12 @@ public class GameServer : Game
             // 3C: Give the server time to load the scene before creating objects
             CreateObjects();
         }
+
+        foreach (var p in Plasmas) {
+            if (!p.alive) {
+                Destroy(p);
+            }
+        }
     }
 
     public bool BandwidthReduction = true;

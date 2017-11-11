@@ -180,6 +180,7 @@ public abstract class Game : MonoBehaviour
             PlasmaPrefab,
             pos,
             character.head.transform.rotation);
+        Plasmas.Add(plasma.GetComponent<Plasma>());
     }
 
     public void RespawnCharacter (int charId)

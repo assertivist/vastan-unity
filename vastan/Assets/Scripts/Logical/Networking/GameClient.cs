@@ -20,6 +20,8 @@ public class GameClient : Game {
     public Character MyCharacter;
     public SceneCharacter3D MyPlayer;
 
+    public GameObject TriangleExplosionPrefab;
+
     public Level GameLevel;
     public string GameLevelFile;
 
@@ -121,6 +123,12 @@ public class GameClient : Game {
         UpdateCamera();
         UpdateCombatControls();
         ValidateMyPosition();
+
+        foreach (var p in Plasmas) {
+            if (!p.alive) {
+                Destroy(p);
+            }
+        }
     }
 
 
