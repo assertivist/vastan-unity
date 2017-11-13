@@ -1,28 +1,32 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
-public class Plasma : MonoBehaviour {
+public class Plasma : Projectile {
     public int energy = 100;
     public float decay = 0;
-    public float speed = 25f;
-    public bool alive = true;
-    public bool hit_something = false;
-
+    public float speed = 30f;
     public AudioSource plasma_sound;
 
     private void Start() {
-        Color c = new Color(.7f, 0, 0);
-        Mesh m = GetComponent<MeshFilter>().sharedMesh;
-        var colors = from n in Enumerable.Range(0, m.vertices.Length) select c;
-        m.colors = colors.ToArray();
+        exp_colors = new List<Color> {
+            Color.red
+        };
     }
 
+    public void set_energy(int e) {
+        energy = e;
+        Color c = new Color(1f, 0, 0) * energy / 100;
+        Mesh m = GetComponent<MeshFilter>().sharedMesh;
+        var cs = from n in Enumerable.Range(0, m.vertices.Length) select c;
+        m.colors = cs.ToArray();
+    }
     private void Update() {
         if (!isActiveAndEnabled) { return; }
         var tmp = gameObject.transform.position;
         tmp += gameObject.transform.forward * speed * Time.deltaTime;
         gameObject.transform.localPosition = tmp;
+        gameObject.transform.Rotate(0, 0, 200f * Time.deltaTime);
 
         decay += Time.deltaTime;
         if (decay > 6f) {
@@ -68,12 +72,4 @@ public class Plasma : MonoBehaviour {
         }
     }
 
-    void peterout() {
-        alive = false;
-    }
-
-    void asplode() {
-        alive = false;
-        hit_something = true;
-    }
 }

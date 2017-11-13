@@ -123,12 +123,26 @@ public class GameClient : Game {
         UpdateCamera();
         UpdateCombatControls();
         ValidateMyPosition();
+        HandleProjectiles();
+    }
 
-        foreach (var p in Plasmas) {
+    private void HandleProjectiles() {
+        foreach (var p in Projectiles) {
+            if (p.hit_something) {
+                foreach (var c in p.exp_colors) {
+                    var pos = p.transform.position;
+                    var exp = (GameObject)GameObject.Instantiate(
+                        TriangleExplosionPrefab,
+                        pos,
+                        Quaternion.identity);
+                    exp.GetComponent<Explosion>().set_color(c);
+                }
+            }
             if (!p.alive) {
                 Destroy(p);
             }
         }
+        Projectiles = (from p in Projectiles where p.alive select p).ToList();
     }
 
 

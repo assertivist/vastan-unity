@@ -128,7 +128,7 @@ public abstract class Game : MonoBehaviour
 
 	public Dictionary<int, SceneCharacter3D> SceneCharacters { get; set; }
 
-    public List<Plasma> Plasmas { get; set; }
+    public List<Projectile> Projectiles { get; set; }
 	
 
 
@@ -180,7 +180,7 @@ public abstract class Game : MonoBehaviour
             PlasmaPrefab,
             pos,
             character.head.transform.rotation);
-        Plasmas.Add(plasma.GetComponent<Plasma>());
+        Projectiles.Add(plasma.GetComponent<Plasma>());
     }
 
     public void RespawnCharacter (int charId)

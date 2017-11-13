@@ -356,7 +356,7 @@ public class GameServer : Game
             CreateObjects();
         }
 
-        foreach (var p in Plasmas) {
+        foreach (var p in Projectiles) {
             if (!p.alive) {
                 Destroy(p);
             }

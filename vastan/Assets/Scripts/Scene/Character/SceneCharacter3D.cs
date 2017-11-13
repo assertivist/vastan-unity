@@ -123,7 +123,7 @@ public class SceneCharacter3D : SceneCharacter
         state.on_ground = Controller.isGrounded;
 
         InputTuple i = new InputTuple(forward, turn * 4f);
-        state.integrate(Time.fixedTime, duration, i);
+        state.integrate(Time.time, duration, i);
         
         transform.localEulerAngles = new Vector3(0, state.angle, 0);
 
