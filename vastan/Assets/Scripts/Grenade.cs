@@ -13,7 +13,7 @@ public class Grenade : Projectile {
     public float attack_time;
 
     public Vector3 initial_speed;
-    public float g = -9.8f;
+    public float g = -30f;
     public float theta = 30;
 
     void Start () {
@@ -21,7 +21,8 @@ public class Grenade : Projectile {
             Color.red,
             Color.yellow
         };
-        //transform.Rotate(transform.forward, -90f);
+        initial_speed = new Vector3(10, 10);
+        //transform.Rotate(0, 0, -90);
     }
 	
 	void Update () {
@@ -33,6 +34,6 @@ public class Grenade : Projectile {
     Vector3 pos_for_t (float t) {
         var x = initial_speed.x * t * Mathf.Cos(theta);
         var y = ((.5f * g) * Mathf.Pow(t, 2)) + (initial_speed.y * t * Mathf.Sin(theta));
-        return (transform.forward * x) + (transform.up * y);
+        return attack_pos + (transform.forward * x) + (transform.up * y);
     }
 }

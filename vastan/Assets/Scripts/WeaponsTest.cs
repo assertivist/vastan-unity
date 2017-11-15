@@ -90,15 +90,22 @@ public class WeaponsTest : MonoBehaviour {
             make_proj(walker_char, plasma_prefab);
         }
         if (Input.GetKeyDown(KeyCode.E)) {
-            var g = make_proj(walker_char, grenade_prefab);
-            var gren = g.GetComponent<Grenade>();
-            gren.attack_pos = g.transform.position;
+            var pos = walker_char.head.transform.position;
+            pos += walker_char.head.transform.forward * 1.1f;
+            var rot = walker_char.head.transform.rotation.eulerAngles;
+            var quat = Quaternion.Euler(0, rot.y, 0);
+            var proj = (GameObject)GameObject.Instantiate(
+                grenade_prefab,
+                pos,
+                quat); 
+            var gren = proj.GetComponent<Grenade>();
+            //proj.transform.Rotate(0, 0, -90);
+            gren.attack_pos = gren.transform.position;
             gren.attack_time = Time.time;
-            gren.initial_speed = new Vector3(10, 10);
-            gren.transform.Rotate(0, 0, -90);
         }
         HandleProjectiles();
     }
+
     void attach_cam_to_walker(SceneCharacter3D walker) {
         cam.transform.position = walker.head.transform.position;
         cam.transform.rotation = walker.head.transform.rotation;
