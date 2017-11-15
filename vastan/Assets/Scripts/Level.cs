@@ -14,9 +14,13 @@ public class Level {
     public List<Mesh> statics;
     public List<Mesh> holograms;
 
+    private static Random rng = new Random();
+
     private GameObject static_fab;
 
-    private int incarn_count = 0;
+    public int incarn_count = 0;
+    private int last_incarn = -1;
+    public List<Transform> incarns;
 
     private GameObject parent;
 
@@ -161,6 +165,7 @@ public class Level {
         nsp.transform.SetParent(parent.transform);
 
         nsp.AddComponent<NetworkStartPosition>();
+        incarns.Add(nsp.transform);
     }
 
     private void parse_dome(XmlNode node) {
@@ -265,5 +270,19 @@ public class Level {
             geom.transform.SetParent(parent.transform);
         }
         return parent;
+    }
+
+    public Transform get_incarn() {
+        if (last_incarn < 0) {
+            return incarns[Random.Range(0, incarns.Count)];
+        }
+        else {
+            int v = Random.Range(0, incarns.Count);
+            while (v != last_incarn) {
+                v = Random.Range(0, incarns.Count);
+            }
+            last_incarn = v;
+            return incarns[v];
+        }
     }
 }

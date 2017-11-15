@@ -22,7 +22,6 @@ public class Grenade : Projectile {
             Color.yellow
         };
         initial_speed = new Vector3(10, 10);
-        //transform.Rotate(0, 0, -90);
     }
 	
 	void Update () {
