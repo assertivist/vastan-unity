@@ -1,5 +1,7 @@
 # Created by http://www.gitignore.io
 
+*.blend1
+
 ### Unity ###
 [Ll]ibrary/
 [Tt]emp/

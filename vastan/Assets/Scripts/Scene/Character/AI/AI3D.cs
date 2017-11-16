@@ -7,15 +7,20 @@ using System.Collections.Generic;
 
 public class AI3D : SceneCharacter3D, IArtificialIntelligence
 {
+    
 	public SceneCharacter Target { get; set; }
 
 	public GameServer Server { get; set; }
 
-	public SceneCharacter GetSceneChar ()
+	public SceneCharacter3D GetSceneChar ()
 	{
 		return this; 
 	}
-
+    new void Start () {
+        
+        //fwd = Vector3.zero;
+        base.Start();
+    }
 	// Update is called once per frame
 	void Update ()
 	{
@@ -38,18 +43,21 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
 	float MaxTurnSpeed = 10;
 	
 	public void RunAtTarget ()
-	{	
+	{
+        return;
 		if (!((Character)Target).IsAlive) {
 			return;
 		}
 
-        ////Debug.Log ("Turning toward " + Target.transform.position + " at " + MaxTurnSpeed + "*" + Time.deltaTime);
-
+        //Debug.Log ("Turning toward " + Target.transform.position + " at " + MaxTurnSpeed + "*" + Time.deltaTime);
 
         // Turn toward the Target
         //this.transform.rotation = Quaternion.Slerp (this.transform.rotation, Quaternion.LookRotation (Target.transform.position - this.transform.position), MaxTurnSpeed * Time.deltaTime);
         var look_quat = Quaternion.LookRotation(Target.transform.position - this.transform.position, Vector3.up);
-        head.transform.LookAt(Target.transform.position, Vector3.up);
+        var pos = Target.transform.position;
+        pos.y += 1.2f;
+        head.transform.LookAt(pos, Vector3.up);
+        
         var angles = look_quat.eulerAngles;
         var turn = 0f;
         if (angles.y < 0) {
@@ -61,9 +69,13 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
 
         // Move toward the Target
         if (Vector3.Distance (Target.transform.position, transform.position) >= ((Character)this).ArmLength) {
-            this.Move(1f, turn, Time.deltaTime, false);
+            
 		}
-	}
+
+        base.Move(0f, 0, Time.deltaTime, false);
+       
+
+    }
     
     #endregion Movement
     

@@ -1,136 +1,107 @@
 using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using System;
 using ServerSideCalculations.Networking;
 using ServerSideCalculations;
 
-public class MainMenu : MonoBehaviour
-{
 
-    public GameObject title_quad;
-    public GameObject ui_panel;
 
-    public Button connect;
-    public Button start_server;
-    public Button exit;
+public class MainMenu : MonoBehaviour {
 
-    public InputField nickname;
-    public InputField server;
-    public InputField port;
-    public InputField remote_guid;
+    // Do this when the object is first created
+    public void Awake() {
+        // Network level loading is done in a separate channel.
+        DontDestroyOnLoad(this);
 
-    public Toggle client_nat;
-    public Toggle server_nat;
+        GetComponent<NetworkView>().group = 1;
 
-    RawImage image;
-    MovieTexture movie;
-    bool fade_started = false;
-    bool fade_over = false;
+        colorPicker.onValueChanged.AddListener(color => {
+            gameClient.MyColor = colorPicker.CurrentColor;
+        });
+        gameClient.MyColor = colorPicker.CurrentColor;
+    }
+
+
+    // Draw GUI objects every frame
+    public void OnGUI() {
+        DrawNetworkingGUI();
+        //DrawDBGui();
+    }
 
     string remoteIP = "localhost";
 
     int remotePort = 25000;
     int listenPort = 25000;
     string player_name = "dummy";
-    string remoteGUID = "";
+    string remoteGUId = "";
     bool useNat = false;
     public GameServer gameServer;
     public GameClient gameClient;
     public ColorPicker colorPicker;
-		
-	// Do this when the object is first created
-	public void Awake ()
-	{
-		// Network level loading is done in a separate channel.
-		DontDestroyOnLoad (this);
 
-		GetComponent<NetworkView>().group = 1;
+    private void DrawNetworkingGUI() {
+        GUILayout.BeginHorizontal();
 
-        image = title_quad.GetComponent<RawImage>();
-        movie = (MovieTexture)image.texture;
-        movie.Play();
+        if (Network.peerType == NetworkPeerType.Disconnected) {
+            // Not connected to a server
+            useNat = GUILayout.Toggle(useNat, "Use NAT punchthrough");
+            gameClient.UseNat = useNat;
+            gameServer.UseNat = useNat;
 
-        ui_panel.SetActive(false);
+            // Connect to an existing server
+            if (GUILayout.Button("Connect")) {
+                if (useNat) {
+                    if (remoteGUId == null) {
+                        Debug.LogWarning("InvalId GUId given, must be a valId one as reported by Network.player.guid or returned in a HostData struture from the master server");
+                        return;
+                    }
+                    else {
+                        Network.Connect(remoteGUId);
+                    }
+                }
+                else {
+                    Network.Connect(remoteIP, remotePort);
+                }
 
-        exit.onClick.AddListener(ExitClicked);
-        start_server.onClick.AddListener(StartServerClicked);
-        connect.onClick.AddListener(ConnectClicked);
-	}
+                //gameClient.useNat = useNat;
+                gameClient.IsActive = true;
+                //gameClient.MyColor = colorPicker.CurrentColor;
+            }
 
-	// Draw GUI objects every frame
-	public void OnGUI ()
-	{
-		//DrawDBGui();
-        if (!movie.isPlaying && !fade_started) {
-            StartCoroutine("Fade");
-            fade_started = true;
-        }
-        if (fade_over && ui_panel) {
-            ui_panel.SetActive(true);
-        }
+            // Start a new server
+            if (GUILayout.Button("Start Server")) {
+                //gameServer.useNat = useNat;
+                Network.InitializeServer(32, listenPort, useNat);
+                gameServer.IsActive = true;
 
-        if (Network.peerType != NetworkPeerType.Disconnected && ui_panel) {
-            ui_panel.SetActive(false);
-        }
+                // Notify our objects that the level and the network is ready
+                foreach (GameObject go in FindObjectsOfType(typeof(GameObject))) {
+                    go.SendMessage("OnNetworkLoadedLevel", SendMessageOptions.DontRequireReceiver);
+                }
+            }
 
-        remoteIP = server.textComponent.text;
-        remotePort = int.Parse(port.textComponent.text);
-        gameClient.MyName = nickname.textComponent.text;
-        gameClient.UseNat = client_nat.isOn;
-        gameServer.UseNat = server_nat.isOn;
-        remoteGUID = remote_guid.textComponent.text;
-
-        //gameClient.MyColor = colorPicker.CurrentColor;
-    }
-
-    IEnumerator Fade() {
-        for (float f = 1f; f >= 0; f -= 0.1f) {
-            Color c = image.color;
-            c.r = c.g = c.b = f;
-            image.color = c;
-            yield return null;
-        }
-        fade_over = true;
-    }
-
-
-    public void ExitClicked() {
-        Debug.Log("Exit clicked");
-        Application.Quit();
-    }
-
-    public void ConnectClicked() {
-        if (gameClient.UseNat) {
-            if (remoteGUID == null) {
-                Debug.LogWarning("InvalId GUId given, must be a valId one as reported by Network.player.guid or returned in a HostData struture from the master server");
-                return;
+            if (useNat) {
+                remoteGUId = GUILayout.TextField(remoteGUId, GUILayout.MinWidth(145));
             }
             else {
-                Network.Connect(remoteGUID);
+                remoteIP = GUILayout.TextField(remoteIP, GUILayout.MinWidth(100));
+                remotePort = int.Parse(GUILayout.TextField(remotePort.ToString()));
+                gameClient.MyName = GUILayout.TextField(player_name);
+            }
+
+            if (GUILayout.Button("Exit from Main Menu")) {
+                Application.Quit();
             }
         }
-        else {
-            Network.Connect(remoteIP, remotePort);
-        }
-        
-        gameClient.IsActive = true;
 
-        ui_panel.SetActive(false);
-        title_quad.SetActive(false);
+        GUILayout.EndHorizontal();
     }
 
-    public void StartServerClicked() {
-        //gameServer.useNat = useNat;
-        Network.InitializeServer(32, listenPort, gameServer.UseNat);
-        gameServer.IsActive = true;
-
-        // Notify our objects that the level and the network is ready
-        foreach (GameObject go in FindObjectsOfType(typeof(GameObject))) {
-            go.SendMessage("OnNetworkLoadedLevel", SendMessageOptions.DontRequireReceiver);
-        }
-        ui_panel.SetActive(false);
-        title_quad.SetActive(false);
+    public void SetColor(Color c) {
+        gameClient.MyColor = c;
     }
 }
+
+
+

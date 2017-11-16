@@ -29,7 +29,7 @@ public static class AiUtil
 	}
 		
 		
-	public static SceneCharacter FindNearestEnemy (this SceneCharacter aiChar, IEnumerable<SceneCharacter> potentialEnemies)
+	public static SceneCharacter FindNearestEnemy (this SceneCharacter aiChar, IEnumerable<SceneCharacter3D> potentialEnemies)
 	{
 		//Debug.Log( "Character " + aiChar + " finding nearest enemy in " + characters );
 		

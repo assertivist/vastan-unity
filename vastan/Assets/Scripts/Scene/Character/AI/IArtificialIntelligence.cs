@@ -10,7 +10,7 @@ public interface IArtificialIntelligence
 	
 	Character BaseCharacter { get; set; }
     
-	SceneCharacter GetSceneChar ();
+	SceneCharacter3D GetSceneChar ();
 		
 	void RunAtTarget ();
 		

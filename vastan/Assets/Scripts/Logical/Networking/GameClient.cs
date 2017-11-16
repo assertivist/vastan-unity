@@ -8,23 +8,22 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.SceneManagement;
 
-public class GameClient : Game
-{
+public class GameClient : Game {
 
     #region Attributes
 
     public Camera MyCamera;
 
-    //public Color MyColor;
+    public Color MyColor;
     public string MyName;
 
     public Character MyCharacter;
-    public SceneCharacter MyPlayer;
+    public SceneCharacter3D MyPlayer;
 
-    public Level GameLevel;
-    public string GameLevelFile;
+    public GameObject TriangleExplosionPrefab;
 
     public List<Character> CharactersToInstantiate = new List<Character>();
+    public List<int> ProjectilesToInstantiate = new List<int>();
 
     public Dictionary<int, ControlCommand> ControlCommands { get; set; }
     public int CurrentControlCommandId { get; set; }
@@ -35,8 +34,7 @@ public class GameClient : Game
 
     #region Initialization
 
-    new void Start()
-    {
+    new void Start() {
         base.Start();
 
         ControlCommands = new Dictionary<int, ControlCommand>();
@@ -45,36 +43,35 @@ public class GameClient : Game
 
         CharacterIntendedStates = new Dictionary<int, ObjectState>();
         CharacterPositionDiffs = new Dictionary<int, Vector3>();
-        CharacterDirectionDiffs = new Dictionary<int, Vector3>();
+        CharacterDirectionDiffs = new Dictionary<int, float>();
+        CharacterHeadRotDiffs = new Dictionary<int, Quaternion>();
+        CharacterCrouchFactorDiffs = new Dictionary<int, float>();
 
         //CameraDistance = 3.0f;
         //CameraHeight = 2.0f;
         //CameraHeightDamping = 2.0f;
         //CameraRotationDamping = 10f;
         //CameraTurnCorrectionSpeed = .5f;
+
+
     }
 
     #endregion
 
-
     /// <summary>
     /// Update is called once per frame
     /// </summary>
-    void Update()
-    {
-        if (!IsActive)
-        {
+    void Update() {
+        if (!IsActive) {
             return;
         }
 
-        Debug.Log("Level: " + Application.loadedLevelName + "\n MyCharacterx: " + MyCharacter);
-        if (MyCharacter == null || Application.loadedLevelName == MainMenuScene)
-        {
+        //Debug.Log("Level: " + Application.loadedLevelName + "\n MyCharacterx: " + MyCharacter);
+        if (MyCharacter == null || Application.loadedLevelName == MainMenuScene) {
             return;
         }
 
-        if (SceneInformation == null)
-        {
+        if (SceneInformation == null) {
             LoadSceneInfo();
             GameLevel = new Level();
             GameLevel.load(GameLevelFile);
@@ -84,29 +81,36 @@ public class GameClient : Game
 
 
 
-        if (CharactersToInstantiate.Count > 0)
-        {
-            foreach (var character in CharactersToInstantiate)
-            {
+        if (CharactersToInstantiate.Count > 0) {
+            foreach (var character in CharactersToInstantiate) {
                 InstantiateSceneCharacter(character);
             }
 
             CharactersToInstantiate.Clear();
         }
 
-        if (MyPlayer == null && SceneCharacters != null && SceneCharacters.ContainsKey(MyCharacter.Id))
-        {
+        if (ProjectilesToInstantiate.Count > 0) {
+            foreach (var proj in ProjectilesToInstantiate) {
+                InstantiatePlasma(SceneCharacters[proj]);
+            }
+            ProjectilesToInstantiate.Clear();
+        }
+
+        if (MyPlayer == null && SceneCharacters != null 
+			&& SceneCharacters.ContainsKey(MyCharacter.Id)) {
             MyPlayer = SceneCharacters[MyCharacter.Id];
             MyPlayer.Client = this;
             MyPlayer.BaseCharacter = MyCharacter;
             MyPlayer.tag = "Player";
-            //MyPlayer.BaseCharacter.Color = MyColor;
-            //MyPlayer.recolor();
+            MyPlayer.BaseCharacter.R = MyColor.r;
+            MyPlayer.BaseCharacter.G = MyColor.g;
+            MyPlayer.BaseCharacter.B = MyColor.b;
+            //recolor_walker(MyPlayer.gameObject, MyColor);
+            GetComponent<NetworkView>().RPC("ClientColor", RPCMode.Server, MyColor.r, MyColor.g, MyColor.b);
         }
 
         if (CurrentGameState != GameStates.LevelLoaded ||
-            MyPlayer == null)
-        {
+            MyPlayer == null) {
             return;
         }
 
@@ -116,6 +120,26 @@ public class GameClient : Game
         UpdateCamera();
         UpdateCombatControls();
         ValidateMyPosition();
+        HandleProjectiles();
+    }
+
+    private void HandleProjectiles() {
+        foreach (var p in Projectiles) {
+            if (p.hit_something) {
+                foreach (var c in p.exp_colors) {
+                    var pos = p.transform.position;
+                    var exp = (GameObject)GameObject.Instantiate(
+                        TriangleExplosionPrefab,
+                        pos,
+                        Quaternion.identity);
+                    exp.GetComponent<Explosion>().set_color(c);
+                }
+            }
+            if (!p.alive) {
+                Destroy(p);
+            }
+        }
+        Projectiles = (from p in Projectiles where p.alive select p).ToList();
     }
 
 
@@ -125,8 +149,7 @@ public class GameClient : Game
     public float TimeRoundLastReceived { get; set; }
 
     [RPC]
-    public void NewRound(int newRound)
-    {
+    public void NewRound(int newRound) {
         //8A: Client takes note of the new round and time that it was received
         RoundLastReceived = newRound;
         TimeRoundLastReceived = Time.time;
@@ -142,40 +165,41 @@ public class GameClient : Game
 
     //TODO: This may just need to have jump in it...
     [RPC]
-    public void UpdateCharacter(int charId, Vector3 position, Vector3 direction, Vector3 moveDirection, Quaternion headRot)
-    {
+    public void UpdateCharacter(int charId, Vector3 position, float direction, int walking, Quaternion headRot, Vector3 velocity, float crouchfactor) {
         ////Debug.Log ("Update called for " + charId + " at " + position.x + ", " + position.y + ", " + position.z);
 
         // Don't update self if using client-side prediction
         if (CurrentGameState != Game.GameStates.LevelLoaded
             || MyPlayer == null
-            || (ClientSidePredition && charId.Equals(((Character)MyPlayer).Id))
+            || (ClientSidePrediction && charId.Equals(((Character)MyPlayer).Id))
             || !SceneCharacters.ContainsKey(charId)
-            )
-        {
+            ) {
             return;
         }
 
-        SceneCharacter character = SceneCharacters[charId];
-        ObjectState charState = new ObjectState(charId, position, direction, headRot);
-        character.MoveDirection = moveDirection;
+        SceneCharacter3D character = SceneCharacters[charId];
+        ObjectState charState = new ObjectState(charId, position, direction, headRot, velocity, crouchfactor, walking);
 
         // TODO: fix this to call a special method just updating the legs
-        character.GetComponent<SceneCharacter3D>().Move(1f, 0f, Time.deltaTime, false);
+        // character.GetComponent<SceneCharacter3D>().Move(1f, 0f, Time.deltaTime, false);
 
-        if (!CharacterInterpolation)
-        {
+        if (!CharacterInterpolation) {
             character.transform.position = position;
-            character.transform.forward = direction;
+            character.state.velocity = velocity;
+            character.state.angle = direction;
+            character.head.transform.localRotation = headRot;
+            character.crouch_factor = crouchfactor;
+			character.transform.localEulerAngles = new Vector3(0, direction, 0);
             return;
         }
 
         // 7A) Store the character state from the server
-        if (CharacterIntendedStates.ContainsKey(charId))
-        {
+        if (CharacterIntendedStates.ContainsKey(charId)) {
             CharacterIntendedStates.Remove(charId);
             CharacterPositionDiffs.Remove(charId);
             CharacterDirectionDiffs.Remove(charId);
+            CharacterHeadRotDiffs.Remove(charId);
+            CharacterCrouchFactorDiffs.Remove(charId);
         }
 
         CharacterIntendedStates.Add(charId, charState);
@@ -190,40 +214,58 @@ public class GameClient : Game
         ));
 
         // Calculate the direction difference
-        Vector3 currentCharDirection = character.transform.forward;
-        Vector3 intendedCharacterDirection = charState.Forward;
-        CharacterDirectionDiffs.Add(charId, new Vector3(
+        float currentCharDirection = character.transform.localEulerAngles.y;
+        float intendedCharacterDirection = charState.Angle;
+        /*CharacterDirectionDiffs.Add(charId, new Vector3(
                     intendedCharacterDirection.x - currentCharDirection.x,
                     intendedCharacterDirection.y - currentCharDirection.y,
                     intendedCharacterDirection.z - currentCharDirection.z
         ));
+        */
+        CharacterDirectionDiffs.Add(charId, intendedCharacterDirection - currentCharDirection);
+
+
+        Quaternion currentCharHeadRot = character.head.transform.localRotation;
+        Quaternion intendedCharacterHeadRot = charState.HeadRot;
+        CharacterHeadRotDiffs.Add(charId, new Quaternion(
+            intendedCharacterHeadRot.x - currentCharHeadRot.x,
+            intendedCharacterHeadRot.y - currentCharHeadRot.y,
+            intendedCharacterHeadRot.z - currentCharHeadRot.z,
+            intendedCharacterHeadRot.w - currentCharHeadRot.w
+        ));
+
+        float currentCharCrouchFactor = character.crouch_factor;
+        float intendedCharacterCrouchFactor = charState.CrouchFactor;
+        CharacterCrouchFactorDiffs.Add(charId, intendedCharacterCrouchFactor - currentCharCrouchFactor);
     }
 
     [RPC]
-    public void UpdateCharacterName(int charId, byte[] name)
-    {
+    public void UpdateCharacterName(int charId, byte[] name) {
         SceneCharacter character = SceneCharacters[charId];
         string player_name = (string)name.Deserialize();
         character.name = player_name;
     }
-    /*
+    
     [RPC]
-    public void UpdateCharacterColor(int charId, Color color)
+    public void UpdateCharacterColor(int charId, float r, float g, float b)
     {
         SceneCharacter character = SceneCharacters[charId];
-        character.BaseCharacter.Color = color;
-        character.recolor();
-    }*/
+        character.BaseCharacter.R = r;
+        character.BaseCharacter.G = g;
+        character.BaseCharacter.B = b;
+        if (character.gameObject)
+            ((SceneCharacter3D)character).recolor_walker(new Color(r, g, b));
+    }
 
     public Dictionary<int, Vector3> CharacterPositionDiffs { get; set; }
-    public Dictionary<int, Vector3> CharacterDirectionDiffs { get; set; }
+    public Dictionary<int, float> CharacterDirectionDiffs { get; set; }
+    public Dictionary<int, Quaternion> CharacterHeadRotDiffs { get; set; }
+    public Dictionary<int, float> CharacterCrouchFactorDiffs { get; set; }
 
     // 7D: Move each character closer toward its intended location
-    public void InterpolateCharacters()
-    {
-        foreach (int charId in CharacterIntendedStates.Keys)
-        {
-            SceneCharacter character = SceneCharacters[charId];
+    public void InterpolateCharacters() {
+        foreach (int charId in CharacterIntendedStates.Keys) {
+            SceneCharacter3D character = SceneCharacters[charId];
             float portionOfDiffToMove = Mathf.Min(Time.deltaTime / ROUND_LENGTH, 1f);
 
             // Interpolate toward the intended position
@@ -240,19 +282,64 @@ public class GameClient : Game
                 newZPos
             );
 
-            // Interpolate toward the intended direction
-            Vector3 curentDirection = character.transform.forward;
-            Vector3 directionDiff = CharacterDirectionDiffs[charId];
 
-            float newXDir = curentDirection.x + (directionDiff.x * portionOfDiffToMove);
+            // Interpolate toward the intended direction
+            //Vector3 curentDirection = character.transform.forward;
+            float directionDiff = CharacterDirectionDiffs[charId];
+
+            /*float newXDir = curentDirection.x + (directionDiff.x * portionOfDiffToMove);
             float newYDir = curentDirection.y + (directionDiff.y * portionOfDiffToMove);
             float newZDir = curentDirection.z + (directionDiff.z * portionOfDiffToMove);
-
-            character.transform.forward = new Vector3(
+            Vector3 newDir = new Vector3(
                 newXDir,
                 newYDir,
                 newZDir
+            );*/
+            //character.transform.forward = newDir;
+            //var local = character.transform.InverseTransformDirection(newDir);
+            //var fwd = character.transform.TransformDirection(Vector3.forward);
+            //character.state.angle = Vector3.Angle(local, Vector3.forward);
+            //character.state.angle = newYDir;
+            //var angle = character.transform.localEulerAngles.y + (directionDiff * portionOfDiffToMove);
+            //
+            var angle = character.transform.localEulerAngles.y;
+            if (directionDiff > 10) {
+                Debug.Log(directionDiff);
+            }
+			angle = angle + (directionDiff * portionOfDiffToMove);
+			if (angle > 359) angle -= 359f;
+			if (angle < 0) angle = 359f - angle;
+			character.transform.localEulerAngles = new Vector3(
+				0, angle, 0);
+			//character.state.angle = angle;
+
+
+            Quaternion currentHeadRot = character.head.transform.localRotation;
+            Quaternion headRotDiff = CharacterHeadRotDiffs[charId];
+            float newXHeadRot = currentHeadRot.x + (headRotDiff.x * portionOfDiffToMove);
+            float newYHeadRot = currentHeadRot.y + (headRotDiff.y * portionOfDiffToMove);
+            float newZHeadRot = currentHeadRot.z + (headRotDiff.z * portionOfDiffToMove);
+            float newWHeadRot = currentHeadRot.w + (headRotDiff.w * portionOfDiffToMove);
+
+            character.head.transform.localRotation = new Quaternion(
+                newXHeadRot,
+                newYHeadRot,
+                newZHeadRot,
+                newWHeadRot
             );
+
+            float currentCrouchFactor = character.crouch_factor;
+            float crouchFactorDiff = CharacterCrouchFactorDiffs[charId];
+            float newCrouchFactor = currentCrouchFactor + (crouchFactorDiff * portionOfDiffToMove);
+            
+            character.state.velocity = CharacterIntendedStates[charId].Velocity;
+            character.crouch_factor = newCrouchFactor;
+            character.LegUpdate(CharacterIntendedStates[charId].Walking);
+
+
+            var temp = character.head.transform.localPosition;
+            temp.z = character.head_rest_y - newCrouchFactor * SceneCharacter3D.crouch_dist;
+            character.head.transform.localPosition = temp;
         }
     }
 
@@ -267,20 +354,18 @@ public class GameClient : Game
     private int LastCorrectionRespondedTo;
 
     // 11: Valdidate the player character's position with the server
-    private void ValidateMyPosition()
-    {
-        if (MyPlayer.MissingController() || !PositionCorrection)
-        {
+    private void ValidateMyPosition() {
+        if (MyPlayer.MissingController() || !PositionCorrection) {
             return;
         }
 
         ////Debug.Log ("Current speed: " + MyPlayer.GetCurrentSpeed ());
         // 11A: Make a validation requests multiple times per second as long as the player is moving
-        if (MyPlayer.GetCurrentSpeed() >= .1 && Time.time >= (LastTimeValidatedPosition + ValidatePositionInterval))
-        {
+        if (MyPlayer.GetCurrentSpeed() >= .1 && Time.time >= (LastTimeValidatedPosition + ValidatePositionInterval)) {
             //Debug.Log( "Validating my position @ " + Time.time );
-            Debug.Log("Validating my position " + MyPlayer.GetCurrentSpeed());
-            GetComponent<NetworkView>().RPC("ValidatePosition", RPCMode.Server, LastCorrectionRespondedTo, CurrentControlCommandId, MyPlayer.transform.position, MyPlayer.transform.forward);
+            //Debug.Log("Validating my position " + MyPlayer.GetCurrentSpeed());
+            //Debug.Log("My forward is: " + MyPlayer.transform.forward);
+            GetComponent<NetworkView>().RPC("ValidatePosition", RPCMode.Server, LastCorrectionRespondedTo, CurrentControlCommandId, MyPlayer.transform.position, MyPlayer.state.angle);
             LastTimeValidatedPosition = Time.time;
         }
     }
@@ -290,19 +375,23 @@ public class GameClient : Game
 	 * 12: Reposition the player to match the server
 	*/
     [RPC]
-    public void CorrectPosition(int lastControlCommandApplied, Vector3 correctPosition, Vector3 correctMomentum, Vector3 correctDirection)
-    {
+    public void CorrectPosition(int lastControlCommandApplied, Vector3 correctPosition, Vector3 correctMomentum, float correctDirection, Vector3 correctVelocity, float crouch_factor) {
         ////Debug.Log (MyPlayer.networkView.viewID + ") " + "Correcting my position");
         LastCorrectionRespondedTo = lastControlCommandApplied;
 
         // 12A: Reposition the player to match when the server sent the correction 
         MyPlayer.transform.position = correctPosition;
-        MyPlayer.transform.forward = correctDirection;
+        MyPlayer.state.angle = correctDirection;
+        SceneCharacter3D p = (SceneCharacter3D)MyPlayer;
+        p.state.pos = correctPosition;
+        p.state.momentum = correctMomentum;
+        p.state.angle = correctDirection;
+        p.state.velocity = correctVelocity;
+        p.crouch_factor = crouch_factor;
 
         // 12B: Make up for control commands which were sent between when the server sent the correction and now
         ////Debug.Log (MyPlayer.networkView.viewID + ") " + "Applying missing commands, starting with " + (lastControlCommandApplied + 1) + ", up to " + CurrentControlCommandId);
-        while (ControlCommands.ContainsKey(lastControlCommandApplied + 1))
-        {
+        while (ControlCommands.ContainsKey(lastControlCommandApplied + 1)) {
             Debug.Log(MyPlayer.GetComponent<NetworkView>().viewID + ") " + "Applying CC " + lastControlCommandApplied + 1);
             MyPlayer.ExecuteControlCommand(ControlCommands[lastControlCommandApplied + 1]);
             lastControlCommandApplied++;
@@ -317,8 +406,7 @@ public class GameClient : Game
     #region Connection
 
     // What to do when we connect to a server
-    public void OnConnectedToServer()
-    {
+    public void OnConnectedToServer() {
 
         Debug.Log("Sucessfully connected to Server");
 
@@ -326,23 +414,19 @@ public class GameClient : Game
         //nv.RPC("ClientColor", RPCMode.Server, MyColor);
         //nv.RPC("ClientName", RPCMode.Server, MyName.Serialize());
 
-        if (!IsActive)
-        {
+        if (!IsActive) {
             return;
         }
 
         // Notify our objects that the level and the network is ready
-        foreach (GameObject go in FindObjectsOfType(typeof(GameObject)))
-        {
+        foreach (GameObject go in FindObjectsOfType(typeof(GameObject))) {
             go.SendMessage("OnNetworkLoadedLevel", SendMessageOptions.DontRequireReceiver);
         }
     }
 
     [RPC]
-    public void PlayerDisconnected(int id)
-    {
-        if (CharacterIntendedStates.ContainsKey(id))
-        {
+    public void PlayerDisconnected(int id) {
+        if (CharacterIntendedStates.ContainsKey(id)) {
             CharacterIntendedStates.Remove(id);
         }
 
@@ -358,11 +442,14 @@ public class GameClient : Game
     #region Character Data
 
     [RPC]
-    public void InitNewSceneCharacter(byte[] characterData)
-    {
-        CharactersToInstantiate.Add((Character)characterData.Deserialize());
+    public void ReceiveProjectile(int attacker) {
+        ProjectilesToInstantiate.Add(attacker);
     }
 
+    [RPC]
+    public void InitNewSceneCharacter(byte[] characterData) {
+        CharactersToInstantiate.Add((Character)characterData.Deserialize());
+    }
 
     // 4C: Assign the player's character the tag of "Player" so the client know which one to follow
     [RPC]
@@ -489,7 +576,7 @@ public class GameClient : Game
 
     #region Look controls
 
-    public Vector2 sensitivity = new Vector2(2, 2);
+    public Vector2 sensitivity = new Vector2(3, 3);
     public Vector2 smoothing = new Vector2(3, 3);
 
     Vector2 _smoothMouse;
@@ -534,10 +621,11 @@ public class GameClient : Game
             Debug.Log("CLICKED!!");
 
             // 13B: Client starts attack animation/sound/logic
-            CharacterAttacks(((Character)MyPlayer).Id);
+            //CharacterAttacks(((Character)MyPlayer).Id);
 
             // 13C: Client sends attack request to server
-            GetComponent<NetworkView>().RPC("RequestAttack", RPCMode.Server);
+            //GetComponent<NetworkView>().RPC("RequestAttack", RPCMode.Server);
+            GetComponent<NetworkView>().RPC("RequestProjectile", RPCMode.Server);
         }
     }
 
@@ -548,20 +636,23 @@ public class GameClient : Game
 
     #region Movement
 
-    public bool ClientSidePredition = true;
+    public bool ClientSidePrediction = true;
 
     // 10: Move the player's character based on the control command for this frame
     private void MovePlayer()
     {
         // 10A: Move the player locally
         //Debug.Log( "Client is attempting to move player " + Player + " with character " + Player.Character + ";forward: " + CurrentControlCommand.Forward );
-        if (ClientSidePredition)
+        if (ClientSidePrediction)
         {
             MyPlayer.ExecuteControlCommand(CurrentControlCommand);
         }
 
         // 10B: Send the control request to the server
-        GetComponent<NetworkView>().RPC("RequestControl", RPCMode.Server, CurrentControlCommand.Serialize());
+        GetComponent<NetworkView>().RPC(
+			"RequestControl", 
+			RPCMode.Server, 
+			CurrentControlCommand.Serialize());
     }
 
     #endregion
@@ -612,7 +703,7 @@ public class GameClient : Game
             MyCamera.transform.position = pos;
 
             // Look at the player
-            MyCamera.transform.LookAt(MyPlayer.transform.position + MyPlayer.transform.up * MyPlayer.BaseCharacter.Height * ((SceneCharacter3D)MyPlayer).PitchAngle); // Without this, the camera doesn't turn L/R at all
+			MyCamera.transform.LookAt(MyPlayer.transform.position + MyPlayer.transform.up * MyPlayer.BaseCharacter.Height * ((SceneCharacter3D)MyPlayer).PitchAngle); // Without this, the camera doesn't turn L/R at all
         }
         else
         {

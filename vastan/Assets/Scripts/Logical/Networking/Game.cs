@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 using ServerSideCalculations;
 using ServerSideCalculations.Characters;
@@ -29,9 +30,12 @@ public abstract class Game : MonoBehaviour
 	
 	public bool IsActive;
 
+    public string GameLevelName;
+    public string GameLevelFile;
+    public Level GameLevel;
 
-	// Use this for initialization
-	public void Start ()
+    // Use this for initialization
+    public void Start ()
 	{
 		#region Network
 		RemoteIP = "192.168.1.3";
@@ -48,7 +52,7 @@ public abstract class Game : MonoBehaviour
 		#endregion Scenes
 		
 		//UnityEngine.Debug.Log()
-		SceneCharacters = new Dictionary<int, SceneCharacter> ();
+		SceneCharacters = new Dictionary<int, SceneCharacter3D> ();
 	}
 	
 	
@@ -119,14 +123,19 @@ public abstract class Game : MonoBehaviour
 
 	public GameObject AIPrefab3D;
 
+    public GameObject PlasmaPrefab;
+
 	public GameObject PlayerPrefab{ get { return PlayerPrefab3D; } }
 	public GameObject AIPrefab{ get { return AIPrefab3D; } }
 
 
-	public Dictionary<int, SceneCharacter> SceneCharacters { get; set; }
+	public Dictionary<int, SceneCharacter3D> SceneCharacters { get; set; }
+
+    public List<Projectile> Projectiles = new List<Projectile>();
 	
 
-	public void LoadSceneInfo ()
+
+    public void LoadSceneInfo ()
 	{
 		SceneInformation = GameObject.FindObjectOfType<SceneInfo> ();
 	}
@@ -134,6 +143,7 @@ public abstract class Game : MonoBehaviour
 	/// Creates a new in-game SceneCharacter and model with the given Character data
 	/// </summary>
 	/// <param name="newCharacter">New character.</param>
+    ///
 	public void InstantiateSceneCharacter (Character newCharacter)
 	{
 		var charId = newCharacter.Id;
@@ -153,18 +163,36 @@ public abstract class Game : MonoBehaviour
 
 		var prefab = newCharacter.Team == "AI" ? AIPrefab : PlayerPrefab;
 
-		var playerInstantiation = (GameObject)GameObject.Instantiate (prefab, SceneInformation.PlayerSpawn.position, SceneInformation.PlayerSpawn.rotation);
-		var inGameCharacter = playerInstantiation.GetComponent<SceneCharacter> ();
+        var incarn = GameLevel.get_incarn();
+
+        var playerInstantiation = (GameObject)GameObject.Instantiate(
+            prefab,
+            incarn.position,
+            incarn.rotation);
+
+		var inGameCharacter = playerInstantiation.GetComponent<SceneCharacter>();
 		inGameCharacter.BaseCharacter = newCharacter;
         inGameCharacter.PlayerName = newCharacter.CharName;
-        //inGameCharacter.recolor();
+
+        var sc3d = playerInstantiation.GetComponent<SceneCharacter3D>();
+        sc3d.recolor_walker(new Color(newCharacter.R, newCharacter.G, newCharacter.B));
 		
 		// Add the new player's character to the list of characters on the server
 		Debug.Log ("Adding character " + inGameCharacter.BaseCharacter.CharName + " with ID " + charId);
-		SceneCharacters.Add (charId, inGameCharacter);
+		SceneCharacters.Add (charId, sc3d);
 	}
 
-	public void RespawnCharacter (int charId)
+    public void InstantiatePlasma(SceneCharacter3D character) {
+        var pos = character.head.transform.position;
+        pos += character.head.transform.forward * 1.1f;
+        var plasma = (GameObject)GameObject.Instantiate(
+            PlasmaPrefab,
+            pos,
+            character.head.transform.rotation);
+        Projectiles.Add(plasma.GetComponent<Plasma>());
+    }
+
+    public void RespawnCharacter (int charId)
 	{
 		Debug.Log ("Respawning char " + charId);
 		var p = SceneInformation.PlayerSpawn.transform.position;

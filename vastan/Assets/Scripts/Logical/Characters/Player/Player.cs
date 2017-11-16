@@ -12,7 +12,7 @@ public class Player
 	public NetworkPlayer NetworkPlayerLocation { get; set; }
 	
 	public Character BaseCharacter { get; set; } // The logical character - name, stats, etc.
-	public SceneCharacter InGameCharacter { get; set; } // The in-game model of the character
+	public SceneCharacter3D InGameCharacter { get; set; } // The in-game model of the character
 	public NetworkViewID CharViewId { get { return InGameCharacter.GetComponent<NetworkView>().viewID; } }
 
 	public int RoundLastRespondedTo { get; set; } // To synchronize with the server
