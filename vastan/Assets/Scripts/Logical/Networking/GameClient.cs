@@ -22,9 +22,6 @@ public class GameClient : Game {
 
     public GameObject TriangleExplosionPrefab;
 
-    public Level GameLevel;
-    public string GameLevelFile;
-
     public List<Character> CharactersToInstantiate = new List<Character>();
     public List<int> ProjectilesToInstantiate = new List<int>();
 
@@ -378,7 +375,7 @@ public class GameClient : Game {
 	 * 12: Reposition the player to match the server
 	*/
     [RPC]
-    public void CorrectPosition(int lastControlCommandApplied, Vector3 correctPosition, Vector3 correctMomentum, float correctDirection, Vector3 correctVelocity) {
+    public void CorrectPosition(int lastControlCommandApplied, Vector3 correctPosition, Vector3 correctMomentum, float correctDirection, Vector3 correctVelocity, float crouch_factor) {
         ////Debug.Log (MyPlayer.networkView.viewID + ") " + "Correcting my position");
         LastCorrectionRespondedTo = lastControlCommandApplied;
 
@@ -390,6 +387,7 @@ public class GameClient : Game {
         p.state.momentum = correctMomentum;
         p.state.angle = correctDirection;
         p.state.velocity = correctVelocity;
+        p.crouch_factor = crouch_factor;
 
         // 12B: Make up for control commands which were sent between when the server sent the correction and now
         ////Debug.Log (MyPlayer.networkView.viewID + ") " + "Applying missing commands, starting with " + (lastControlCommandApplied + 1) + ", up to " + CurrentControlCommandId);

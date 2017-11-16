@@ -20,7 +20,7 @@ public class Level {
 
     public int incarn_count = 0;
     private int last_incarn = -1;
-    public List<Transform> incarns;
+    public List<Transform> incarns = new List<Transform>();
 
     private GameObject parent;
 

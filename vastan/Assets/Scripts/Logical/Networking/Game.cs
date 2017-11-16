@@ -30,9 +30,12 @@ public abstract class Game : MonoBehaviour
 	
 	public bool IsActive;
 
+    public string GameLevelName;
+    public string GameLevelFile;
+    public Level GameLevel;
 
-	// Use this for initialization
-	public void Start ()
+    // Use this for initialization
+    public void Start ()
 	{
 		#region Network
 		RemoteIP = "192.168.1.3";
@@ -128,7 +131,7 @@ public abstract class Game : MonoBehaviour
 
 	public Dictionary<int, SceneCharacter3D> SceneCharacters { get; set; }
 
-    public List<Projectile> Projectiles { get; set; }
+    public List<Projectile> Projectiles = new List<Projectile>();
 	
 
 
@@ -160,8 +163,14 @@ public abstract class Game : MonoBehaviour
 
 		var prefab = newCharacter.Team == "AI" ? AIPrefab : PlayerPrefab;
 
-		var playerInstantiation = (GameObject)GameObject.Instantiate (prefab, SceneInformation.PlayerSpawn.position, SceneInformation.PlayerSpawn.rotation);
-		var inGameCharacter = playerInstantiation.GetComponent<SceneCharacter> ();
+        var incarn = GameLevel.get_incarn();
+
+        var playerInstantiation = (GameObject)GameObject.Instantiate(
+            prefab,
+            incarn.position,
+            incarn.rotation);
+
+		var inGameCharacter = playerInstantiation.GetComponent<SceneCharacter>();
 		inGameCharacter.BaseCharacter = newCharacter;
         inGameCharacter.PlayerName = newCharacter.CharName;
 

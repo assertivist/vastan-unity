@@ -12,9 +12,6 @@ public class GameServer : Game
 
     #region Initialization
 
-    public string GameLevelName;
-    public Level GameLevel;
-
     // Use this for initialization
     new void Start()
     {
@@ -355,12 +352,10 @@ public class GameServer : Game
             // 3C: Give the server time to load the scene before creating objects
             CreateObjects();
         }
-
-        foreach (var p in Projectiles) {
-            if (!p.alive) {
-                Destroy(p);
-            }
+        else if (CurrentGameState == Game.GameStates.PlayingMatch) {
+            HandleProjectiles();
         }
+
     }
 
     public bool BandwidthReduction = true;
@@ -368,7 +363,7 @@ public class GameServer : Game
     public float TimeLastRoundSent { get; set; }
     public int CurrentRound { get; set; }
     public int RoundsToKeep { get; set; }
-
+    
     /// <summary>
     /// Creates the round.
     /// </summary>
@@ -548,7 +543,7 @@ public class GameServer : Game
             // Send the current position
             // If we send the correction to the old position, it forces the client to apply more contorl commands on its own, creating a larger margin of error
             SceneCharacter3D scenechar = (SceneCharacter3D)player.InGameCharacter;
-            GetComponent<NetworkView>().RPC("CorrectPosition", info.sender, player.LastControlNumApplied, player.InGameCharacter.state.pos, scenechar.state.velocity, scenechar.state.momentum, player.InGameCharacter.state.angle, scenechar.state.velocity, scenechar.crouch_factor);
+            GetComponent<NetworkView>().RPC("CorrectPosition", info.sender, player.LastControlNumApplied, player.InGameCharacter.state.pos, scenechar.state.momentum, player.InGameCharacter.state.angle, scenechar.state.velocity, scenechar.crouch_factor);
         }
         #endregion 11D
     }
@@ -572,6 +567,14 @@ public class GameServer : Game
         Player player = Players[info.sender.guid];
         player.InGameCharacter.PlayerName = client_name;
         GetComponent<NetworkView>().RPC("UpdateCharacterName", RPCMode.Others, player.BaseCharacter.Id, client_name_s);
+    }
+
+    private void HandleProjectiles() {
+        foreach (var p in Projectiles) {
+            if (!p.alive) {
+                Destroy(p);
+            }
+        }
     }
 
 
