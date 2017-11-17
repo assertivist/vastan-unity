@@ -222,7 +222,9 @@ public class GameClient : Game {
                     intendedCharacterDirection.z - currentCharDirection.z
         ));
         */
-        CharacterDirectionDiffs.Add(charId, intendedCharacterDirection - currentCharDirection);
+        float phi = Mathf.Abs(currentCharDirection - intendedCharacterDirection) % 360f;
+        float dist = phi > 180 ? 360 - phi : phi;
+        CharacterDirectionDiffs.Add(charId, dist);
 
 
         Quaternion currentCharHeadRot = character.head.transform.localRotation;

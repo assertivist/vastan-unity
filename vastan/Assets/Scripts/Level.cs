@@ -91,17 +91,18 @@ public class Level {
         foreach (XmlNode node in parent_node.ChildNodes) {
             switch (node.Name)  {
 
+                case "sky":
+                    parse_sky(node);
+                    break;
                 case "static":
                     cycle_mesh(current_is_hologram);
                     parse_node(node);
                     break;
-
                 case "hologram":
                     cycle_mesh(false);
                     parse_node(node);
                     cycle_mesh(true);
                     break;
-
                 case "block":
                     parse_block(node);
                     break;
@@ -119,6 +120,9 @@ public class Level {
                     break;
                 case "incarnator":
                     parse_incarnator(node);
+                    break;
+                case "goody":
+                    parse_goody(node);
                     break;
                 default:
                     break;
@@ -180,17 +184,44 @@ public class Level {
 
     private void parse_ground(XmlNode node) {
         Color c = parse_color(node);
+        RenderSettings.skybox.SetColor("_GroundColor", c);
+        DynamicGI.UpdateEnvironment();
         current_gb.add_block(c, 
-            new Vector3(0, -.01f, 0), 
-            new Vector3(1000, .01f, 1000), 
+            new Vector3(0, -10f, 0), 
+            new Vector3(1000, 19.90f, 1000), 
             Quaternion.identity);
     }
+
+    private void parse_sky(XmlNode node) {
+        Color sky = parse_color(node);
+        Color horizon;
+        XmlAttribute x = node.Attributes["horizon"];
+        if (x == null) horizon = new Color(1, 1, 1);
+        else horizon = parse_color_value(x.Value);
+ 
+        float scale = parse_float(node, "horizonScale");
+
+        RenderSettings.skybox.SetColor("_SkyColor", sky);
+        RenderSettings.skybox.SetColor("_HorizColor", horizon);
+        RenderSettings.skybox.SetFloat("_GradientHeight", scale);
+        DynamicGI.UpdateEnvironment();
+    }
+
+    private void parse_goody(XmlNode node) {
+        string model = parse_string(node, "model", "AvaraA");
+    }
+
+
 
     private Color parse_color(XmlNode node) {
         XmlAttribute x = node.Attributes["color"];
         if (x == null) return new Color(1, 1, 1);
         string value = x.Value;
-        string[] values = value.Split(',');
+        return parse_color_value(value);
+    }
+
+    private Color parse_color_value(string color) { 
+        string[] values = color.Split(',');
         float r = float.Parse(values[0]);
         float g = float.Parse(values[1]);
         float b = float.Parse(values[2]);
