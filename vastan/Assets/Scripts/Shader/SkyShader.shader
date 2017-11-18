@@ -5,7 +5,6 @@
 		_GroundColor ("Ground Color", Color) = (0, 0, 0, 1)
 		_GradientHeight ("Gradient Height", Range(0.0, 1.0)) = .7
 		_Starfield ("Starfield", Range(0.0, 1.0)) = .8
-		_Seed ("Starfield Seed", float) = 128.0
 		
 	}
 	SubShader {
@@ -47,7 +46,8 @@
 			float4 star_or_sky(float4 sky, float2 tex) {
 				bool star = cnoise(tex) > (1 - _Starfield);
 				if (star) {
-					return float4(1, 1, 1, 1);
+					float term = cnoise(float2(tex.y, tex.x));
+					return mix(float4(1, 1, 1, 1), sky, term);
 				}
 				else return sky;
 			}
@@ -63,7 +63,8 @@
 				}
 				if (0.0 < phi && phi < _GradientHeight) {
 					float grad = phi / _GradientHeight;
-					frag_color = mul(star_or_sky(_SkyColor, i.tex_vector), grad) + mul(_HorizColor, (1.0 - grad));
+					float4 gcolor = mul(_SkyColor, grad) + mul(_HorizColor, (1.0 - grad));
+					frag_color = star_or_sky(gcolor, i.tex_vector);
 				}
 				return frag_color;
 			}
