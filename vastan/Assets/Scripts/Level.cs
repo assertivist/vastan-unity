@@ -93,6 +93,10 @@ public class Level {
 
                 case "sky":
                     parse_sky(node);
+                    parse_node(node);
+                    break;
+                case "celestial":
+                    parse_celestial(node);
                     break;
                 case "static":
                     cycle_mesh(current_is_hologram);
@@ -207,11 +211,26 @@ public class Level {
         DynamicGI.UpdateEnvironment();
     }
 
-    private void parse_goody(XmlNode node) {
-        string model = parse_string(node, "model", "AvaraA");
+    private void parse_celestial(XmlNode node) {
+        float azimuth = parse_float(node, "azimuth");
+        float elevation = parse_float(node, "elevation");
+        Color color = parse_color(node);
+        float intensity = parse_float(node, "intensity");
+        bool visible = parse_bool(node, "visible");
+        float size = parse_float(node, "size", 100f);
+        //TODO: celestial prefab
     }
 
-
+    private void parse_goody(XmlNode node) {
+        string model = parse_string(node, "model", "AvaraA");
+        Vector3 location = parse_vec3(node, "location");
+        int grenades = parse_int(node, "grenades");
+        int missiles = parse_int(node, "missiles");
+        int boosters = parse_int(node, "boosters");
+        float respawn = parse_float(node, "respawn");
+        Vector3 spin = parse_vec3(node, "spin");
+        //TODO: goody prefab
+    }
 
     private Color parse_color(XmlNode node) {
         XmlAttribute x = node.Attributes["color"];
@@ -254,6 +273,13 @@ public class Level {
         float y = float.Parse(values[1]);
         float z = float.Parse(values[0]);
         return new Vector3(x, y, z);
+    }
+
+    private static bool parse_bool(XmlNode n, string key, bool def = false) {
+        if (n.Attributes[key] == null) {
+            return def;
+        }
+        else return bool.Parse(n.Attributes[key].Value);
     }
 
     private static string parse_string(XmlNode n, string key, string def = "") {
