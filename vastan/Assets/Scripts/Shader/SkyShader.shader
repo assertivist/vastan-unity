@@ -47,7 +47,7 @@
 				bool star = cnoise(tex) > (1 - _Starfield);
 				if (star) {
 					float term = cnoise(float2(tex.y, tex.x));
-					return mix(float4(1, 1, 1, 1), sky, term);
+					return lerp(float4(1, 1, 1, 1), sky, term);
 				}
 				else return sky;
 			}

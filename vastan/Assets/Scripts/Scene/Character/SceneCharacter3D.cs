@@ -12,7 +12,6 @@ public class SceneCharacter3D : SceneCharacter
     public GameObject guns;
     public GameObject head;
 
-    public GameObject TriangleExplosionPrefab;
     public GameObject walker;
     private SceneCharacter3D walker_char;
 
@@ -45,6 +44,14 @@ public class SceneCharacter3D : SceneCharacter
     public float spring_min_liftoff_factor = 8.5f;
     public float spring_max_liftoff_factor = 9f;
 
+    float energy = 1f;
+    float shield = 1f;
+    float plasma1 = 1f;
+    float plasma2 = 1f;
+
+    int grenades = 6;
+    int missiles = 4;
+    int boosters = 3;
 
     // Use this for initialization
     public void Start() {
