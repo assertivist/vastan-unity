@@ -44,7 +44,7 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
 	
 	public void RunAtTarget ()
 	{
-        return;
+
 		if (!((Character)Target).IsAlive) {
 			return;
 		}

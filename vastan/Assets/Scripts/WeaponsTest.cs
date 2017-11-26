@@ -16,6 +16,9 @@ public class WeaponsTest : MonoBehaviour {
 
     public List<Projectile> Projectiles { get; set; }
 
+    public AudioClip grenade_explode;
+    public AudioClip plasma_hit;
+
     public GameObject plasma_prefab;
     public GameObject grenade_prefab;
 
@@ -101,7 +104,18 @@ public class WeaponsTest : MonoBehaviour {
             var gren = proj.GetComponent<Grenade>();
             //proj.transform.Rotate(0, 0, -90);
             gren.attack_pos = gren.transform.position;
+            gren.initial_speed += walker_char.state.velocity * 85;
+            float ratio;
+            if (rot.x > 274) {
+                ratio = (360 - rot.x) / (360 - 275);
+            }
+            else {
+                ratio = rot.x / 42.5f * -1;
+            }
+            gren.theta += 43f * ratio; 
+            Debug.Log(ratio);
             gren.attack_time = Time.time;
+            Projectiles.Add(gren);
         }
         HandleProjectiles();
     }
@@ -127,6 +141,7 @@ public class WeaponsTest : MonoBehaviour {
                         pos,
                         Quaternion.identity);
                     exp.GetComponent<Explosion>().set_color(c);
+                    AudioSource.PlayClipAtPoint(grenade_explode, pos);
                 }
             }
             if (!p.alive) {

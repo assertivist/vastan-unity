@@ -4,7 +4,6 @@ using System.Linq;
 
 public class Plasma : Projectile {
     public int energy = 100;
-    public float decay = 0;
     public float speed = 30f;
     public AudioSource plasma_sound;
 
@@ -28,16 +27,9 @@ public class Plasma : Projectile {
         gameObject.transform.localPosition = tmp;
         gameObject.transform.Rotate(0, 0, 200f * Time.deltaTime);
 
-        decay += Time.deltaTime;
-        if (decay > 6f) {
-            peterout();
-        }
+        decay(6f);
 
-        var sound = GetComponent<AudioSource>();
-        if(sound && !sound.isPlaying && sound.isActiveAndEnabled) {
-            sound.time = .144f;
-            sound.Play();
-        }
+        restart_sound(.144f);
 
         RaycastHit hit_info;
         Debug.DrawRay(transform.position, transform.forward * .5f);
