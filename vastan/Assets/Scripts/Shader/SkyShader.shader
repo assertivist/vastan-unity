@@ -19,33 +19,12 @@
 			#pragma fragment frag
 			#include "UnityCG.cginc"
 			#include "Noise.hlsl"
-			#define fadeout(f, fAverage, fFeatureSize, fWidth)\
-				lerp(f, fAverage, smoothstep(0.2, 0.6, fWidth / fFeatureSize))
-			#define filterednoise(x, w) fadeout(cnoise(x), 0.5, 1, w)
-
-			float fBm(float3 vInputCoords, float nNumOctaves, float fLacunarity, float fInGain, float fFilterWidth) { 
-				float fNoiseSum = 0; 
-				float fAmplitude = 1; 
-				float fAmplitudeSum = 0; 
-				float fFilterWidthPerBand = fFilterWidth; 
-				float3 vSampleCoords = vInputCoords; 
-				for (int i = 0; i < nNumOctaves; i += 1) {
-					fNoiseSum += fAmplitude * filterednoise(vSampleCoords, fFilterWidthPerBand);
-					fAmplitudeSum += fAmplitude; 
-					fFilterWidthPerBand *= fLacunarity;      
-					fAmplitude *= fInGain; 
-					vSampleCoords *= fLacunarity;
-				}
-				fNoiseSum /= fAmplitudeSum; 
-				return fNoiseSum; 
-			}
 
 			float4 _SkyColor;
 			float4 _HorizColor;
 			float4 _GroundColor;
 			float _GradientHeight;
 			float _Starfield;
-			float _Seed;
 
 			struct VertexInput {
 				float4 vertex : POSITION;
@@ -62,32 +41,37 @@
 				o.tex_vector = mul(unity_ObjectToWorld, v.vertex);
 				return o;
 			}
-
+			/*
 			float4 star_or_sky(float4 sky, float2 tex) {
-				//float r = cnoise(tex);
-				float r = fBm(float3(tex, 1), 4, .1, 1, .1);
-				bool star = r > (1 - _Starfield);
-				if (star) {
-					float term = cnoise(tex);
-					return lerp(float4(1, 1, 1, 1), sky, term);
-				}
-				else return sky;
+				float dist = 6;
+				float r = (cnoise(pow(tex, 2)) \
+					+ cnoise(float2(tex.x, tex.y + dist))\
+					+ cnoise(float2(tex.x + dist, tex.y)) \
+					+ cnoise(float2(tex.x + dist, tex.y + dist))\
+					+ cnoise(float2(tex.x, tex.y - dist))\
+					+ cnoise(float2(tex.x - dist, tex.y - dist))\
+					+ cnoise(float2(tex.x - dist, tex.y)))\
+					/ 7;
+				float thing = pow(r, 2);
+				float other = pow(r, 4);
+				float star = step(thing, (1 - _Starfield));//pow(r, .3), (1 - _Starfield));
+				return lerp(lerp(float4(1, 1, 1, 1), sky, .2), sky, star);
 			}
-
+			*/
 			float4 frag(VertexOutput i) : COLOR{
 				float phi = normalize(i.tex_vector).y;
-				float2 p = i.tex_vector;
+				//float2 p = i.tex_vector;
 				float4 frag_color;
 				if (phi <= 0.0) {
 					frag_color = _GroundColor;
 				}
 				if (phi > _GradientHeight) {
-					frag_color = star_or_sky(_SkyColor, p);
+					frag_color = _SkyColor; // star_or_sky(_SkyColor, p);
 				}
 				if (0.0 < phi && phi < _GradientHeight) {
 					float grad = phi / _GradientHeight;
 					float4 gcolor = mul(_SkyColor, grad) + mul(_HorizColor, (1.0 - grad));
-					frag_color = star_or_sky(gcolor, p);
+					frag_color = gcolor; // (gcolor, p);
 				}
 				return frag_color;
 			}

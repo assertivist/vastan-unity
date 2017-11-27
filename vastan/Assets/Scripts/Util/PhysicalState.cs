@@ -45,10 +45,10 @@ public class WalkerPhysics : Integrator
         var d = new Vector3(accel.x, 0, accel.z) - v;
         if (d.magnitude > friction / 5f) {
             d = d.normalized;
-            d *= friction * 22000f * dt;
+            d *= friction * 23000f * dt;
         } 
         else {
-            d *= friction * 22000f * dt;
+            d *= friction * 23000f * dt;
         }
 
         if (!on_ground) {

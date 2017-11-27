@@ -64,7 +64,7 @@ public class WeaponsTest : MonoBehaviour {
         ai3d.RunAtTarget();
         ai3d.state.on_ground = true;
         var turn = Input.GetAxis("Horizontal");
-        walker_char.Move(Input.GetAxis("Vertical"), turn, Time.deltaTime, Input.GetButton("Jump"));
+        walker_char.Move(Input.GetAxis("Vertical"), turn, Time.fixedDeltaTime, Input.GetButton("Jump"));
 
         // Get raw mouse input for a cleaner reading on more sensitive mice.
         var mouseDelta = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
@@ -126,6 +126,7 @@ public class WeaponsTest : MonoBehaviour {
         var angles = cam.transform.eulerAngles;
         angles.z -= 90;
         cam.transform.eulerAngles = angles;
+        cam.transform.Translate(-.007f, 0, 0.07f);
 
         cam.transform.SetParent(walker.head.transform);
     }

@@ -72,7 +72,7 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
             
 		}
 
-        base.Move(0f, 0, Time.deltaTime, false);
+        base.Move(0f, 0, Time.fixedDeltaTime, false);
        
 
     }

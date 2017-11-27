@@ -31,7 +31,7 @@ public class WalkerTest : MonoBehaviour {
     // Update is called once per frame
     void Update () {
         var turn = Input.GetAxis("Horizontal");
-        walker_char.Move(Input.GetAxis("Vertical"), turn, Time.deltaTime, Input.GetButton("Jump"));
+        walker_char.Move(Input.GetAxis("Vertical"), turn, Time.fixedDeltaTime, Input.GetButton("Jump"));
 
         // Get raw mouse input for a cleaner reading on more sensitive mice.
         var mouseDelta = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));

@@ -545,7 +545,7 @@ public class GameClient : Game {
         CurrentControlCommand = new ControlCommand(((Character)MyPlayer).Id, CurrentControlCommandId);
 
         // 9B: Set the duration of the control command to be the duration since the last frame
-        CurrentControlCommand.Duration = Time.deltaTime;
+        CurrentControlCommand.Duration = Time.fixedDeltaTime;
 
         UpdateMovementControls();
 

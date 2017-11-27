@@ -130,7 +130,7 @@ public class SceneCharacter3D : SceneCharacter
         state.on_ground = Controller.isGrounded;
 
         InputTuple i = new InputTuple(forward, turn * 4f);
-        state.integrate(Time.time, duration, i);
+        state.integrate(Time.fixedTime, duration, i);
         
         transform.localEulerAngles = new Vector3(0, state.angle, 0);
 
@@ -142,6 +142,7 @@ public class SceneCharacter3D : SceneCharacter
         var move = (previous_pos - state.pos);
         if (move.magnitude > .001) 
             Controller.Move(move * -1f);
+        //Controller.SimpleMove(state.velocity);
 	}
 
     public void LegUpdate(float vert) {
@@ -239,11 +240,11 @@ public class SceneCharacter3D : SceneCharacter
 	public override float GetCurrentSpeed ()
 	{
         return state.velocity.magnitude;
-		if (Controller != null) {
-			return Controller.velocity.magnitude;
-		} else {
-			return 0;
-		}
+		//if (Controller != null) {
+		//	return Controller.velocity.magnitude;
+		//} else {
+		//	return 0;
+		//}
 	}
 
     /// <summary>
