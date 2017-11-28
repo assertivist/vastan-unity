@@ -41,7 +41,7 @@ public class Grenade : Projectile {
             
             var hit_ai = hit.GetComponent<AI3D>();
             if (hit_ai != null) {
-                hit_ai.crouch_spring.vel -= 30f;
+                hit_ai.crouch_spring.vel += power;
                 hit_ai.state.momentum.y = 3f;
                 hit_ai.state.momentum += hit_info.normal * power * -1;
             }

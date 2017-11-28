@@ -33,7 +33,7 @@ public class Plasma : Projectile {
 
         RaycastHit hit_info;
         Debug.DrawRay(transform.position, transform.forward * .5f);
-        var r = new Ray(transform.position, transform.forward);
+        //var r = new Ray(transform.position, transform.forward);
         if (Physics.Raycast(transform.position, transform.forward, out hit_info, .5f)) {
 
             var hit = hit_info.collider.gameObject;

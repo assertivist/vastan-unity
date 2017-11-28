@@ -185,7 +185,7 @@ public class DampenedSpring {
     public void calculate(float dt) {
         float initial_pos = pos - stable_pos;
         float initial_vel = vel;
-
+        /*
         if (damping_ratio > 1.0f + epsilon) {
             //overdamp
 
@@ -200,7 +200,8 @@ public class DampenedSpring {
             float c2 = initial_pos - c1;
 
         }
-        else if (damping_ratio > 1.0f - epsilon) {
+        else*/
+        if (damping_ratio > 1.0f - epsilon) {
             // critical damp
             
             float exp_term = Mathf.Exp(-angular_freq * dt);

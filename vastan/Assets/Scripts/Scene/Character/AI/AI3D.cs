@@ -59,7 +59,7 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
         head.transform.LookAt(pos, Vector3.up);
         
         var angles = look_quat.eulerAngles;
-        var turn = 0f;
+        float turn;
         if (angles.y < 0) {
             turn = 1.0f;
         }
@@ -72,9 +72,7 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
             
 		}
 
-        base.Move(0f, 0, Time.fixedDeltaTime, false);
-       
-
+        base.Move(0f, turn, Time.fixedDeltaTime, false);
     }
     
     #endregion Movement
