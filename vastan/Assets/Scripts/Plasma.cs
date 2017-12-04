@@ -4,7 +4,7 @@ using System.Linq;
 
 public class Plasma : Projectile {
     public int energy = 100;
-    public float speed = 30f;
+    public float speed = 45f;
     public AudioSource plasma_sound;
 
     private void Start() {

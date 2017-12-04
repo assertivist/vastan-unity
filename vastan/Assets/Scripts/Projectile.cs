@@ -34,4 +34,11 @@ public class Projectile : MonoBehaviour {
         hit_something = true;
     }
 
+	public static float explosion_scale(float force, Vector3 dist) {
+		return force / dist.sqrMagnitude;
+	}
+
+	public static Vector3 explosion_scale(Vector3 force, Vector3 dist) {
+		return force / dist.sqrMagnitude;
+	}
 }

@@ -33,16 +33,21 @@ public class WeaponsTest : MonoBehaviour {
         Cursor.lockState = CursorLockMode.Locked;
         walker_char.recolor_walker(new Color(.7f, 0f, .3f));
 
-        Color c = new Color(.2f, .2f, .2f);
-        Mesh m = floor.GetComponent<MeshFilter>().sharedMesh;
-        var colors = from n in Enumerable.Range(0, m.vertices.Length) select c;
-        m.colors = colors.ToArray();
+        //Color c = new Color(.2f, .2f, .2f);
+        //Mesh m = floor.GetComponent<MeshFilter>().sharedMesh;
+        //var colors = from n in Enumerable.Range(0, m.vertices.Length) select c;
+        //m.colors = colors.ToArray();
 
         var ai3d = ai.GetComponent<AI3D>();
         ai3d.Target = walker_char;
         ai3d.state.on_ground = true;
 
         Projectiles = new List<Projectile>();
+
+		Level l = new Level();
+		l.load("indra");
+		GameObject l_root = l.game_object();
+		l_root.transform.SetParent(side_spot.transform);
 
     }
 
