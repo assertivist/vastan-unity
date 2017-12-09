@@ -44,14 +44,72 @@ public class SceneCharacter3D : SceneCharacter
     public float spring_min_liftoff_factor = 8.5f;
     public float spring_max_liftoff_factor = 9f;
 
-    float energy = 1f;
-    float shield = 1f;
-    float plasma1 = 1f;
-    float plasma2 = 1f;
+	float max_energy = 5f;
+    public float energy = 5f;
+	float energy_charge = .030f;
 
-    int grenades = 6;
-    int missiles = 4;
-    int boosters = 3;
+	float shield_charge = .030f;
+	float max_shield = 3f;
+    public float shield = 3f;
+
+	float max_plasma_power = .8f;
+	float min_plasma_power = .25f;
+	float plasma_charge = .035f;
+
+    public float plasma1 = .8f;
+    public float plasma2 = .8f;
+
+	int max_grenades = 6;
+	public int grenades = 6;
+
+	int max_missiles = 4;
+	public int missiles = 4;
+
+	int max_boosters = 3;
+	int boosters = 3;
+	bool boosting = false;
+	float boost_timer = 0;
+	float boost_time = 0;
+
+
+	private float plasma_update(float dt, float plasma) {
+		float guncharge = ((energy + energy_charge) * plasma_charge) / max_energy;
+		float new_energy = 0;
+		if (plasma < max_plasma_power) {
+			energy -= guncharge;
+			if (plasma > min_plasma_power) {
+				new_energy = plasma + guncharge * .850f;
+			} else {
+				new_energy = plasma + guncharge * 1.050f;
+			}
+			if (plasma > max_plasma_power)
+				new_energy = max_plasma_power;
+		}
+		return new_energy;
+	}
+
+	public void energy_update(float dt) {
+		plasma1 = plasma_update(dt, plasma1);
+		plasma2 = plasma_update(dt, plasma2);
+
+		if (shield < max_shield) {
+			float regen = (shield_charge * energy) / max_energy;
+
+			if (boosting)
+				shield += shield_charge;
+
+			shield += regen / 8f;
+
+			shield = Mathf.Min(shield, max_shield);
+			energy -= regen;
+		}
+		energy += energy_charge;
+		if (boosting)
+			energy += energy_charge * 4;
+
+		energy = Mathf.Min(max_energy, energy);
+		energy = Mathf.Max(energy, 0f);
+	}
 
     // Use this for initialization
     public void Start() {

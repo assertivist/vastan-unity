@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
@@ -21,6 +22,13 @@ public class WeaponsTest : MonoBehaviour {
 
     public GameObject plasma_prefab;
     public GameObject grenade_prefab;
+
+	public GameObject energy_text;
+	public GameObject shield_text;
+	public GameObject plasma1_text;
+	public GameObject plasma2_text;
+	public GameObject missiles_text;
+	public GameObject grenades_text;
 
     Vector2 _smoothMouse;
     public Vector2 sensitivity = new Vector2(3, 3);
@@ -51,36 +59,47 @@ public class WeaponsTest : MonoBehaviour {
 
     }
 
-    GameObject make_proj(SceneCharacter3D character, GameObject prefab) {
+    GameObject fire_plasma(SceneCharacter3D character) {
+		int gun = 1;
+		float energy = 0;
+		if (character.plasma1 < character.plasma2) {
+			energy = character.plasma2;
+			character.plasma2 = 0;
+			gun = -1;
+		} else {
+			energy = character.plasma1;
+			character.plasma1 = 0;
+		}
+
         var pos = character.head.transform.position;
-        pos += character.head.transform.forward * 1.1f;
+        pos += character.head.transform.forward * .95f;
+		pos += character.head.transform.up * .35f * gun;
         var rot = character.head.transform.rotation;
         var proj = (GameObject)GameObject.Instantiate(
-            prefab, 
+            plasma_prefab, 
             pos, 
             rot);
-        Projectiles.Add(proj.GetComponent<Projectile>());
+		var p = proj.GetComponent<Plasma>();
+		p.set_energy(energy);
+        Projectiles.Add(p);
         return proj;
     }
+
+	void set_text(GameObject t, float text) {
+		t.GetComponent<Text> ().text = string.Format ("{0}: {1}", t.name, text);
+	}
 
     // Update is called once per frame
     void Update() {
         var ai3d = ai.GetComponent<AI3D>();
         ai3d.RunAtTarget();
         ai3d.state.on_ground = true;
-        var turn = Input.GetAxis("Horizontal");
-        walker_char.Move(Input.GetAxis("Vertical"), turn, Time.fixedDeltaTime, Input.GetButton("Jump"));
-
-        // Get raw mouse input for a cleaner reading on more sensitive mice.
-        var mouseDelta = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
-
-        // Scale input against the sensitivity setting and multiply that against the smoothing value.
-        mouseDelta = Vector2.Scale(mouseDelta, new Vector2(sensitivity.x * smoothing.x, sensitivity.y * smoothing.y));
-
-        // Interpolate mouse movement over time to apply smoothing delta.
-        _smoothMouse.x = Mathf.Lerp(_smoothMouse.x, mouseDelta.x, 1f / smoothing.x);
-        _smoothMouse.y = Mathf.Lerp(_smoothMouse.y, mouseDelta.y, 1f / smoothing.y);
-        walker_char.Look(_smoothMouse.x, _smoothMouse.y);
+		set_text (energy_text, walker_char.energy);
+		set_text (shield_text, walker_char.shield);
+		set_text (plasma1_text, walker_char.plasma1);
+		set_text (plasma2_text, walker_char.plasma2);
+		set_text (missiles_text, walker_char.missiles);
+		set_text (grenades_text, walker_char.grenades);
 
         if (Input.GetKeyDown(KeyCode.Tab)) {
             if (cam_is_static) {
@@ -95,7 +114,7 @@ public class WeaponsTest : MonoBehaviour {
         }
 
         if (Input.GetMouseButtonDown(0)) {
-            make_proj(walker_char, plasma_prefab);
+			fire_plasma(walker_char);
         }
         if (Input.GetKeyDown(KeyCode.E)) {
             var pos = walker_char.head.transform.position;
@@ -135,6 +154,22 @@ public class WeaponsTest : MonoBehaviour {
 
         cam.transform.SetParent(walker.head.transform);
     }
+
+	private void FixedUpdate() {
+		var turn = Input.GetAxis("Horizontal");
+		walker_char.Move(Input.GetAxis("Vertical"), turn, Time.fixedDeltaTime, Input.GetButton("Jump"));
+		walker_char.energy_update(Time.fixedDeltaTime);
+		// Get raw mouse input for a cleaner reading on more sensitive mice.
+		var mouseDelta = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
+
+		// Scale input against the sensitivity setting and multiply that against the smoothing value.
+		mouseDelta = Vector2.Scale(mouseDelta, new Vector2(sensitivity.x * smoothing.x, sensitivity.y * smoothing.y));
+
+		// Interpolate mouse movement over time to apply smoothing delta.
+		_smoothMouse.x = Mathf.Lerp(_smoothMouse.x, mouseDelta.x, 1f / smoothing.x);
+		_smoothMouse.y = Mathf.Lerp(_smoothMouse.y, mouseDelta.y, 1f / smoothing.y);
+		walker_char.Look(_smoothMouse.x, _smoothMouse.y);
+	}
 
     private void HandleProjectiles() {
         foreach (var p in Projectiles) {

@@ -48,7 +48,7 @@ public class Grenade : Projectile {
 		if (results.Length > 0) {
             //var hit = hit_info.collider.gameObject;
 
-			Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1.4f);
+			Collider[] hitColliders = Physics.OverlapSphere(transform.position, 3.0f);
 			int i = 0;
 			while (i < hitColliders.Length)
 			{
@@ -74,6 +74,10 @@ public class Grenade : Projectile {
 
         transform.position = pos_for_t(t);
     }
+
+	void FixedUpdate() {
+		
+	}
 
     Vector3 pos_for_t (float t) {
         var spd = initial_speed / 2.0f;

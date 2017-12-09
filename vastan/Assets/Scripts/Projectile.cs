@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class Projectile : MonoBehaviour {
 
+	static float MIN_EXP_RADIUS = .4f;
+
     public bool alive = true;
     public bool hit_something = false;
     public List<Color> exp_colors;
@@ -35,10 +37,14 @@ public class Projectile : MonoBehaviour {
     }
 
 	public static float explosion_scale(float force, Vector3 dist) {
+		if (dist.magnitude < Projectile.MIN_EXP_RADIUS)
+			return force / Mathf.Pow(Projectile.MIN_EXP_RADIUS, 2f);
 		return force / dist.sqrMagnitude;
 	}
 
 	public static Vector3 explosion_scale(Vector3 force, Vector3 dist) {
+		if (dist.magnitude < Projectile.MIN_EXP_RADIUS)
+			return force / Mathf.Pow(Projectile.MIN_EXP_RADIUS, 2f);
 		return force / dist.sqrMagnitude;
 	}
 }
