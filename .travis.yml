@@ -3,6 +3,17 @@ osx_image: xcode9.1
 rvm:
   - 2.1.2
 install:
+  - brew update
+  - brew install openssl
+  - brew link openssl --force
+  - brew uninstall python
+  - brew install python --with-brewed-openssl
+  - sudo brew link python  --force
+  - sudo which python
+  - sudo python --version
+  - sudo python -c "import ssl; print ssl.OPENSSL_VERSION"
+  - ls /usr/local/Cellar/python
+  - ls /usr/local/Cellar/2.7.14/bin/
   - git clone https://github.com/sttz/install-unity
   - sudo /usr/local/Cellar/python/2.7.14/bin/python ./install-unity/install-unity.py --package Unity 5.4.4
   - sudo /usr/local/Cellar/python/2.7.14/bin/python ./install-unity/install-unity.py --package Linux --package Windows 5.4.4
