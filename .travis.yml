@@ -3,6 +3,11 @@ osx_image: xcode9.1
 rvm:
   - 2.1.2
 install:
+  - brew update
+  - brew install openssl
+  - brew link openssl --force
+  - brew install python --with-brewed-openssl
+  - . ~/.profile
   - git clone https://github.com/sttz/install-unity
   - sudo ./install-unity/install-unity.py --package Unity 5.4.4
   - sudo ./install-unity/install-unity.py --package Linux --package Windows 5.4.4
