@@ -8,8 +8,7 @@ install:
   - sudo which python
   - sudo python --version
   - sudo python -c "import ssl; print ssl.OPENSSL_VERSION"
-  - ls /usr/local/Cellar/python
-  - ls /usr/local/Cellar/2.7.14/bin/
+  - ls -lRA /usr/local/Cellar/python
   - git clone https://github.com/sttz/install-unity
   - sudo /usr/local/Cellar/python/2.7.14/bin/python ./install-unity/install-unity.py --package Unity 5.4.4
   - sudo /usr/local/Cellar/python/2.7.14/bin/python ./install-unity/install-unity.py --package Linux --package Windows 5.4.4
