@@ -6,6 +6,7 @@ install:
   - brew update
   - brew uninstall python
   - brew install python --with-brewed-openssl
+  - brew link --overwrite python
   - . ~/.profile
   - git clone https://github.com/sttz/install-unity
   - sudo ./install-unity/install-unity.py --package Unity 5.4.4
