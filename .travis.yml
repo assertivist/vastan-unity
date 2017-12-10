@@ -3,11 +3,15 @@ osx_image: xcode9.1
 rvm:
   - 2.1.2
 install:
-  - sudo chown -R $(whoami) /usr/local
+  - brew doctor
+  - which openssl
+  - which python
+  - sudo which python
+  - ls /usr/local/Cellar/python/2.7.14/
   - brew link --overwrite python
   - git clone https://github.com/sttz/install-unity
-  - sudo python ./install-unity/install-unity.py --package Unity 5.4.4
-  - sudo python ./install-unity/install-unity.py --package Linux --package Windows 5.4.4
+  - sudo /usr/local/Cellar/python/2.7.14/python ./install-unity/install-unity.py --package Unity 5.4.4
+  - sudo /usr/local/Cellar/python/2.7.14/python ./install-unity/install-unity.py --package Linux --package Windows 5.4.4
 script:
   - ./build.sh
 before_deploy:
