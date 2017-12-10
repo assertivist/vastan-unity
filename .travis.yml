@@ -4,7 +4,7 @@ rvm:
   - 2.1.2
 install:
   - sudo chown -R $(whoami) /usr/local
-  - sudo brew link python  --force
+  - brew link python  --force
   - sudo which python
   - sudo python --version
   - sudo python -c "import ssl; print ssl.OPENSSL_VERSION"
