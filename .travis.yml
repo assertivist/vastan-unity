@@ -3,11 +3,7 @@ osx_image: xcode9.1
 rvm:
   - 2.1.2
 install:
-  - brew update
-  - brew install openssl
-  - brew link openssl --force
-  - brew uninstall python
-  - brew install python --with-brewed-openssl
+  - sudo chown -R $(whoami) /usr/local
   - sudo brew link python  --force
   - sudo which python
   - sudo python --version
