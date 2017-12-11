@@ -37,43 +37,50 @@ public class Grenade : Projectile {
 		//Ray r1 = new Ray(transform.position, pos_for_t(t + Time.deltaTime));
 		//Ray r2 = new Ray(pos_for_t (Mathf.Max(t - Time.deltaTime, 0)), transform.position);
         //Debug.DrawRay(r.origin, r.direction * 10f);
-		var results = Physics.OverlapSphere (pos_for_t (t + (Time.deltaTime / 2)), radius).Concat (
-			Physics.OverlapSphere (pos_for_t (t - (Time.deltaTime / 2)), radius)).Concat(
-				Physics.OverlapSphere(transform.position, radius)).ToArray();
+		//var results = Physics.OverlapSphere (pos_for_t (t + (Time.deltaTime / 2)), radius).Concat (
+		//	Physics.OverlapSphere (pos_for_t (t - (Time.deltaTime / 2)), radius)).Concat(
+		//		Physics.OverlapSphere(transform.position, radius)).ToArray();
 
-		Debug.DrawRay (transform.position, Vector3.up);
+		//Debug.DrawRay (transform.position, Vector3.up);
 		//Debug.DrawRay (r1.origin, r1.direction);
 		//Debug.DrawRay (r2.origin, r2.direction);
 		// Physics.SphereCast(r1, radius) || Physics.SphereCast(r2, radius)
-		if (results.Length > 0) {
+		//if (results.Length > 0) {
             //var hit = hit_info.collider.gameObject;
-
-			Collider[] hitColliders = Physics.OverlapSphere(transform.position, 3.0f);
-			int i = 0;
-			while (i < hitColliders.Length)
-			{
-				var go = hitColliders[i].gameObject;
-				var dist = go.transform.position - transform.position;
-				var hitpower = Projectile.explosion_scale(power, dist);
-
-				var hit_sc = go.GetComponent<SceneCharacter3D>();
-				if (hit_sc != null) {
-					if (dist.y < 0)
-						hit_sc.crouch_spring.vel -= dist.normalized.y * hitpower;
-					hit_sc.state.momentum += dist.normalized * hitpower;
-				}
-				var hit_p = go.GetComponent<Projectile>();
-				if (hit_p != null)
-					hit_p.peterout();				
-				Debug.Log(go);
-				Debug.DrawLine(go.transform.position, transform.position);
-				i++;
-			}
-            asplode();
-        }
+		//	asplode_force();
+		//	asplode();
+        //}
 
         transform.position = pos_for_t(t);
     }
+
+
+	void OnTriggerEnter() {
+		asplode_force();
+		asplode();
+	}
+
+	void asplode_force() {
+		Collider[] hitColliders = Physics.OverlapSphere(transform.position, 3.0f);
+		int i = 0;
+		while (i < hitColliders.Length)
+		{
+			var go = hitColliders[i].gameObject;
+			var dist = go.transform.position - transform.position;
+			var hitpower = Projectile.explosion_scale(power, dist);
+
+			var hit_sc = go.GetComponent<SceneCharacter3D>();
+			if (hit_sc != null) {
+				if (dist.y < 0)
+					hit_sc.crouch_spring.vel -= dist.normalized.y * hitpower;
+				hit_sc.state.momentum += dist.normalized * hitpower;
+			}
+			var hit_p = go.GetComponent<Projectile>();
+			if (hit_p != null)
+				hit_p.peterout();
+			i++;
+		}
+	}
 
 	void FixedUpdate() {
 		

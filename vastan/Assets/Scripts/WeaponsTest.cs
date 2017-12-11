@@ -30,7 +30,7 @@ public class WeaponsTest : MonoBehaviour {
 	public GameObject missiles_text;
 	public GameObject grenades_text;
 
-    Vector2 _smoothMouse;
+    Vector2 _smoothMouse; 
     public Vector2 sensitivity = new Vector2(3, 3);
     public Vector2 smoothing = new Vector2(3, 3);
     
@@ -59,17 +59,57 @@ public class WeaponsTest : MonoBehaviour {
 
     }
 
-    GameObject fire_plasma(SceneCharacter3D character) {
+
+	void fire_grenade(SceneCharacter3D character) {
+		if (character.grenades < 1) {
+			return;
+		}
+		//character.grenades--;
+		var pos = character.head.transform.position;
+		pos += character.head.transform.forward * 1.4f;
+		var rot = character.head.transform.rotation.eulerAngles;
+		var quat = Quaternion.Euler (0, rot.y, 0);
+		var proj = (GameObject)GameObject.Instantiate (
+			           grenade_prefab,
+			           pos,
+			           quat); 
+		var gren = proj.GetComponent<Grenade> ();
+		//proj.transform.Rotate(0, 0, -90);
+		gren.attack_pos = gren.transform.position;
+		gren.initial_speed += character.state.velocity * 85;
+		float ratio;
+		if (rot.x > 274) {
+			ratio = (360 - rot.x) / (360 - 275);
+		} else {
+			ratio = rot.x / 42.5f * -1;
+		}
+		gren.theta += 43f * ratio; 
+		Debug.Log (ratio);
+		gren.attack_time = Time.time;
+		Projectiles.Add(gren);
+	}
+
+	void fire_plasma(SceneCharacter3D character) {
 		int gun = 1;
 		float energy = 0;
 		if (character.plasma1 < character.plasma2) {
-			energy = character.plasma2;
-			character.plasma2 = 0;
-			gun = -1;
+			if (character.plasma2 > character.min_plasma_power) {
+				energy = character.plasma2;
+				character.plasma2 = 0;
+				gun = -1;
+			} else
+				return;
 		} else {
-			energy = character.plasma1;
-			character.plasma1 = 0;
+			if (character.plasma1 > character.min_plasma_power) {
+				energy = character.plasma1;
+				character.plasma1 = 0;
+			} else
+				return;
 		}
+		ins_plasma(character, energy, gun);
+	}
+
+	GameObject ins_plasma(SceneCharacter3D character, float energy, int gun) {
 
         var pos = character.head.transform.position;
         pos += character.head.transform.forward * .95f;
@@ -80,13 +120,16 @@ public class WeaponsTest : MonoBehaviour {
             pos, 
             rot);
 		var p = proj.GetComponent<Plasma>();
-		p.set_energy(energy);
-        Projectiles.Add(p);
+		p.set_energy(energy); 
+		Projectiles.Add(p); 
         return proj;
     }
 
 	void set_text(GameObject t, float text) {
-		t.GetComponent<Text> ().text = string.Format ("{0}: {1}", t.name, text);
+		if (text < 1) {
+			text = Mathf.Round (text * 100);
+		}
+		t.GetComponent<Text>().text = string.Format("{0}: {1}", t.name, text);
 	}
 
     // Update is called once per frame
@@ -94,10 +137,10 @@ public class WeaponsTest : MonoBehaviour {
         var ai3d = ai.GetComponent<AI3D>();
         ai3d.RunAtTarget();
         ai3d.state.on_ground = true;
-		set_text (energy_text, walker_char.energy);
-		set_text (shield_text, walker_char.shield);
-		set_text (plasma1_text, walker_char.plasma1);
-		set_text (plasma2_text, walker_char.plasma2);
+		set_text (energy_text, walker_char.energy / 5f);
+		set_text (shield_text, walker_char.shield / 3f);
+		set_text (plasma1_text, walker_char.plasma1 / .8f);
+		set_text (plasma2_text, walker_char.plasma2 / .8f);
 		set_text (missiles_text, walker_char.missiles);
 		set_text (grenades_text, walker_char.grenades);
 
@@ -117,29 +160,7 @@ public class WeaponsTest : MonoBehaviour {
 			fire_plasma(walker_char);
         }
         if (Input.GetKeyDown(KeyCode.E)) {
-            var pos = walker_char.head.transform.position;
-            pos += walker_char.head.transform.forward * 1.1f;
-            var rot = walker_char.head.transform.rotation.eulerAngles;
-            var quat = Quaternion.Euler(0, rot.y, 0);
-            var proj = (GameObject)GameObject.Instantiate(
-                grenade_prefab,
-                pos,
-                quat); 
-            var gren = proj.GetComponent<Grenade>();
-            //proj.transform.Rotate(0, 0, -90);
-            gren.attack_pos = gren.transform.position;
-            gren.initial_speed += walker_char.state.velocity * 85;
-            float ratio;
-            if (rot.x > 274) {
-                ratio = (360 - rot.x) / (360 - 275);
-            }
-            else {
-                ratio = rot.x / 42.5f * -1;
-            }
-            gren.theta += 43f * ratio; 
-            Debug.Log(ratio);
-            gren.attack_time = Time.time;
-            Projectiles.Add(gren);
+			fire_grenade(walker_char);
         }
         HandleProjectiles();
     }
@@ -158,7 +179,7 @@ public class WeaponsTest : MonoBehaviour {
 	private void FixedUpdate() {
 		var turn = Input.GetAxis("Horizontal");
 		walker_char.Move(Input.GetAxis("Vertical"), turn, Time.fixedDeltaTime, Input.GetButton("Jump"));
-		walker_char.energy_update(Time.fixedDeltaTime);
+		walker_char.energy_update(Time.fixedDeltaTime * 3);
 		// Get raw mouse input for a cleaner reading on more sensitive mice.
 		var mouseDelta = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
 

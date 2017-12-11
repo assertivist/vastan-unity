@@ -174,9 +174,6 @@ public class Leg : MonoBehaviour {
 
         var target_pos = get_target_pos();
 
-        if (Debug.isDebugBuild)
-            Debug.DrawLine(hip.position, target_pos, Color.magenta);
-
         var ray_result = get_floor_spot();
         Vector3 floor_pos;
         Vector3 hip_pos = hip.position;
@@ -283,12 +280,6 @@ public class Leg : MonoBehaviour {
 
         recompute_wf_x();
         place_leg();
-
-        if (Debug.isDebugBuild)
-            Debug.DrawLine(
-                foot_ref.transform.position, 
-                wf_target.transform.position, 
-                Color.cyan);
 
     }
 

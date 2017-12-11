@@ -53,7 +53,7 @@ public class SceneCharacter3D : SceneCharacter
     public float shield = 3f;
 
 	float max_plasma_power = .8f;
-	float min_plasma_power = .25f;
+	public float min_plasma_power = .25f;
 	float plasma_charge = .035f;
 
     public float plasma1 = .8f;
@@ -74,15 +74,15 @@ public class SceneCharacter3D : SceneCharacter
 
 	private float plasma_update(float dt, float plasma) {
 		float guncharge = ((energy + energy_charge) * plasma_charge) / max_energy;
-		float new_energy = 0;
+		float new_energy = plasma;
 		if (plasma < max_plasma_power) {
-			energy -= guncharge;
+			energy -= guncharge * dt;
 			if (plasma > min_plasma_power) {
-				new_energy = plasma + guncharge * .850f;
+				new_energy = plasma + (guncharge * .850f * dt);
 			} else {
-				new_energy = plasma + guncharge * 1.050f;
+				new_energy = plasma + (guncharge * 1.050f * dt);
 			}
-			if (plasma > max_plasma_power)
+			if (new_energy > max_plasma_power)
 				new_energy = max_plasma_power;
 		}
 		return new_energy;
@@ -96,21 +96,22 @@ public class SceneCharacter3D : SceneCharacter
 			float regen = (shield_charge * energy) / max_energy;
 
 			if (boosting)
-				shield += shield_charge;
+				shield += shield_charge * dt;
 
-			shield += regen / 8f;
+			shield += (regen / 8f) * dt;
 
 			shield = Mathf.Min(shield, max_shield);
-			energy -= regen;
+			energy -= regen * dt;
 		}
-		energy += energy_charge;
+
+		energy += energy_charge * dt;
 		if (boosting)
-			energy += energy_charge * 4;
+			energy += energy_charge * 4 * dt;
 
 		energy = Mathf.Min(max_energy, energy);
 		energy = Mathf.Max(energy, 0f);
 	}
-
+	
     // Use this for initialization
     public void Start() {
         Controller = GetComponent<CharacterController>();
@@ -248,7 +249,7 @@ public class SceneCharacter3D : SceneCharacter
             if (state.on_ground && state.accel.y < .3) {
                 if (crouch_spring.vel < -spring_min_liftoff_factor) {
                     Debug.Log(crouch_spring.vel);
-                    state.accel.y = jump_factor;
+					state.accel.y = jump_factor;
                     state.momentum.y = 1f;
                 }
             }

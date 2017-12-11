@@ -41,23 +41,23 @@
 				o.tex_vector = mul(unity_ObjectToWorld, v.vertex);
 				return o;
 			}
-			/*
-			float4 star_or_sky(float4 sky, float2 tex) {
-				float dist = 6;
-				float r = (cnoise(pow(tex, 2)) \
-					+ cnoise(float2(tex.x, tex.y + dist))\
-					+ cnoise(float2(tex.x + dist, tex.y)) \
-					+ cnoise(float2(tex.x + dist, tex.y + dist))\
-					+ cnoise(float2(tex.x, tex.y - dist))\
-					+ cnoise(float2(tex.x - dist, tex.y - dist))\
-					+ cnoise(float2(tex.x - dist, tex.y)))\
-					/ 7;
-				float thing = pow(r, 2);
-				float other = pow(r, 4);
-				float star = step(thing, (1 - _Starfield));//pow(r, .3), (1 - _Starfield));
-				return lerp(lerp(float4(1, 1, 1, 1), sky, .2), sky, star);
-			}
-			*/
+
+			//float4 star_or_sky(float4 sky, float2 tex) {
+			//	float dist = 6;
+			//	float r = (cnoise(pow(tex, 2)) \
+			//		+ cnoise(float2(tex.x, tex.y + dist))\
+			//		+ cnoise(float2(tex.x + dist, tex.y)) \
+			//		+ cnoise(float2(tex.x + dist, tex.y + dist))\
+			//		+ cnoise(float2(tex.x, tex.y - dist))\
+			//		+ cnoise(float2(tex.x - dist, tex.y - dist))\
+			//		+ cnoise(float2(tex.x - dist, tex.y)))\
+			//		/ 7;
+			//	float thing = pow(r, 2);
+			//	float other = pow(r, 4);
+			//	float star = step(thing, (1 - _Starfield));//pow(r, .3), (1 - _Starfield));
+			//	return lerp(lerp(float4(1, 1, 1, 1), sky, .2), sky, star);
+			//}
+
 			float4 frag(VertexOutput i) : COLOR{
 				float phi = normalize(i.tex_vector).y;
 				//float2 p = i.tex_vector;
