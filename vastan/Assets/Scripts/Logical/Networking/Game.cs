@@ -11,7 +11,9 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public abstract class Game : MonoBehaviour
 {
-	#region Constants
+    #region Constants
+
+    public static float AVARA_FPS = 15.625f;
 	
 	public const float DEGREES_PER_CALC_ANGLE = 120f;
 	

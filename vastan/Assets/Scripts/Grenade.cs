@@ -33,30 +33,24 @@ public class Grenade : Projectile {
         float t = Time.time - attack_time;
         restart_sound(.1f);
         decay(6f);
-        //RaycastHit hit_info;
-		//Ray r1 = new Ray(transform.position, pos_for_t(t + Time.deltaTime));
-		//Ray r2 = new Ray(pos_for_t (Mathf.Max(t - Time.deltaTime, 0)), transform.position);
-        //Debug.DrawRay(r.origin, r.direction * 10f);
-		//var results = Physics.OverlapSphere (pos_for_t (t + (Time.deltaTime / 2)), radius).Concat (
-		//	Physics.OverlapSphere (pos_for_t (t - (Time.deltaTime / 2)), radius)).Concat(
-		//		Physics.OverlapSphere(transform.position, radius)).ToArray();
-
-		//Debug.DrawRay (transform.position, Vector3.up);
-		//Debug.DrawRay (r1.origin, r1.direction);
-		//Debug.DrawRay (r2.origin, r2.direction);
-		// Physics.SphereCast(r1, radius) || Physics.SphereCast(r2, radius)
-		//if (results.Length > 0) {
-            //var hit = hit_info.collider.gameObject;
-		//	asplode_force();
-		//	asplode();
-        //}
-
         transform.position = pos_for_t(t);
     }
 
 
-	void OnTriggerEnter() {
-		asplode_force();
+	void OnTriggerEnter(Collider other) {
+        var sc = other.gameObject.GetComponent<SceneCharacter>();
+        if (sc != null)
+        {
+            var other_id = sc.BaseCharacter.Id;
+            if (fired_by == other_id)
+            {
+                Debug.Log("Not hitting self!");
+                return;
+            }
+        }
+        Debug.Log("fired by: " + fired_by);
+        Debug.Log("hit: " + other.gameObject.GetInstanceID() + other.gameObject.name);
+        asplode_force();
 		asplode();
 	}
 

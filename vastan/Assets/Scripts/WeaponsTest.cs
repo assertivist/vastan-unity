@@ -4,6 +4,7 @@ using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 
+
 public class WeaponsTest : MonoBehaviour {
     public GameObject walker;
     public GameObject floor;
@@ -12,6 +13,8 @@ public class WeaponsTest : MonoBehaviour {
     public Camera cam;
     private bool cam_is_static = true;
     private SceneCharacter3D walker_char;
+    
+
 
     public GameObject TriangleExplosionPrefab;
 
@@ -40,6 +43,7 @@ public class WeaponsTest : MonoBehaviour {
         // Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         walker_char.recolor_walker(new Color(.7f, 0f, .3f));
+        walker_char.BaseCharacter.Id = 1000;
 
         //Color c = new Color(.2f, .2f, .2f);
         //Mesh m = floor.GetComponent<MeshFilter>().sharedMesh;
@@ -86,7 +90,8 @@ public class WeaponsTest : MonoBehaviour {
 		gren.theta += 43f * ratio; 
 		Debug.Log (ratio);
 		gren.attack_time = Time.time;
-		Projectiles.Add(gren);
+        gren.fired_by = character.BaseCharacter.Id;
+        Projectiles.Add(gren);
 	}
 
 	void fire_plasma(SceneCharacter3D character) {
@@ -120,7 +125,8 @@ public class WeaponsTest : MonoBehaviour {
             pos, 
             rot);
 		var p = proj.GetComponent<Plasma>();
-		p.set_energy(energy); 
+		p.set_energy(energy);
+        p.fired_by = character.BaseCharacter.Id;
 		Projectiles.Add(p); 
         return proj;
     }
@@ -179,7 +185,7 @@ public class WeaponsTest : MonoBehaviour {
 	private void FixedUpdate() {
 		var turn = Input.GetAxis("Horizontal");
 		walker_char.Move(Input.GetAxis("Vertical"), turn, Time.fixedDeltaTime, Input.GetButton("Jump"));
-		walker_char.energy_update(Time.fixedDeltaTime * 3);
+		walker_char.energy_update(Time.fixedDeltaTime * Game.AVARA_FPS);
 		// Get raw mouse input for a cleaner reading on more sensitive mice.
 		var mouseDelta = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
 

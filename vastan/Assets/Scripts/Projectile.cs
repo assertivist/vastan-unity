@@ -10,6 +10,7 @@ public class Projectile : MonoBehaviour {
     public bool hit_something = false;
     public List<Color> exp_colors;
     public float decay_time = 0;
+    public int fired_by;
 
 
     public void restart_sound(float restart_time) {
