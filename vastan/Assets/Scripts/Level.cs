@@ -4,6 +4,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Networking;
 
+public enum ObjectType {
+	Static,
+	Hologram,
+	Ground
+}
+
 public class Level {
 
     public string name;
@@ -17,6 +23,7 @@ public class Level {
     private static Random rng = new Random();
 
     private GameObject static_fab;
+	private GameObject ground_fab;
 
     public int incarn_count = 0;
     private int last_incarn = -1;
@@ -26,6 +33,9 @@ public class Level {
 
     private GeomBuilder current_gb = new GeomBuilder();
     private bool current_is_hologram = false;
+	private ObjectType current_type = ObjectType.Static;
+
+	private Mesh ground;
 
     public static XmlNode get_mapnode(string path)
     {
@@ -60,6 +70,7 @@ public class Level {
         Debug.Log("Loading Level " + name);
 
         static_fab = Resources.Load("LevelGeometry", typeof(GameObject)) as GameObject;
+		ground_fab = Resources.Load("GroundGeometry", typeof(GameObject)) as GameObject;
 
         current_gb.init();
         statics = new List<Mesh>();
@@ -68,8 +79,23 @@ public class Level {
         parse_node(mapnode);
     }
 
-    private void cycle_mesh(bool is_hologram) {
-        if (current_gb != null) {
+    private void cycle_mesh(ObjectType type) {
+		switch (type) {
+			case ObjectType.Hologram:
+				holograms.Add(current_gb.get_mesh());
+				break;
+			case ObjectType.Static:
+				statics.Add(current_gb.get_mesh());
+				break;
+			case ObjectType.Ground:
+				ground = current_gb.get_mesh();
+				break;
+		}
+
+		current_gb = new GeomBuilder();
+		current_gb.init();
+        /*
+		if (current_gb != null) {
             if (is_hologram) {
                 holograms.Add(current_gb.get_mesh());
                 current_gb = new GeomBuilder();
@@ -84,12 +110,12 @@ public class Level {
         else {
             current_gb = new GeomBuilder();
             current_gb.init();
-        }
+        }*/
     }
 
     private void parse_node(XmlNode parent_node)  {
         foreach (XmlNode node in parent_node.ChildNodes) {
-            switch (node.Name)  {
+            switch (node.Name) {
 
                 case "sky":
                     parse_sky(node);
@@ -99,13 +125,13 @@ public class Level {
                     parse_celestial(node);
                     break;
                 case "static":
-                    cycle_mesh(current_is_hologram);
+					cycle_mesh(current_type);
                     parse_node(node);
                     break;
                 case "hologram":
-                    cycle_mesh(false);
+                    cycle_mesh(current_type);
                     parse_node(node);
-                    cycle_mesh(true);
+                    cycle_mesh(ObjectType.Hologram);
                     break;
                 case "block":
                     parse_block(node);
@@ -119,8 +145,10 @@ public class Level {
                 case "dome":
                     parse_dome(node);
                     break;
-                case "ground":
-                    parse_ground(node);
+				case "ground":
+					cycle_mesh(current_type);
+					parse_ground(node);
+					cycle_mesh(ObjectType.Ground);
                     break;
                 case "incarnator":
                     parse_incarnator(node);
@@ -190,10 +218,11 @@ public class Level {
         Color c = parse_color(node);
         RenderSettings.skybox.SetColor("_GroundColor", c);
         DynamicGI.UpdateEnvironment();
-        current_gb.add_block(c, 
+		current_gb.add_block(c, 
             new Vector3(0, -10f, 0), 
-            new Vector3(1000, 19.90f, 1000), 
+            new Vector3(1000, 19.992f, 1000), 
             Quaternion.identity);
+
     }
 
     private void parse_sky(XmlNode node) {
@@ -306,15 +335,14 @@ public class Level {
     }
 
     public GameObject game_object() {
-        cycle_mesh(current_is_hologram);
+        cycle_mesh(current_type);
         foreach (Mesh m in statics) {
             var go = GameObject.Instantiate(static_fab, Vector3.zero, Quaternion.identity);
             GameObject geom = go as GameObject;
             geom.GetComponent<MeshFilter>().mesh = m;
             geom.AddComponent<Static>();
 
-            geom.AddComponent<MeshCollider>();
-            var mc = geom.GetComponent<MeshCollider>();
+			var mc = geom.AddComponent<MeshCollider>();
             mc.sharedMesh = m;
 
             geom.transform.SetParent(parent.transform);
@@ -326,6 +354,13 @@ public class Level {
             geom.GetComponent<MeshFilter>().mesh = m;
             geom.transform.SetParent(parent.transform);
         }
+
+		GameObject ground_go = GameObject.Instantiate(ground_fab, Vector3.zero, Quaternion.identity) as GameObject;
+		ground_go.GetComponent<MeshFilter>().mesh = ground;
+		BoxCollider b = ground_go.AddComponent<BoxCollider>();
+		b.center = new Vector3 (0, -10, 0);
+		b.size = new Vector3 (1000, 20, 1000);
+		ground_go.transform.SetParent(parent.transform);
         return parent;
     }
 

@@ -18,7 +18,6 @@
 			#pragma vertex vert
 			#pragma fragment frag
 			#include "UnityCG.cginc"
-			#include "Noise.hlsl"
 
 			float4 _SkyColor;
 			float4 _HorizColor;
@@ -37,8 +36,8 @@
 
 			VertexOutput vert(VertexInput v) {
 				VertexOutput o = (VertexOutput)0;
-				o.pos = UnityObjectToClipPos(v.vertex);
-				o.tex_vector = mul(unity_ObjectToWorld, v.vertex);
+				o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+				o.tex_vector = v.vertex * 10;
 				return o;
 			}
 
