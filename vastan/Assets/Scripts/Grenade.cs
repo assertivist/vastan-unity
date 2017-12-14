@@ -30,14 +30,14 @@ public class Grenade : Projectile {
 
 	void Update () {
         if (!isActiveAndEnabled) { return; }
-        float t = Time.time - attack_time;
         restart_sound(.1f);
         decay(6f);
+        float t = Time.time - attack_time;
         transform.position = pos_for_t(t);
     }
 
 
-	void OnTriggerEnter(Collider other) {
+    void OnTriggerEnter(Collider other) {
         var sc = other.gameObject.GetComponent<SceneCharacter>();
         if (sc != null)
         {

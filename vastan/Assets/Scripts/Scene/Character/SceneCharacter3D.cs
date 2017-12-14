@@ -25,7 +25,7 @@ public class SceneCharacter3D : SceneCharacter
 	public float PitchAngle { get; set; }
     private Vector2 _headRot;
 
-    private const float bob_amount = .0f;
+    private const float bob_amount = .01f;
     public const float crouch_dist = .0083f;
     private float base_crouch_factor;
     public float crouch_factor = 0f;
