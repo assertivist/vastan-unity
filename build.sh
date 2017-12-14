@@ -7,7 +7,7 @@ options="-batchmode -nographics -silent-crashes -projectPath $(pwd)/$project"
 workspace="$(pwd)/Build"
 packages="$(pwd)/Package"
 myhome="$(pwd)"
-commit=`echo $TRAVIS_COMMIT | tail -c 7`
+commit=`echo $TRAVIS_COMMIT | head -c 7`
 
 mkdir $workspace
 mkdir $packages
@@ -36,3 +36,16 @@ build_for_target linux buildLinuxUniversalPlayer exe
 
 find $packages
 
+notify()
+{
+    (
+        echo NICK vastanbuilds
+        echo USER vastanbuilds 8 x : Notifier
+        sleep 1
+        echo 'JOIN #avaraline'
+        echo 'PRIVMSG #avaraline' $1
+        echo 'PART #avaraline'
+        echo 'PRIVMSG #vastan' $1
+        echo quit
+    ) | nc avaraline.net 6667
+}

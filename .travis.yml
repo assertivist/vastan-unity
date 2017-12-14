@@ -22,6 +22,15 @@ deploy:
       branch: development
   - provider: script
     skip_cleanup: true
-    script: scp -o StrictHostKeyChecking=no -r $TRAVIS_BUILD_DIR/Package/* vastan@vastan.net:/home/vastan/public_html/release/production
+    script: scp -o StrictHostKeyChecking=no -r $TRAVIS_BUILD_DIR/Package/* vastan@vastan.net:/home/vastan/public_html/release/master
     on:
       branch: master
+notifications:
+  irc: 
+    - "avaraline.net#avaraline"
+    - "avaraline.net#vastan"
+    template:
+      - "Vastan build #%{build_number} (%{branch} - %{commit} : %{author}): %{message}"
+      - "Download: http://vastan.net/release/%{branch}"
+      - "Change view : %{compare_url}"
+      - "Build details : %{build_url}"
