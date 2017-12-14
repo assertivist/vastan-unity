@@ -27,8 +27,9 @@ deploy:
       branch: master
 notifications:
   irc: 
-    - "avaraline.net#avaraline"
-    - "avaraline.net#vastan"
+    channels:
+      - "avaraline.net#avaraline"
+      - "avaraline.net#vastan"
     template:
       - "Vastan build #%{build_number} (%{branch} - %{commit} : %{author}): %{message}"
       - "Download: http://vastan.net/release/%{branch}"
