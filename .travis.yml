@@ -28,7 +28,6 @@ deploy:
 notifications:
   irc: 
     channels:
-      - "avaraline.net#avaraline"
       - "avaraline.net#vastan"
     template:
       - "Vastan build #%{build_number} (%{branch} - %{commit} : %{author}): %{message}"
