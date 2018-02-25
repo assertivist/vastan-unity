@@ -26,51 +26,37 @@
 			float _Starfield;
 
 			struct VertexInput {
-				float4 vertex : POSITION;
+				float4 position : POSITION;
+				float3 texcoord: TEXCOORD0;
 			};
 
 			struct VertexOutput {
-				float4 pos : SV_POSITION;
-				float2 tex_vector : TEXCOORD0;
+				float4 position : SV_POSITION;
+				float2 texcoord : TEXCOORD0;
 			};
 
 			VertexOutput vert(VertexInput v) {
 				VertexOutput o = (VertexOutput)0;
-				o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
-				o.tex_vector = v.vertex * 10;
+				o.position = UnityObjectToClipPos(v.position);
+				o.texcoord = v.texcoord;
 				return o;
 			}
 
-			//float4 star_or_sky(float4 sky, float2 tex) {
-			//	float dist = 6;
-			//	float r = (cnoise(pow(tex, 2)) \
-			//		+ cnoise(float2(tex.x, tex.y + dist))\
-			//		+ cnoise(float2(tex.x + dist, tex.y)) \
-			//		+ cnoise(float2(tex.x + dist, tex.y + dist))\
-			//		+ cnoise(float2(tex.x, tex.y - dist))\
-			//		+ cnoise(float2(tex.x - dist, tex.y - dist))\
-			//		+ cnoise(float2(tex.x - dist, tex.y)))\
-			//		/ 7;
-			//	float thing = pow(r, 2);
-			//	float other = pow(r, 4);
-			//	float star = step(thing, (1 - _Starfield));//pow(r, .3), (1 - _Starfield));
-			//	return lerp(lerp(float4(1, 1, 1, 1), sky, .2), sky, star);
-			//}
 
 			float4 frag(VertexOutput i) : COLOR{
-				float phi = normalize(i.tex_vector).y;
-				//float2 p = i.tex_vector;
+				float phi = i.texcoord.y;
+
 				float4 frag_color;
 				if (phi <= 0.0) {
 					frag_color = _GroundColor;
 				}
 				if (phi > _GradientHeight) {
-					frag_color = _SkyColor; // star_or_sky(_SkyColor, p);
+					frag_color = _SkyColor;
 				}
-				if (0.0 < phi && phi < _GradientHeight) {
+				if (0.0 < phi && phi < _GradientHeight) {		
 					float grad = phi / _GradientHeight;
 					float4 gcolor = mul(_SkyColor, grad) + mul(_HorizColor, (1.0 - grad));
-					frag_color = gcolor; // (gcolor, p);
+					frag_color = gcolor; 
 				}
 				return frag_color;
 			}

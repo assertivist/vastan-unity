@@ -68,30 +68,8 @@ public class WeaponsTest : MonoBehaviour {
 		if (character.grenades < 1) {
 			return;
 		}
-		//character.grenades--;
-		var pos = character.head.transform.position;
-		pos += character.head.transform.forward * 1.4f;
-		var rot = character.head.transform.rotation.eulerAngles;
-		var quat = Quaternion.Euler (0, rot.y, 0);
-		var proj = (GameObject)GameObject.Instantiate (
-			           grenade_prefab,
-			           pos,
-			           quat); 
-		var gren = proj.GetComponent<Grenade> ();
-		//proj.transform.Rotate(0, 0, -90);
-		gren.attack_pos = gren.transform.position;
-		gren.initial_speed += character.state.velocity * 85;
-		float ratio;
-		if (rot.x > 274) {
-			ratio = (360 - rot.x) / (360 - 275);
-		} else {
-			ratio = rot.x / 42.5f * -1;
-		}
-		gren.theta += 43f * ratio; 
-		Debug.Log (ratio);
-		gren.attack_time = Time.time;
-        gren.fired_by = character.BaseCharacter.Id;
-        Projectiles.Add(gren);
+        //character.grenades--;
+        Projectiles.Add(Grenade.Fire(character, grenade_prefab));
 	}
 
 	void fire_plasma(SceneCharacter3D character) {

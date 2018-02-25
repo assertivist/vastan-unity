@@ -53,18 +53,26 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
 
         // Turn toward the Target
         //this.transform.rotation = Quaternion.Slerp (this.transform.rotation, Quaternion.LookRotation (Target.transform.position - this.transform.position), MaxTurnSpeed * Time.deltaTime);
-        var look_quat = Quaternion.LookRotation(Target.transform.position - this.transform.position, Vector3.up);
+        
         var pos = Target.transform.position;
         pos.y += 1.2f;
         head.transform.LookAt(pos, Vector3.up);
-        
+        var a = head.transform.localEulerAngles;
+        a.z += 90;
+        head.transform.localEulerAngles = a;
+
+
+        var look_quat = Quaternion.LookRotation(Target.transform.position - this.transform.position, Vector3.up);
         var angles = look_quat.eulerAngles;
-        float turn;
-        if (angles.y < 0) {
-            turn = 1.0f;
+        float phi = Mathf.Abs(this.state.angle - angles.y) % 360f;
+        float dist = phi > 180 ? (360 - phi) : phi;
+        float turn = 0;
+      
+        if (this.state.angle < angles.y && dist > 2) {
+            turn = 1f;
         }
-        else {
-            turn = -1.0f;
+        else if ( this.state.angle > angles.y && dist > 2) {
+            turn = -1;
         }
 
         // Move toward the Target

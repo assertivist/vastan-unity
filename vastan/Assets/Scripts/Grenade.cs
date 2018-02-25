@@ -6,34 +6,71 @@ public class Grenade : Projectile {
 
     public AudioSource grenade_sound;
     public float power = 150f;
-
-    public Vector3 attack_pos;
-    public Vector3 attacker_speed;
-    public Vector2 attacker_angles;
-    public float attack_time;
+    
 	public float radius = .15f;
 
-    public Vector3 initial_speed = new Vector3(85, 85);
-    public float g = -65f;
-    public float theta = 30f;
+    private float gravity = .120f;
+    private float friction = .01f;
 
+    public Vector3 speed = new Vector3(0, 0, 0);
+    public float g = -65f;
+    public float attack_time;
+    
     void Start () {
+        
         exp_colors = new List<Color> {
             Color.red,
             Color.yellow
         };
     }
 
-	void OnDrawGizmos() {
-		Gizmos.DrawWireSphere (transform.position, radius);
-	}
+    public static Grenade Fire(SceneCharacter3D c, GameObject fab) {
+        var pos = c.head.transform.position;
+        pos += c.head.transform.forward * 1.4f;
+        var rot = c.head.transform.rotation.eulerAngles;
+        var quat = Quaternion.Euler(rot.x, rot.y, 0);
+        var go = (GameObject)GameObject.Instantiate(
+            fab,
+            pos,
+            quat);
+        Debug.Log(go);
+        var grenade = go.GetComponent<Grenade>();
+        var t = go.transform;
+        grenade.attack_time = Time.time;
+        grenade.speed = c.state.velocity;
+        grenade.speed += ((t.forward * 2) + t.up);
+        grenade.fired_by = c.BaseCharacter.Id;
+        return grenade;
+    }
+    
 
 	void Update () {
         if (!isActiveAndEnabled) { return; }
         restart_sound(.1f);
-        decay(6f);
-        float t = Time.time - attack_time;
-        transform.position = pos_for_t(t);
+
+        //float t = Time.time - attack_time;
+        //transform.position = pos_for_t(t);
+        var dt = Time.fixedDeltaTime * Game.AVARA_FPS;
+
+        speed.x -= speed.x * friction * dt;
+        speed.y -= gravity + (speed.y * friction) * dt;
+        speed.z -= speed.z * friction * dt;
+
+        var pos = transform.position;
+        pos.x += speed.x * dt;
+        pos.y += speed.y * dt;
+        pos.z += speed.z * dt;
+        transform.position = pos;
+
+        //explode after 100 "frames"
+        if ((Time.time - attack_time) / Game.AVARA_FPS > 100) {
+            asplode_force();
+            asplode();
+        }
+    }
+
+    void FixedUpdate() {
+
     }
 
 
@@ -76,14 +113,11 @@ public class Grenade : Projectile {
 		}
 	}
 
-	void FixedUpdate() {
-		
-	}
-
-    Vector3 pos_for_t (float t) {
+    /* Vector3 pos_for_t (float t) {
         var spd = initial_speed / 2.0f;
         var x = spd.x * t * Mathf.Cos(theta * Mathf.Deg2Rad);
         var y = ((.5f * g) * Mathf.Pow(t, 2)) + (spd.y * t * Mathf.Sin(theta * Mathf.Deg2Rad));
         return attack_pos + (transform.forward * x) + (transform.up * y);
     }
+    */
 }
