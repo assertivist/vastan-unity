@@ -569,13 +569,7 @@ public class GameServer : Game
         GetComponent<NetworkView>().RPC("UpdateCharacterName", RPCMode.Others, player.BaseCharacter.Id, client_name_s);
     }
 
-    private void HandleProjectiles() {
-        foreach (var p in Projectiles) {
-            if (!p.alive) {
-                Destroy(p);
-            }
-        }
-    }
+    
 
 
     #region Combat

@@ -4,13 +4,30 @@ using System.Linq;
 
 public class Plasma : Projectile {
     public float energy = 100;
-    public float speed = 45f;
+    public Vector3 speed = Vector3.forward;
     public AudioSource plasma_sound;
 
     private void Start() {
         exp_colors = new List<Color> {
             Color.red
         };
+    }
+
+    public static Plasma Fire(SceneCharacter3D c, GameObject fab, float energy, int gun) {
+        var pos = c.head.transform.position;
+        pos += c.head.transform.forward * 1.4f;
+        pos += c.head.transform.up * .49f * gun;
+        pos += c.head.transform.right * -.3f;
+        var rot = c.head.transform.rotation;
+        var proj = (GameObject)GameObject.Instantiate(
+            fab,
+            pos,
+            rot);
+        var p = proj.GetComponent<Plasma>();
+        p.set_energy(energy);
+        p.fired_by = c.BaseCharacter.Id;
+        p.speed = proj.transform.forward * 2f;
+        return p;
     }
 
 	public void set_energy(float e) {
@@ -28,9 +45,9 @@ public class Plasma : Projectile {
 
 	private void FixedUpdate() {
 		if (!isActiveAndEnabled) { return; }
-		var tmp = gameObject.transform.position;
-		tmp += gameObject.transform.forward * speed * Time.fixedDeltaTime;
-		gameObject.transform.localPosition = tmp;
+		gameObject.transform.position += speed * Time.fixedDeltaTime * Game.AVARA_FPS;
+		//tmp += gameObject.transform.forward * speed * Time.fixedDeltaTime * Game.AVARA_FPS;
+		//gameObject.transform.localPosition = tmp;
 		gameObject.transform.Rotate(0, 0, 200f * Time.fixedDeltaTime);
 
 		RaycastHit hit_info;
@@ -52,7 +69,7 @@ public class Plasma : Projectile {
 				hit_ai.state.momentum += transform.forward * energy * 3f;
 				asplode();
 			}
-
+ 
 			var hit_static = hit.GetComponent<Static>();
 			if (hit_static != null) {
 				asplode();

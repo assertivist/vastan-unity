@@ -89,25 +89,8 @@ public class WeaponsTest : MonoBehaviour {
 			} else
 				return;
 		}
-		ins_plasma(character, energy, gun);
+        Projectiles.Add(Plasma.Fire(character, plasma_prefab, energy, gun));
 	}
-
-	GameObject ins_plasma(SceneCharacter3D character, float energy, int gun) {
-
-        var pos = character.head.transform.position;
-        pos += character.head.transform.forward * .95f;
-		pos += character.head.transform.up * .35f * gun;
-        var rot = character.head.transform.rotation;
-        var proj = (GameObject)GameObject.Instantiate(
-            plasma_prefab, 
-            pos, 
-            rot);
-		var p = proj.GetComponent<Plasma>();
-		p.set_energy(energy);
-        p.fired_by = character.BaseCharacter.Id;
-		Projectiles.Add(p); 
-        return proj;
-    }
 
 	void set_text(GameObject t, float text) {
 		if (text < 1) {

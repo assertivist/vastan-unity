@@ -64,15 +64,14 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
 
         var look_quat = Quaternion.LookRotation(Target.transform.position - this.transform.position, Vector3.up);
         var angles = look_quat.eulerAngles;
-        float phi = Mathf.Abs(this.state.angle - angles.y) % 360f;
-        float dist = phi > 180 ? (360 - phi) : phi;
+        var dist = Mathf.DeltaAngle(this.state.angle, angles.y);
         float turn = 0;
-      
-        if (this.state.angle < angles.y && dist > 2) {
-            turn = 1f;
+
+        if (dist < -5) {
+            turn = -1f;
         }
-        else if ( this.state.angle > angles.y && dist > 2) {
-            turn = -1;
+        else if (dist > 5) {
+            turn = 1;
         }
 
         // Move toward the Target

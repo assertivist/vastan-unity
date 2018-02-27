@@ -255,7 +255,19 @@ public abstract class Game : MonoBehaviour
 	
 	public bool FriendlyFire = false;
 
-	#endregion Combat
+    public void HandleProjectiles()
+    {
+        foreach (var p in Projectiles)
+        {
+            if (!p.alive)
+            {
+                Destroy(p);
+            }
+        }
+        Projectiles = (from p in Projectiles where p.alive select p).ToList();
+    }
+
+    #endregion Combat
 
 }
 

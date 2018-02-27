@@ -124,9 +124,12 @@ public class GameClient : Game {
     }
 
     private void HandleProjectiles() {
-        foreach (var p in Projectiles) {
-            if (p.hit_something) {
-                foreach (var c in p.exp_colors) {
+        foreach (var p in Projectiles)
+        {
+            if (p.hit_something)
+            {
+                foreach (var c in p.exp_colors)
+                {
                     var pos = p.transform.position;
                     var exp = (GameObject)GameObject.Instantiate(
                         TriangleExplosionPrefab,
@@ -135,11 +138,8 @@ public class GameClient : Game {
                     exp.GetComponent<Explosion>().set_color(c);
                 }
             }
-            if (!p.alive) {
-                Destroy(p);
-            }
         }
-        Projectiles = (from p in Projectiles where p.alive select p).ToList();
+        //handleprojectiles? on game
     }
 
 
@@ -222,6 +222,8 @@ public class GameClient : Game {
                     intendedCharacterDirection.z - currentCharDirection.z
         ));
         */
+
+        // TODO: use Mathf.DeltaAngle instead and test
         float phi = Mathf.Abs(currentCharDirection - intendedCharacterDirection) % 360f;
         float dist = phi > 180 ? 360 - phi : phi;
         CharacterDirectionDiffs.Add(charId, dist);
