@@ -13,7 +13,6 @@ public class Grenade : Projectile {
     private float friction = .01f;
 
     public Vector3 speed = new Vector3(0, 0, 0);
-    public float g = -65f;
     public float attack_time;
     
     void Start () {
@@ -37,7 +36,7 @@ public class Grenade : Projectile {
         var grenade = go.GetComponent<Grenade>();
         var t = go.transform;
         grenade.attack_time = Time.time;
-        grenade.speed = c.state.velocity;
+        grenade.speed = c.state.velocity * 3.5f;
         grenade.speed += ((t.forward * 2) + t.up);
         grenade.fired_by = c.BaseCharacter.Id;
         return grenade;
@@ -48,12 +47,18 @@ public class Grenade : Projectile {
         if (!isActiveAndEnabled) { return; }
         restart_sound(.1f);
 
-        //float t = Time.time - attack_time;
-        //transform.position = pos_for_t(t);
+        //explode after 100 "frames"
+        if ((Time.time - attack_time) * Game.AVARA_FPS > 100) {
+            asplode_force();
+            asplode();
+        }
+    }
+
+    void FixedUpdate() {
         var dt = Time.fixedDeltaTime * Game.AVARA_FPS;
 
         speed.x -= speed.x * friction * dt;
-        speed.y -= gravity + (speed.y * friction) * dt;
+        speed.y -= (gravity + (speed.y * friction)) * dt;
         speed.z -= speed.z * friction * dt;
 
         var pos = transform.position;
@@ -61,16 +66,6 @@ public class Grenade : Projectile {
         pos.y += speed.y * dt;
         pos.z += speed.z * dt;
         transform.position = pos;
-
-        //explode after 100 "frames"
-        if ((Time.time - attack_time) / Game.AVARA_FPS > 100) {
-            asplode_force();
-            asplode();
-        }
-    }
-
-    void FixedUpdate() {
-
     }
 
 
@@ -112,12 +107,4 @@ public class Grenade : Projectile {
 			i++;
 		}
 	}
-
-    /* Vector3 pos_for_t (float t) {
-        var spd = initial_speed / 2.0f;
-        var x = spd.x * t * Mathf.Cos(theta * Mathf.Deg2Rad);
-        var y = ((.5f * g) * Mathf.Pow(t, 2)) + (spd.y * t * Mathf.Sin(theta * Mathf.Deg2Rad));
-        return attack_pos + (transform.forward * x) + (transform.up * y);
-    }
-    */
 }

@@ -250,7 +250,7 @@ public class SceneCharacter3D : SceneCharacter
                 if (crouch_spring.vel < -spring_min_liftoff_factor) {
                     Debug.Log(crouch_spring.vel);
 					state.accel.y = jump_factor;
-                    state.momentum.y = 1f;
+                    state.momentum.y = 0f;
                 }
             }
             will_jump = false;
@@ -266,7 +266,7 @@ public class SceneCharacter3D : SceneCharacter
         }
     }
 
-    public Vector2 clampInDegrees = new Vector2(194, 84);
+    public Vector2 clampInDegrees = new Vector2(240, 60);
 
     // Turn/tilt the player's head as needed
     public void Look (float yawAmount, float pitchAmount)
