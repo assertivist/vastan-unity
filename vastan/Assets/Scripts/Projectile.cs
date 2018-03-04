@@ -8,6 +8,7 @@ public class Projectile : MonoBehaviour {
 
     public bool alive = true;
     public bool hit_something = false;
+    public bool hit_wall = false;
     public List<Color> exp_colors;
     public float decay_time = 0;
     public int fired_by;

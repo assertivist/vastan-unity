@@ -5,11 +5,11 @@ using System.Linq;
 public class Grenade : Projectile {
 
     public AudioSource grenade_sound;
-    public float power = 150f;
+    public float power = 240f;
     
 	public float radius = .15f;
 
-    private float gravity = .120f;
+    private float gravity = .120f * 1.4f;
     private float friction = .01f;
 
     public Vector3 speed = new Vector3(0, 0, 0);
@@ -25,7 +25,8 @@ public class Grenade : Projectile {
 
     public static Grenade Fire(SceneCharacter3D c, GameObject fab) {
         var pos = c.head.transform.position;
-        pos += c.head.transform.forward * 1.4f;
+        pos += c.head.transform.forward * 1.1f;
+        pos -= c.head.transform.right * .4f;
         var rot = c.head.transform.rotation.eulerAngles;
         var quat = Quaternion.Euler(rot.x, rot.y, 0);
         var go = (GameObject)GameObject.Instantiate(
@@ -36,7 +37,7 @@ public class Grenade : Projectile {
         var grenade = go.GetComponent<Grenade>();
         var t = go.transform;
         grenade.attack_time = Time.time;
-        grenade.speed = c.state.velocity * 3.5f;
+        grenade.speed = -1 * c.move;
         grenade.speed += ((t.forward * 2) + t.up);
         grenade.fired_by = c.BaseCharacter.Id;
         return grenade;
@@ -101,9 +102,16 @@ public class Grenade : Projectile {
 					hit_sc.crouch_spring.vel -= dist.normalized.y * hitpower;
 				hit_sc.state.momentum += dist.normalized * hitpower;
 			}
+
 			var hit_p = go.GetComponent<Projectile>();
 			if (hit_p != null)
 				hit_p.peterout();
+
+            var hit_s = go.GetComponent<Static>();
+            if (hit_s != null) 
+                hit_wall = true;
+            
+
 			i++;
 		}
 	}

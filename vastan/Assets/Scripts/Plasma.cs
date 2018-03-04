@@ -72,6 +72,7 @@ public class Plasma : Projectile {
  
 			var hit_static = hit.GetComponent<Static>();
 			if (hit_static != null) {
+                hit_wall = true;
 				asplode();
 			}
 			else {

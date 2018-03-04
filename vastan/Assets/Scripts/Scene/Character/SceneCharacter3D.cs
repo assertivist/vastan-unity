@@ -71,8 +71,13 @@ public class SceneCharacter3D : SceneCharacter
 	float boost_timer = 0;
 	float boost_time = 0;
 
+    public Vector3 move;
+    
+    private Material my_material;
+    private MaterialPropertyBlock my_property_block;
 
-	private float plasma_update(float dt, float plasma) {
+
+    private float plasma_update(float dt, float plasma) {
 		float guncharge = ((energy + energy_charge) * plasma_charge) / max_energy;
 		float new_energy = plasma;
 		if (plasma < max_plasma_power) {
@@ -126,15 +131,23 @@ public class SceneCharacter3D : SceneCharacter
 
         state = new WalkerPhysics(155f, walker.transform, Vector3.zero, Vector3.zero, transform.localEulerAngles.y);
         crouch_spring = new DampenedSpring(crouch_factor);
+        my_material = body_pieces[0].GetComponent<Renderer>().material;
+        my_property_block = new MaterialPropertyBlock();
+        foreach(GameObject g in body_pieces) {
+            g.GetComponent<Renderer>().material = my_material;
+        }
+        //recolor_object(visor, new Color(56f / 255f, 69f / 255f, 188f / 255f));
+        //recolor_object(guns, new Color(75f / 255f, 71f / 255f, 71f / 255f));
+
     }
 
     public void recolor_walker(Color c) {
+        my_material.color = c;
+        return;
+    }
 
-        recolor_object(visor, new Color(56f / 255f, 69f / 255f, 188f / 255f));
-        recolor_object(guns, new Color(75f / 255f, 71f / 255f, 71f / 255f));
-        foreach (GameObject g in body_pieces) {
-            recolor_object(g, c);
-        }
+    public void glow_walker(Color c) {
+        my_material.SetColor(Shader.PropertyToID("_EmissionColor"), c);
     }
 
     private void recolor_object(GameObject go, Color c) {
@@ -198,7 +211,7 @@ public class SceneCharacter3D : SceneCharacter
         Debug.DrawLine(tp, tp + (state.velocity * 100), Color.red);
         Debug.DrawLine(tp, tp + (state.accel * 10), Color.cyan);
         Debug.DrawLine(tp, tp + (state.momentum * .1f), Color.black);
-        var move = (previous_pos - state.pos);
+        move = (previous_pos - state.pos);
         if (move.magnitude > .001) 
             Controller.Move(move * -1f);
         //Controller.SimpleMove(state.velocity);

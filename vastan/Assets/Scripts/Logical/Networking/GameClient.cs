@@ -224,8 +224,9 @@ public class GameClient : Game {
         */
 
         // TODO: use Mathf.DeltaAngle instead and test
-        float phi = Mathf.Abs(currentCharDirection - intendedCharacterDirection) % 360f;
-        float dist = phi > 180 ? 360 - phi : phi;
+        //float phi = Mathf.Abs(currentCharDirection - intendedCharacterDirection) % 360f;
+        //float dist = phi > 180 ? 360 - phi : phi;
+        float dist = Mathf.DeltaAngle(currentCharDirection, intendedCharacterDirection);
         CharacterDirectionDiffs.Add(charId, dist);
 
 
