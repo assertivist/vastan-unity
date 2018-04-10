@@ -10,6 +10,7 @@ public class WeaponsTest : MonoBehaviour {
     public GameObject floor;
     public GameObject side_spot;
     public GameObject ai;
+    private AI3D ai3d;
     public Camera cam;
     private bool cam_is_static = true;
     private SceneCharacter3D walker_char;
@@ -38,7 +39,7 @@ public class WeaponsTest : MonoBehaviour {
     public Vector2 sensitivity = new Vector2(3, 3);
     public Vector2 smoothing = new Vector2(3, 3);
 
-    float t = 0;
+    public float t = 0;
     
     // Use this for initialization
     void Start() {
@@ -53,7 +54,7 @@ public class WeaponsTest : MonoBehaviour {
         //var colors = from n in Enumerable.Range(0, m.vertices.Length) select c;
         //m.colors = colors.ToArray();
 
-        var ai3d = ai.GetComponent<AI3D>();
+        ai3d = ai.GetComponent<AI3D>();
         ai3d.Target = walker_char;
         ai3d.state.on_ground = true;
 
@@ -63,9 +64,6 @@ public class WeaponsTest : MonoBehaviour {
 		l.load("indra");
 		GameObject l_root = l.game_object();
 		l_root.transform.SetParent(side_spot.transform);
-
-        
-
     }
 
 
@@ -78,23 +76,11 @@ public class WeaponsTest : MonoBehaviour {
 	}
 
 	void fire_plasma(SceneCharacter3D character) {
-		int gun = 1;
-		float energy = 0;
-		if (character.plasma1 < character.plasma2) {
-			if (character.plasma2 > character.min_plasma_power) {
-				energy = character.plasma2;
-				character.plasma2 = 0;
-				gun = -1;
-			} else
-				return;
-		} else {
-			if (character.plasma1 > character.min_plasma_power) {
-				energy = character.plasma1;
-				character.plasma1 = 0;
-			} else
-				return;
-		}
-        Projectiles.Add(Plasma.Fire(character, plasma_prefab, energy, gun));
+		if (!(character.plasma1 > character.min_plasma_power || 
+            character.plasma2 > character.min_plasma_power)) {
+            return;
+        }
+        Projectiles.Add(Plasma.Fire(character, plasma_prefab));
 	}
 
 	void set_text(GameObject t, float text) {
@@ -106,7 +92,6 @@ public class WeaponsTest : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        var ai3d = ai.GetComponent<AI3D>();
         ai3d.RunAtTarget();
         ai3d.state.on_ground = true;
         ai3d.recolor_walker(Color.green);
@@ -132,18 +117,23 @@ public class WeaponsTest : MonoBehaviour {
         if (Input.GetMouseButtonDown(0)) {
 			fire_plasma(walker_char);
         }
+
         if (Input.GetKeyDown(KeyCode.E)) {
 			fire_grenade(walker_char);
         }
         HandleProjectiles();
 
         t += Time.deltaTime;
-        if (t > 1) {
+        if (t > 2) {
             t = 0;
+            //walker_char.was_hit();
+            fire_plasma(ai3d);
         }
 
-        walker_char.glow_walker(Color.Lerp(Color.black, Color.white, t));
+        //walker_char.glow_walker(Color.Lerp(Color.black, Color.white, t));
     }
+
+    
 
     void attach_cam_to_walker(SceneCharacter3D walker) {
         cam.transform.position = walker.head.transform.position;
@@ -160,6 +150,7 @@ public class WeaponsTest : MonoBehaviour {
 		var turn = Input.GetAxis("Horizontal");
 		walker_char.Move(Input.GetAxis("Vertical"), turn, Time.fixedDeltaTime, Input.GetButton("Jump"));
 		walker_char.energy_update(Time.fixedDeltaTime * Game.AVARA_FPS);
+        ai3d.energy_update(Time.fixedDeltaTime * Game.AVARA_FPS);
 		// Get raw mouse input for a cleaner reading on more sensitive mice.
 		var mouseDelta = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
 

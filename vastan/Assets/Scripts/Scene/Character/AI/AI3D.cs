@@ -73,6 +73,7 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
         else if (dist > 5) {
             turn = 1;
         }
+        
 
         // Move toward the Target
         if (Vector3.Distance (Target.transform.position, transform.position) >= ((Character)this).ArmLength) {

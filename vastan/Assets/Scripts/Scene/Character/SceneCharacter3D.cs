@@ -125,7 +125,7 @@ public class SceneCharacter3D : SceneCharacter
         if (GetComponent<Rigidbody>()) {
             GetComponent<Rigidbody>().freezeRotation = true;
         }
-
+        //TODO: fix the nightmare that is the rigging of the player character
         targetDirection = new Vector2(270f, 270f); // uhh yeah i measured this heh heh
         head_rest_y = head.transform.localPosition.z;
 
@@ -136,8 +136,6 @@ public class SceneCharacter3D : SceneCharacter
         foreach(GameObject g in body_pieces) {
             g.GetComponent<Renderer>().material = my_material;
         }
-        //recolor_object(visor, new Color(56f / 255f, 69f / 255f, 188f / 255f));
-        //recolor_object(guns, new Color(75f / 255f, 71f / 255f, 71f / 255f));
 
     }
 
@@ -146,7 +144,21 @@ public class SceneCharacter3D : SceneCharacter
         return;
     }
 
-    public void glow_walker(Color c) {
+    public void was_hit(float power, float max_power) {
+        this.shield -= power;
+        var glow = power / max_power;
+        Debug.Log(glow + " " + power + " " + max_power);
+        StartCoroutine(this.do_glow(glow));
+    }
+
+    private IEnumerator do_glow(float intensity) {
+        for (float f = 1f; f >= 0; f -= .1f) {
+            this.glow_walker(Color.Lerp(Color.black, Color.white * intensity, f));
+            yield return new WaitForSeconds(.001f); ;
+        }
+    }
+
+    private void glow_walker(Color c) {
         my_material.SetColor(Shader.PropertyToID("_EmissionColor"), c);
     }
 
@@ -187,9 +199,12 @@ public class SceneCharacter3D : SceneCharacter
             bob_factor = Mathf.Abs(left_leg.walk_seq_step) / 300f;
         }
 
+        var resting = crouch_spring.stable_pos == crouch_spring.pos;
         crouch_spring.stable_pos = 0f + base_crouch_factor + (bob_factor * bob_amount);
+        if (resting) crouch_spring.pos = crouch_spring.stable_pos;
         crouch_spring.calculate(duration);
-        crouch_factor = Mathf.Clamp(crouch_spring.pos, -1.0f, 1.2f);
+        crouch_factor = Mathf.Clamp(crouch_spring.pos, -1.2f, 1.2f);
+        //crouch_factor = crouch_spring.pos;
 
         var temp = head.transform.localPosition;
         temp.z = head_rest_y - crouch_factor * crouch_dist;
@@ -245,7 +260,7 @@ public class SceneCharacter3D : SceneCharacter
         left_leg.crouch_factor = crouch_factor;
         right_leg.crouch_factor = crouch_factor;
 
-        var xz_vel = state.velocity * .8f;
+        var xz_vel = state.velocity;
         xz_vel.y = 0;
         left_leg.speed = xz_vel.magnitude;
         right_leg.speed = xz_vel.magnitude;
@@ -262,7 +277,7 @@ public class SceneCharacter3D : SceneCharacter
             if (state.on_ground && state.accel.y < .3) {
                 if (crouch_spring.vel < -spring_min_liftoff_factor) {
                     Debug.Log(crouch_spring.vel);
-					state.accel.y = jump_factor;
+					state.accel.y = crouch_spring.vel * -80f;
                     state.momentum.y = 0f;
                 }
             }
@@ -271,7 +286,7 @@ public class SceneCharacter3D : SceneCharacter
 
         if (!state.on_ground && Controller.isGrounded) {
             // Just landed
-            Debug.Log(this.name + " Landed");
+            //Debug.Log(this.name + " Landed");
             crouch_spring.vel = -state.velocity.y * spring_body_conversion;
             state.velocity.y = 0;
             // state.momentum.y = -0.1f * state.momentum.y * Time.deltaTime;
@@ -299,6 +314,7 @@ public class SceneCharacter3D : SceneCharacter
         if (clampInDegrees.y < 360)
             _headRot.y = Mathf.Clamp(_headRot.y, -clampInDegrees.y * 0.5f, clampInDegrees.y * 0.5f);
 
+        // TODO: Rigging
         var xRotation = Quaternion.AngleAxis(_headRot.x, targetOrientation * Vector3.right);
         var yRotation = Quaternion.AngleAxis(_headRot.y, targetOrientation * Vector3.up);
         

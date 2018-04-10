@@ -5,7 +5,7 @@ using System.Linq;
 public class Grenade : Projectile {
 
     public AudioSource grenade_sound;
-    public float power = 240f;
+    public float power = 2.25f;
     
 	public float radius = .15f;
 
@@ -25,8 +25,8 @@ public class Grenade : Projectile {
 
     public static Grenade Fire(SceneCharacter3D c, GameObject fab) {
         var pos = c.head.transform.position;
-        pos += c.head.transform.forward * 1.1f;
-        pos -= c.head.transform.right * .4f;
+        pos += c.head.transform.forward * .7f;
+        pos -= c.head.transform.right * .25f;
         var rot = c.head.transform.rotation.eulerAngles;
         var quat = Quaternion.Euler(rot.x, rot.y, 0);
         var go = (GameObject)GameObject.Instantiate(
@@ -81,26 +81,30 @@ public class Grenade : Projectile {
                 return;
             }
         }
-        Debug.Log("fired by: " + fired_by);
-        Debug.Log("hit: " + other.gameObject.GetInstanceID() + other.gameObject.name);
+        //Debug.Log("fired by: " + fired_by);
+        //Debug.Log("hit: " + other.gameObject.GetInstanceID() + other.gameObject.name);
         asplode_force();
 		asplode();
 	}
-
+                              
 	void asplode_force() {
-		Collider[] hitColliders = Physics.OverlapSphere(transform.position, 3.0f);
+		Collider[] hitColliders = Physics.OverlapSphere(transform.position, 6f);
 		int i = 0;
 		while (i < hitColliders.Length)
 		{
 			var go = hitColliders[i].gameObject;
+            
 			var dist = go.transform.position - transform.position;
+            Debug.Log("distance from explosion: " + dist);
 			var hitpower = Projectile.explosion_scale(power, dist);
 
 			var hit_sc = go.GetComponent<SceneCharacter3D>();
 			if (hit_sc != null) {
 				if (dist.y < 0)
 					hit_sc.crouch_spring.vel -= dist.normalized.y * hitpower;
+                
 				hit_sc.state.momentum += dist.normalized * hitpower;
+                hit_sc.was_hit(hitpower, power);
 			}
 
 			var hit_p = go.GetComponent<Projectile>();

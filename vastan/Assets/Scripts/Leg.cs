@@ -241,7 +241,7 @@ public class Leg : MonoBehaviour {
 	// called once per frame
 	void Update () {
         float sp = speed * 10;
-        int walkstep_sp = Mathf.RoundToInt(speed * 320f);
+        int walkstep_sp = Mathf.RoundToInt(sp * 10);
         if (walking) {
             if (direction > 0) {
                 // walkin forwards

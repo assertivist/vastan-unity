@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class Projectile : MonoBehaviour {
 
-	static float MIN_EXP_RADIUS = .4f;
+	static float MIN_EXP_RADIUS = .2f;
 
     public bool alive = true;
     public bool hit_something = false;
@@ -12,6 +12,8 @@ public class Projectile : MonoBehaviour {
     public List<Color> exp_colors;
     public float decay_time = 0;
     public int fired_by;
+    public int hit;
+    public float score;
 
 
     public void restart_sound(float restart_time) {
