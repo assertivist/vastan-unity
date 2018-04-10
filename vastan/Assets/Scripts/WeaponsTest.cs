@@ -133,8 +133,6 @@ public class WeaponsTest : MonoBehaviour {
         //walker_char.glow_walker(Color.Lerp(Color.black, Color.white, t));
     }
 
-    
-
     void attach_cam_to_walker(SceneCharacter3D walker) {
         cam.transform.position = walker.head.transform.position;
         cam.transform.rotation = walker.head.transform.rotation;

@@ -35,10 +35,7 @@ public class Plasma : Projectile {
         pos += c.head.transform.up * .40f * gun;
         pos += c.head.transform.right * -.3f;
         var rot = c.head.transform.rotation;
-        var proj = (GameObject)GameObject.Instantiate(
-            fab,
-            pos,
-            rot);
+        var proj = (GameObject)GameObject.Instantiate(fab, pos, rot);
         var p = proj.GetComponent<Plasma>();
         p.set_energy(energy);
         p.fired_by = c.BaseCharacter.Id;

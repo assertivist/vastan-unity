@@ -29,11 +29,7 @@ public class Grenade : Projectile {
         pos -= c.head.transform.right * .25f;
         var rot = c.head.transform.rotation.eulerAngles;
         var quat = Quaternion.Euler(rot.x, rot.y, 0);
-        var go = (GameObject)GameObject.Instantiate(
-            fab,
-            pos,
-            quat);
-        Debug.Log(go);
+        var go = (GameObject)GameObject.Instantiate(fab, pos, quat);
         var grenade = go.GetComponent<Grenade>();
         var t = go.transform;
         grenade.attack_time = Time.time;
@@ -93,9 +89,12 @@ public class Grenade : Projectile {
 		while (i < hitColliders.Length)
 		{
 			var go = hitColliders[i].gameObject;
-            
+            if (go == gameObject) {
+                i++;
+                continue;
+            }
 			var dist = go.transform.position - transform.position;
-            Debug.Log("distance from explosion: " + dist);
+            Debug.Log(go + " distance from explosion: " + dist);
 			var hitpower = Projectile.explosion_scale(power, dist);
 
 			var hit_sc = go.GetComponent<SceneCharacter3D>();
