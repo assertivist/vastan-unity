@@ -39,7 +39,7 @@ public abstract class SceneCharacter : MonoBehaviour
 	public SceneCharacter ()
 	{
 		BaseCharacter = new Character ();
-		LoadSounds ();
+		//LoadSounds ();
 		//Debug.Log( "Creating Scene character with new Character with MoveSpeed " + ((Character)this).MoveSpeed );
 	}
 
@@ -85,21 +85,7 @@ public abstract class SceneCharacter : MonoBehaviour
 	#endregion Movement
 	
 	
-	#region Sounds
 	
-	public Sound.SoundId AttackSound { get; set; }
-	public Sound.SoundId InjuredSound { get; set; }
-	public Sound.SoundId DeathSound { get; set; }
-	
-	public void LoadSounds ()
-	{
-		AttackSound = Sound.SoundId.Woosh1;
-		InjuredSound = Sound.SoundId.Hurt1;
-		DeathSound = Sound.SoundId.Distortion;
-	}
-	
-	#endregion Sounds
-
 	public void GoAway ()
 	{
 		Debug.Log ("Rosebud...");

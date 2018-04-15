@@ -21,11 +21,13 @@ public class SceneCharacter3D : SceneCharacter
     public Leg left_leg;
     public Leg right_leg;
 
+    public AudioClip damage_sound;
+
     public Vector2 targetDirection;
 	public float PitchAngle { get; set; }
     private Vector2 _headRot;
 
-    private const float bob_amount = .01f;
+    private const float bob_amount = .12f;
     public const float crouch_dist = .0083f;
     private float base_crouch_factor;
     public float crouch_factor = 0f;
@@ -76,6 +78,17 @@ public class SceneCharacter3D : SceneCharacter
     private Material my_material;
     private MaterialPropertyBlock my_property_block;
 
+    public bool can_fire_plasma() {
+        return (plasma1 > min_plasma_power || plasma2 > min_plasma_power);
+    }
+
+    public bool can_fire_grenade() {
+        return grenades > 0;
+    }
+
+    public bool can_fire_missile() {
+        return missiles > 0;
+    }
 
     private float plasma_update(float dt, float plasma) {
 		float guncharge = ((energy + energy_charge) * plasma_charge) / max_energy;
@@ -115,6 +128,8 @@ public class SceneCharacter3D : SceneCharacter
 
 		energy = Mathf.Min(max_energy, energy);
 		energy = Mathf.Max(energy, 0f);
+
+        this.BaseCharacter.CurrentHealth = shield;
 	}
 	
     // Use this for initialization
@@ -149,6 +164,7 @@ public class SceneCharacter3D : SceneCharacter
         var glow = power / max_power;
         Debug.Log(glow + " " + power + " " + max_power);
         StartCoroutine(this.do_glow(glow));
+        GameClient.PlayClipAt(damage_sound, transform.position);
     }
 
     private IEnumerator do_glow(float intensity) {
@@ -203,7 +219,7 @@ public class SceneCharacter3D : SceneCharacter
         crouch_spring.stable_pos = 0f + base_crouch_factor + (bob_factor * bob_amount);
         if (resting) crouch_spring.pos = crouch_spring.stable_pos;
         crouch_spring.calculate(duration);
-        crouch_factor = Mathf.Clamp(crouch_spring.pos, -1.2f, 1.2f);
+        crouch_factor = Mathf.Round(Mathf.Clamp(crouch_spring.pos, -1.2f, 1.2f) * 100) / 100f;
         //crouch_factor = crouch_spring.pos;
 
         var temp = head.transform.localPosition;

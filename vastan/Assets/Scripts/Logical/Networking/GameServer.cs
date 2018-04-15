@@ -585,9 +585,8 @@ public class GameServer : Game
         Character attacker = attacker_player.BaseCharacter;
         SceneCharacter3D scene_attacker = SceneCharacters[attacker.Id];
         
-        var can_fire = true;
 
-        if (can_fire) {
+        if (scene_attacker.can_fire_plasma()) {
             InstantiatePlasma(scene_attacker);
             GetComponent<NetworkView>().RPC("ReceiveProjectile", RPCMode.Others, attacker.Id);
         }

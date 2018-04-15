@@ -71,7 +71,7 @@ namespace ServerSideCalculations.Characters
             //Color = new Color(0.5f, 0.5f, 0.5f);
 			
 			IsAlive = true;
-			MaxHealth = 100;
+			MaxHealth = 3f;
 			CurrentHealth = MaxHealth;
 
 			MoveSpeed = 7f;

@@ -126,6 +126,7 @@ public abstract class Game : MonoBehaviour
 	public GameObject AIPrefab3D;
 
     public GameObject PlasmaPrefab;
+    public GameObject GrenadePrefab;
 
 	public GameObject PlayerPrefab{ get { return PlayerPrefab3D; } }
 	public GameObject AIPrefab{ get { return AIPrefab3D; } }
@@ -185,13 +186,11 @@ public abstract class Game : MonoBehaviour
 	}
 
     public void InstantiatePlasma(SceneCharacter3D character) {
-        var pos = character.head.transform.position;
-        pos += character.head.transform.forward * 1.1f;
-        var plasma = (GameObject)GameObject.Instantiate(
-            PlasmaPrefab,
-            pos,
-            character.head.transform.rotation);
-        Projectiles.Add(plasma.GetComponent<Plasma>());
+        Projectiles.Add(Plasma.Fire(character, PlasmaPrefab));
+    }
+
+    public void InstantiateGrenade(SceneCharacter3D character) {
+        Projectiles.Add(Grenade.Fire(character, GrenadePrefab));
     }
 
     public void RespawnCharacter (int charId)

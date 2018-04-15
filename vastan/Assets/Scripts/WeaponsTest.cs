@@ -21,9 +21,8 @@ public class WeaponsTest : MonoBehaviour {
 
     public List<Projectile> Projectiles { get; set; }
 
-    public AudioClip grenade_explode;
-    public AudioClip plasma_hit;
-    public AudioClip wall_hit;
+    public AudioSource grenade_explode;
+    public AudioSource wall_hit;
 
     public GameObject plasma_prefab;
     public GameObject grenade_prefab;
@@ -40,6 +39,8 @@ public class WeaponsTest : MonoBehaviour {
     public Vector2 smoothing = new Vector2(3, 3);
 
     public float t = 0;
+
+    GameObject current_l_root;
     
     // Use this for initialization
     void Start() {
@@ -60,10 +61,17 @@ public class WeaponsTest : MonoBehaviour {
 
         Projectiles = new List<Projectile>();
 
-		Level l = new Level();
-		l.load("indra");
-		GameObject l_root = l.game_object();
-		l_root.transform.SetParent(side_spot.transform);
+        switch_level("bwadi");
+    }
+
+    void switch_level(string level) {
+        if (current_l_root) {
+            Destroy(current_l_root);
+        }
+        Level l = new Level();
+        l.load(level);
+        current_l_root = l.game_object();
+        current_l_root.transform.SetParent(side_spot.transform);
     }
 
 
@@ -76,8 +84,7 @@ public class WeaponsTest : MonoBehaviour {
 	}
 
 	void fire_plasma(SceneCharacter3D character) {
-		if (!(character.plasma1 > character.min_plasma_power || 
-            character.plasma2 > character.min_plasma_power)) {
+		if (!character.can_fire_plasma()) {
             return;
         }
         Projectiles.Add(Plasma.Fire(character, plasma_prefab));
@@ -121,13 +128,18 @@ public class WeaponsTest : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.E)) {
 			fire_grenade(walker_char);
         }
+
+        if (Input.GetKeyDown(KeyCode.L)) {
+            switch_level("indra");
+        }
+
         HandleProjectiles();
 
         t += Time.deltaTime;
         if (t > 2) {
             t = 0;
             //walker_char.was_hit();
-            fire_plasma(ai3d);
+            //fire_plasma(ai3d);
         }
 
         //walker_char.glow_walker(Color.Lerp(Color.black, Color.white, t));
@@ -174,11 +186,11 @@ public class WeaponsTest : MonoBehaviour {
                     exp.GetComponent<Explosion>().set_color(c);
                 }
                 if (p.GetType().Equals(typeof(Grenade)))
-                    this.PlayClipAt(grenade_explode, pos);
-                if (p.GetType().Equals(typeof(Plasma)))
-                    this.PlayClipAt(plasma_hit, pos);
+                    Instantiate(grenade_explode, pos, Quaternion.identity);
+                //GameClient.PlayClipAt(grenade_explode, pos);
                 if (p.hit_wall) {
-                    this.PlayClipAt(wall_hit, pos);
+                    Instantiate(wall_hit, pos, Quaternion.identity);
+                    //GameClient.PlayClipAt(wall_hit, pos);
                 }
             }
             if (!p.alive) {
@@ -188,16 +200,5 @@ public class WeaponsTest : MonoBehaviour {
         Projectiles = (from p in Projectiles where p.alive select p).ToList();
     }
 
-    AudioSource PlayClipAt(AudioClip clip, Vector3 pos) {
-        GameObject tempGO = new GameObject("TempAudio"); // create the temp object
-        tempGO.transform.position = pos; // set its position
-        AudioSource aSource = tempGO.AddComponent<AudioSource>(); // add an audio source
-        aSource.spatialBlend = 1.0f;
-        aSource.clip = clip; // define the clip
-                             // set other aSource properties here, if desired
-        aSource.dopplerLevel = 1.2f;
-        aSource.Play(); // start the sound
-        Destroy(tempGO, clip.length); // destroy object after clip duration
-        return aSource; // return the AudioSource reference
-    }
+    
 }

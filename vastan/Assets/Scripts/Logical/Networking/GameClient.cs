@@ -123,23 +123,31 @@ public class GameClient : Game {
         HandleProjectiles();
     }
 
-    private void HandleProjectiles() {
-        foreach (var p in Projectiles)
-        {
-            if (p.hit_something)
-            {
-                foreach (var c in p.exp_colors)
-                {
-                    var pos = p.transform.position;
+    private new void HandleProjectiles() {
+        foreach (var p in Projectiles) {
+
+            if (p.hit_something) {
+                var pos = p.transform.position;
+                foreach (var c in p.exp_colors) {
                     var exp = (GameObject)GameObject.Instantiate(
                         TriangleExplosionPrefab,
                         pos,
                         Quaternion.identity);
                     exp.GetComponent<Explosion>().set_color(c);
                 }
+                if (p.GetType().Equals(typeof(Grenade)))
+                    Instantiate(Sounds[Sound.SoundId.GrenadeExplode], pos, Quaternion.identity);
+                    //GameClient.PlayClipAt(grenade_explode, pos);
+                if (p.hit_wall) {
+                    Instantiate(Sounds[Sound.SoundId.WallHit], pos, Quaternion.identity);
+                    //GameClient.PlayClipAt(wall_hit, pos);
+                }
+            }
+            if (!p.alive) {
+                Destroy(p.gameObject);
             }
         }
-        //handleprojectiles? on game
+        base.HandleProjectiles();
     }
 
 
@@ -779,41 +787,28 @@ public class GameClient : Game {
 
     public AudioSource None;
 
-    #region Prep
-    public AudioSource Grunt1;
-    #endregion
-
-    #region Execution
-    public AudioSource Woosh1;
-    #endregion
-
-    #region Block
-    public AudioSource Clink1;
-    #endregion
-
-    #region Hit
-    public AudioSource MetalHitFlesh1;
-    #endregion
-
-    #region Pain
-    public AudioSource Hurt1;
-    #endregion
-
-    #region Death
-    public AudioSource Distortion;
-    #endregion
-
+    public AudioSource grenade_explode;
+    public AudioSource wall_hit;
 
     private void LoadSounds()
     {
         Sounds = new Dictionary<Sound.SoundId, AudioSource>();
         Sounds.Add(Sound.SoundId.None, None);
-        Sounds.Add(Sound.SoundId.Grunt1, Grunt1);
-        Sounds.Add(Sound.SoundId.Woosh1, Woosh1);
-        Sounds.Add(Sound.SoundId.Clink1, Clink1);
-        Sounds.Add(Sound.SoundId.MetalHitFlesh1, MetalHitFlesh1);
-        Sounds.Add(Sound.SoundId.Hurt1, Hurt1);
-        Sounds.Add(Sound.SoundId.Distortion, Distortion);
+        Sounds.Add(Sound.SoundId.GrenadeExplode, grenade_explode);
+        Sounds.Add(Sound.SoundId.WallHit, wall_hit);
+    }
+
+    public static AudioSource PlayClipAt(AudioClip clip, Vector3 pos) {
+        GameObject tempGO = new GameObject("TempAudio"); // create the temp object
+        tempGO.transform.position = pos; // set its position
+        AudioSource aSource = tempGO.AddComponent<AudioSource>(); // add an audio source
+        aSource.spatialBlend = 1.0f;
+        aSource.clip = clip; // define the clip
+                             // set other aSource properties here, if desired
+        aSource.dopplerLevel = 1.2f;
+        aSource.Play(); // start the sound
+        Destroy(tempGO, clip.length); // destroy object after clip duration
+        return aSource; // return the AudioSource reference
     }
 
     #endregion Sound
@@ -850,7 +845,7 @@ public class GameClient : Game {
         SceneCharacter character = SceneCharacters[characterId];
 
         // Make a sound from the character
-        Instantiate(Sounds[character.AttackSound], this.transform.position, this.transform.rotation);
+        //Instantiate(Sounds[character.AttackSound], this.transform.position, this.transform.rotation);
     }
 
 
@@ -867,7 +862,7 @@ public class GameClient : Game {
 
         Debug.Log("Recevied that character " + ((Character)attacker).CharName + " hit " + ((Character)victim).CharName + "!!");
 
-        Instantiate(Sounds[victim.InjuredSound], victim.transform.position, victim.transform.rotation);
+        //Instantiate(Sounds[victim.InjuredSound], victim.transform.position, victim.transform.rotation);
 
         ((Character)victim).CurrentHealth -= 10;
     }
@@ -883,7 +878,7 @@ public class GameClient : Game {
         Debug.Log("Received that character " + charId + " died!");
         SceneCharacter character = SceneCharacters[charId];
         character.MoveDirection = new Vector3(0f, 0f, 0f);
-        Instantiate(Sounds[character.DeathSound], character.transform.position, character.transform.rotation);
+        //Instantiate(Sounds[character.DeathSound], character.transform.position, character.transform.rotation);
         ((Character)character).IsAlive = false;
         RespawnCharacter(charId);
     }

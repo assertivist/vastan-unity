@@ -36,6 +36,7 @@ public class Level {
 	private ObjectType current_type = ObjectType.Static;
 
 	private Mesh ground;
+    private Color ground_color;
 
     public static XmlNode get_mapnode(string path)
     {
@@ -222,7 +223,7 @@ public class Level {
             new Vector3(0, -10f, 0), 
             new Vector3(1000, 19.992f, 1000), 
             Quaternion.identity);
-
+        ground_color = c;
     }
 
     private void parse_sky(XmlNode node) {
@@ -361,6 +362,8 @@ public class Level {
 		b.center = new Vector3 (0, -10, 0);
 		b.size = new Vector3 (1000, 20, 1000);
 		ground_go.transform.SetParent(parent.transform);
+        var mat = ground_go.GetComponent<Renderer>().material;
+        mat.SetColor(Shader.PropertyToID("_Color"), ground_color);
         return parent;
     }
 
