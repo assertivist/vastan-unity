@@ -14,9 +14,6 @@ public class WeaponsTest : MonoBehaviour {
     public Camera cam;
     private bool cam_is_static = true;
     private SceneCharacter3D walker_char;
-    
-
-
     public GameObject TriangleExplosionPrefab;
 
     public List<Projectile> Projectiles { get; set; }
@@ -73,7 +70,6 @@ public class WeaponsTest : MonoBehaviour {
         current_l_root = l.game_object();
         current_l_root.transform.SetParent(side_spot.transform);
     }
-
 
 	void fire_grenade(SceneCharacter3D character) {
 		if (character.grenades < 1) {

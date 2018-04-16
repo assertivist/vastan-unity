@@ -40,7 +40,7 @@ public class SceneCharacter3D : SceneCharacter
 
     public int walking = 0;
 
-    public float jump_factor = 700.0f;
+    public float jump_factor = 1300f;
     public float spring_body_conversion = 100f;
 
     public float spring_min_liftoff_factor = 8.5f;
@@ -73,6 +73,14 @@ public class SceneCharacter3D : SceneCharacter
 	float boost_timer = 0;
 	float boost_time = 0;
 
+    public static float base_mass = 140f;
+    public float mass = base_mass;
+
+    private float stance = 0f;
+    private float max_stance = 1.7f;
+    private float min_stance = .7f;
+    public float crouch_jump = 0;
+
     public Vector3 move;
     
     private Material my_material;
@@ -88,6 +96,10 @@ public class SceneCharacter3D : SceneCharacter
 
     public bool can_fire_missile() {
         return missiles > 0;
+    }
+
+    float get_total_mass() {
+        return base_mass + grenades + missiles + (boosters * 4);
     }
 
     private float plasma_update(float dt, float plasma) {
@@ -144,7 +156,7 @@ public class SceneCharacter3D : SceneCharacter
         targetDirection = new Vector2(270f, 270f); // uhh yeah i measured this heh heh
         head_rest_y = head.transform.localPosition.z;
 
-        state = new WalkerPhysics(155f, walker.transform, Vector3.zero, Vector3.zero, transform.localEulerAngles.y);
+        state = new WalkerPhysics(get_total_mass(), walker.transform, Vector3.zero, Vector3.zero, transform.localEulerAngles.y);
         crouch_spring = new DampenedSpring(crouch_factor);
         my_material = body_pieces[0].GetComponent<Renderer>().material;
         my_property_block = new MaterialPropertyBlock();
@@ -231,7 +243,7 @@ public class SceneCharacter3D : SceneCharacter
         JumpUpdate(jump, duration);
         
         state.on_ground = Controller.isGrounded;
-
+        state.mass = get_total_mass();
         InputTuple i = new InputTuple(forward, turn * 4f);
         state.integrate(Time.fixedTime, duration, i);
         
@@ -287,16 +299,27 @@ public class SceneCharacter3D : SceneCharacter
         if (jump) {
             //crouch_factor = Mathf.Min(1.0f - bob_amount, crouch_factor + crouch_dt);
             crouch_spring.vel += 400f * duration;
+            if (!will_jump) {
+                crouch_jump += (stance - crouch_jump - min_stance) / 8f;
+            }
+            else {
+                crouch_jump += (stance - crouch_jump - min_stance) / 4f;
+            }
             will_jump = true;
         }
         else {
             if (state.on_ground && state.accel.y < .3) {
-                if (crouch_spring.vel < -spring_min_liftoff_factor) {
-                    Debug.Log(crouch_spring.vel);
-					state.accel.y = crouch_spring.vel * -80f;
-                    state.momentum.y = 0f;
+                if (crouch_spring.vel < -spring_min_liftoff_factor 
+                    && crouch_spring.pos > 0.25f && !will_jump) {
+					//state.accel.y = crouch_spring.vel * -150f;
+                   
+                    //state.momentum.y = 0f;
                 }
             }
+            if (will_jump) {
+                state.accel.y = crouch_jump * -jump_factor;
+            }
+            crouch_jump /= 2f;
             will_jump = false;
         }
 

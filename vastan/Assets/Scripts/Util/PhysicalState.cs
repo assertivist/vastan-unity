@@ -175,7 +175,7 @@ public class DampenedSpring {
     public float pos = 0;
     public float vel = 0;
     public float stable_pos = 0;
-    float damping_ratio = .7f;
+    float damping_ratio = .75f;
     float angular_freq = 18f;
 
     public DampenedSpring (float init_pos) {
