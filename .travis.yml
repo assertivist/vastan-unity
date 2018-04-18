@@ -1,7 +1,7 @@
 language: objective-c
 osx_image: xcode9.1
 rvm:
-  - 2.1.2
+  - 2.2
 install:
   - sudo /usr/local/Cellar/python/2.7.14/bin/python2.7 -c "import ssl; print ssl.OPENSSL_VERSION"
   - git clone https://github.com/sttz/install-unity
