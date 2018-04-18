@@ -94,8 +94,10 @@ public class MainMenu : MonoBehaviour {
                 Application.Quit();
             }
         }
-
-        GUILayout.EndHorizontal();
+        
+        if (GUILayout.Button("Weapons test  scene - April 2018")) {
+            UnityEngine.SceneManagement.SceneManager.LoadScene("weapons_test");
+        }
     }
 
     public void SetColor(Color c) {
