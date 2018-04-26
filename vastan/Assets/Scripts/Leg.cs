@@ -159,6 +159,7 @@ public class Leg : MonoBehaviour {
         Vector3 from = foot.position;
         from.y += 1f;
         Ray r = new Ray(from, Vector3.down);
+        Debug.DrawRay(from, Vector3.down, Color.green);
         var result = new RaycastHit();
         bool hit = Physics.Raycast(r, out result);
         if (hit) {

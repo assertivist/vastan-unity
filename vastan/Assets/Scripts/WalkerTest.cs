@@ -14,7 +14,7 @@ public class WalkerTest : MonoBehaviour {
     public Vector2 sensitivity = new Vector2(3, 3);
     public Vector2 smoothing = new Vector2(3, 3);
     // Use this for initialization
-    void Start () {
+    void Start() {
         walker_char = walker.GetComponent<SceneCharacter3D>();
         // Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
@@ -24,9 +24,7 @@ public class WalkerTest : MonoBehaviour {
         Mesh m = floor.GetComponent<MeshFilter>().sharedMesh;
         var colors = from n in Enumerable.Range(0, m.vertices.Length) select c;
         m.colors = colors.ToArray();
-
     }
-
 
     // Update is called once per frame
     void Update () {

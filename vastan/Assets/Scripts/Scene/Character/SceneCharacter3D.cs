@@ -29,22 +29,21 @@ public class SceneCharacter3D : SceneCharacter
 
     private const float bob_amount = .12f;
     public const float crouch_dist = .0083f;
-    private float base_crouch_factor;
-    public float crouch_factor = 0f;
+    public float crouch = 0f;
 
-    private float bounce_impulse;
-    private float bounce_factor;
+    //private float bounce_impulse;
+    //private float bounce_factor;
 
     public float head_rest_y;
     private bool will_jump;
 
     public int walking = 0;
 
-    public float jump_factor = 1300f;
-    public float spring_body_conversion = 100f;
+    //public float jump_factor = 1300f;
+    //public float spring_body_conversion = 100f;
 
-    public float spring_min_liftoff_factor = 8.5f;
-    public float spring_max_liftoff_factor = 9f;
+    //public float spring_min_liftoff_factor = 8.5f;
+    //public float spring_max_liftoff_factor = 9f;
 
 	float max_energy = 5f;
     public float energy = 5f;
@@ -76,10 +75,17 @@ public class SceneCharacter3D : SceneCharacter
     public static float base_mass = 140f;
     public float mass = base_mass;
 
-    private float stance = 0f;
-    private float max_stance = 1.7f;
-    private float min_stance = .7f;
-    public float crouch_jump = 0;
+    private static float max_head_height = 1.25f;
+    private static float min_head_height = .9f;
+
+    public float stance = max_head_height;
+    private float max_stance = max_head_height;
+    private float min_stance = min_head_height;
+    private float elevation = max_head_height;
+    private float head_height = max_head_height;
+
+    private float jump_base_power = .7f;
+    public bool is_on_the_ground = false;
 
     public Vector3 move;
     
@@ -157,7 +163,7 @@ public class SceneCharacter3D : SceneCharacter
         head_rest_y = head.transform.localPosition.z;
 
         state = new WalkerPhysics(get_total_mass(), walker.transform, Vector3.zero, Vector3.zero, transform.localEulerAngles.y);
-        crouch_spring = new DampenedSpring(crouch_factor);
+        //crouch_spring = new DampenedSpring(crouch_factor);
         my_material = body_pieces[0].GetComponent<Renderer>().material;
         my_property_block = new MaterialPropertyBlock();
         foreach(GameObject g in body_pieces) {
@@ -174,20 +180,16 @@ public class SceneCharacter3D : SceneCharacter
     public void was_hit(float power, float max_power) {
         this.shield -= power;
         var glow = power / max_power;
-        Debug.Log(glow + " " + power + " " + max_power);
         StartCoroutine(this.do_glow(glow));
         GameClient.PlayClipAt(damage_sound, transform.position);
     }
 
     private IEnumerator do_glow(float intensity) {
         for (float f = 1f; f >= 0; f -= .1f) {
-            this.glow_walker(Color.Lerp(Color.black, Color.white * intensity, f));
+            var c = Color.Lerp(Color.black, Color.white * intensity, f);
+            my_material.SetColor(Shader.PropertyToID("_EmissionColor"), c);
             yield return new WaitForSeconds(.001f); ;
         }
-    }
-
-    private void glow_walker(Color c) {
-        my_material.SetColor(Shader.PropertyToID("_EmissionColor"), c);
     }
 
     private void recolor_object(GameObject go, Color c) {
@@ -220,22 +222,25 @@ public class SceneCharacter3D : SceneCharacter
 			return;
 		}
         
-        LegUpdate(forward);
+        LegUpdate(forward, turn);
 
         float bob_factor = 0f;
         if (walking != 0) {
             bob_factor = Mathf.Abs(left_leg.walk_seq_step) / 300f;
         }
 
-        var resting = crouch_spring.stable_pos == crouch_spring.pos;
-        crouch_spring.stable_pos = 0f + base_crouch_factor + (bob_factor * bob_amount);
-        if (resting) crouch_spring.pos = crouch_spring.stable_pos;
-        crouch_spring.calculate(duration);
-        crouch_factor = Mathf.Round(Mathf.Clamp(crouch_spring.pos, -1.2f, 1.2f) * 100) / 100f;
+        //var resting = crouch_spring.stable_pos == crouch_spring.pos;
+        //crouch_spring.stable_pos = 0f + base_crouch_factor + (bob_factor * bob_amount);
+        //if (resting) crouch_spring.pos = crouch_spring.stable_pos;
+        //crouch_spring.calculate(duration);
+        //crouch_factor = Mathf.Round(Mathf.Clamp(crouch_spring.pos, -1.2f, 1.2f) * 100) / 100f;
         //crouch_factor = crouch_spring.pos;
 
+        elevation = stance - crouch;
+        head_height = elevation + (_headRot.y * -.01f);
+        //Debug.Log(headHeight);
         var temp = head.transform.localPosition;
-        temp.z = head_rest_y - crouch_factor * crouch_dist;
+        temp.z = head_rest_y + head_height * crouch_dist;
         head.transform.localPosition = temp;
         
         var previous_pos = state.pos;
@@ -243,6 +248,7 @@ public class SceneCharacter3D : SceneCharacter
         JumpUpdate(jump, duration);
         
         state.on_ground = Controller.isGrounded;
+        is_on_the_ground = Controller.isGrounded;
         state.mass = get_total_mass();
         InputTuple i = new InputTuple(forward, turn * 4f);
         state.integrate(Time.fixedTime, duration, i);
@@ -260,7 +266,7 @@ public class SceneCharacter3D : SceneCharacter
         //Controller.SimpleMove(state.velocity);
 	}
 
-    public void LegUpdate(float vert) {
+    public void LegUpdate(float vert, float turn) {
         if (vert > 0 && walking == 0) {
             walking = 1;
             right_leg.up_step = !left_leg.up_step;
@@ -285,11 +291,12 @@ public class SceneCharacter3D : SceneCharacter
         left_leg.direction = vert;
         right_leg.direction = vert;
 
-        left_leg.crouch_factor = crouch_factor;
-        right_leg.crouch_factor = crouch_factor;
+        left_leg.crouch_factor = -head_height;
+        right_leg.crouch_factor = -head_height;
 
         var xz_vel = state.velocity;
         xz_vel.y = 0;
+        //xz_vel.x += turn * .2f;
         left_leg.speed = xz_vel.magnitude;
         right_leg.speed = xz_vel.magnitude;
     }
@@ -298,36 +305,39 @@ public class SceneCharacter3D : SceneCharacter
         // jump key is being pressed
         if (jump) {
             //crouch_factor = Mathf.Min(1.0f - bob_amount, crouch_factor + crouch_dt);
-            crouch_spring.vel += 400f * duration;
+            //crouch_spring.vel += 400f * duration;
             if (!will_jump) {
-                crouch_jump += (stance - crouch_jump - min_stance) / 8f;
+                crouch += (stance - crouch - min_stance) / 8f;
             }
             else {
-                crouch_jump += (stance - crouch_jump - min_stance) / 4f;
+                crouch += (stance - crouch - min_stance) / 4f;
             }
             will_jump = true;
         }
         else {
             if (state.on_ground && state.accel.y < .3) {
-                if (crouch_spring.vel < -spring_min_liftoff_factor 
-                    && crouch_spring.pos > 0.25f && !will_jump) {
+                //if (crouch_spring.vel < -spring_min_liftoff_factor 
+                //    && crouch_spring.pos > 0.25f && !will_jump) {
 					//state.accel.y = crouch_spring.vel * -150f;
                    
                     //state.momentum.y = 0f;
-                }
+                //}
             }
-            if (will_jump) {
-                state.accel.y = crouch_jump * -jump_factor;
+            if (will_jump && state.on_ground) {
+                //state.velocity.y /= 2f;
+                Debug.Log(crouch);
+                var spd = (((-crouch / 2f) + jump_base_power) * base_mass) / get_total_mass();
+                state.accel.y = spd * 1900;
             }
-            crouch_jump /= 2f;
+            crouch /= 2f;
             will_jump = false;
         }
 
         if (!state.on_ground && Controller.isGrounded) {
             // Just landed
             //Debug.Log(this.name + " Landed");
-            crouch_spring.vel = -state.velocity.y * spring_body_conversion;
-            state.velocity.y = 0;
+            //crouch_spring.vel = -state.velocity.y * spring_body_conversion;
+            //state.velocity.y = 0;
             // state.momentum.y = -0.1f * state.momentum.y * Time.deltaTime;
             state.accel.y = 0;
         }
@@ -360,8 +370,6 @@ public class SceneCharacter3D : SceneCharacter
         head.transform.localRotation = xRotation;
         head.transform.localRotation *= yRotation;
         head.transform.localRotation *= targetOrientation;
-
-        base_crouch_factor = _headRot.y / clampInDegrees.y * .8f;
     }
 
 	public override float GetCurrentSpeed ()
@@ -385,7 +393,8 @@ public class SceneCharacter3D : SceneCharacter
             state.angle,
             head.transform.localRotation,
             state.velocity,
-            crouch_factor,
+            crouch,
+            stance,
             walking);
     }
 }

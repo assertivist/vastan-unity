@@ -45,7 +45,8 @@ public class GameClient : Game {
         CharacterPositionDiffs = new Dictionary<int, Vector3>();
         CharacterDirectionDiffs = new Dictionary<int, float>();
         CharacterHeadRotDiffs = new Dictionary<int, Quaternion>();
-        CharacterCrouchFactorDiffs = new Dictionary<int, float>();
+        CharacterCrouchDiffs = new Dictionary<int, float>();
+        CharacterStanceDiffs = new Dictionary<int, float>();
 
         //CameraDistance = 3.0f;
         //CameraHeight = 2.0f;
@@ -173,7 +174,7 @@ public class GameClient : Game {
 
     //TODO: This may just need to have jump in it...
     [RPC]
-    public void UpdateCharacter(int charId, Vector3 position, float direction, int walking, Quaternion headRot, Vector3 velocity, float crouchfactor) {
+    public void UpdateCharacter(int charId, Vector3 position, float direction, int walking, Quaternion headRot, Vector3 velocity, float crouch, float stance) {
         ////Debug.Log ("Update called for " + charId + " at " + position.x + ", " + position.y + ", " + position.z);
 
         // Don't update self if using client-side prediction
@@ -186,7 +187,7 @@ public class GameClient : Game {
         }
 
         SceneCharacter3D character = SceneCharacters[charId];
-        ObjectState charState = new ObjectState(charId, position, direction, headRot, velocity, crouchfactor, walking);
+        ObjectState charState = new ObjectState(charId, position, direction, headRot, velocity, crouch, stance, walking);
 
         // TODO: fix this to call a special method just updating the legs
         // character.GetComponent<SceneCharacter3D>().Move(1f, 0f, Time.deltaTime, false);
@@ -196,7 +197,8 @@ public class GameClient : Game {
             character.state.velocity = velocity;
             character.state.angle = direction;
             character.head.transform.localRotation = headRot;
-            character.crouch_factor = crouchfactor;
+            character.crouch = crouch;
+            character.stance = stance;
 			character.transform.localEulerAngles = new Vector3(0, direction, 0);
             return;
         }
@@ -207,7 +209,8 @@ public class GameClient : Game {
             CharacterPositionDiffs.Remove(charId);
             CharacterDirectionDiffs.Remove(charId);
             CharacterHeadRotDiffs.Remove(charId);
-            CharacterCrouchFactorDiffs.Remove(charId);
+            CharacterCrouchDiffs.Remove(charId);
+            CharacterStanceDiffs.Remove(charId);
         }
 
         CharacterIntendedStates.Add(charId, charState);
@@ -247,9 +250,13 @@ public class GameClient : Game {
             intendedCharacterHeadRot.w - currentCharHeadRot.w
         ));
 
-        float currentCharCrouchFactor = character.crouch_factor;
-        float intendedCharacterCrouchFactor = charState.CrouchFactor;
-        CharacterCrouchFactorDiffs.Add(charId, intendedCharacterCrouchFactor - currentCharCrouchFactor);
+        float currentCharCrouch = character.crouch;
+        float intendedCharacterCrouch = charState.Crouch;
+        CharacterCrouchDiffs.Add(charId, intendedCharacterCrouch - currentCharCrouch);
+
+        float currentCharStance = character.stance;
+        float intendedCharacterStance = charState.Stance;
+        CharacterStanceDiffs.Add(charId, intendedCharacterStance - currentCharStance);
     }
 
     [RPC]
@@ -273,7 +280,8 @@ public class GameClient : Game {
     public Dictionary<int, Vector3> CharacterPositionDiffs { get; set; }
     public Dictionary<int, float> CharacterDirectionDiffs { get; set; }
     public Dictionary<int, Quaternion> CharacterHeadRotDiffs { get; set; }
-    public Dictionary<int, float> CharacterCrouchFactorDiffs { get; set; }
+    public Dictionary<int, float> CharacterCrouchDiffs { get; set; }
+    public Dictionary<int, float> CharacterStanceDiffs { get; set; }
 
     // 7D: Move each character closer toward its intended location
     public void InterpolateCharacters() {
@@ -341,17 +349,22 @@ public class GameClient : Game {
                 newWHeadRot
             );
 
-            float currentCrouchFactor = character.crouch_factor;
-            float crouchFactorDiff = CharacterCrouchFactorDiffs[charId];
-            float newCrouchFactor = currentCrouchFactor + (crouchFactorDiff * portionOfDiffToMove);
+            float currentCrouch = character.crouch;
+            float crouchDiff = CharacterCrouchDiffs[charId];
+            float newCrouch = currentCrouch + (crouchDiff * portionOfDiffToMove);
+
+            float currentStance = character.stance;
+            float stanceDiff = CharacterStanceDiffs[charId];
+            float newStance = currentStance + (stanceDiff * portionOfDiffToMove);
             
             character.state.velocity = CharacterIntendedStates[charId].Velocity;
-            character.crouch_factor = newCrouchFactor;
-            character.LegUpdate(CharacterIntendedStates[charId].Walking);
+            character.crouch = newCrouch;
+            character.stance = newStance;
+            character.LegUpdate(CharacterIntendedStates[charId].Walking, directionDiff);
 
 
             var temp = character.head.transform.localPosition;
-            temp.z = character.head_rest_y - newCrouchFactor * SceneCharacter3D.crouch_dist;
+            temp.z = character.head_rest_y - newCrouch * SceneCharacter3D.crouch_dist;
             character.head.transform.localPosition = temp;
         }
     }
@@ -388,7 +401,7 @@ public class GameClient : Game {
 	 * 12: Reposition the player to match the server
 	*/
     [RPC]
-    public void CorrectPosition(int lastControlCommandApplied, Vector3 correctPosition, Vector3 correctMomentum, float correctDirection, Vector3 correctVelocity, float crouch_factor) {
+    public void CorrectPosition(int lastControlCommandApplied, Vector3 correctPosition, Vector3 correctMomentum, float correctDirection, Vector3 correctVelocity, float crouch, float stance) {
         ////Debug.Log (MyPlayer.networkView.viewID + ") " + "Correcting my position");
         LastCorrectionRespondedTo = lastControlCommandApplied;
 
@@ -400,7 +413,8 @@ public class GameClient : Game {
         p.state.momentum = correctMomentum;
         p.state.angle = correctDirection;
         p.state.velocity = correctVelocity;
-        p.crouch_factor = crouch_factor;
+        p.crouch = crouch;
+        p.stance = stance;
 
         // 12B: Make up for control commands which were sent between when the server sent the correction and now
         ////Debug.Log (MyPlayer.networkView.viewID + ") " + "Applying missing commands, starting with " + (lastControlCommandApplied + 1) + ", up to " + CurrentControlCommandId);

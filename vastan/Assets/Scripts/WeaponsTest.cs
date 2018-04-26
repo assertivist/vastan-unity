@@ -58,7 +58,7 @@ public class WeaponsTest : MonoBehaviour {
 
         Projectiles = new List<Projectile>();
 
-        switch_level("bwadi");
+        switch_level("phosphorus");
     }
 
     void switch_level(string level) {

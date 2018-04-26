@@ -24,6 +24,7 @@ public class Level {
 
     private GameObject static_fab;
 	private GameObject ground_fab;
+    private GameObject celestial_fab;
 
     public int incarn_count = 0;
     private int last_incarn = -1;
@@ -72,6 +73,7 @@ public class Level {
 
         static_fab = Resources.Load("LevelGeometry", typeof(GameObject)) as GameObject;
 		ground_fab = Resources.Load("GroundGeometry", typeof(GameObject)) as GameObject;
+        celestial_fab = Resources.Load("celestial_fab", typeof(GameObject)) as GameObject;
 
         current_gb.init();
         statics = new List<Mesh>();
@@ -239,16 +241,41 @@ public class Level {
         RenderSettings.skybox.SetColor("_HorizColor", horizon);
         RenderSettings.skybox.SetFloat("_GradientHeight", scale);
         DynamicGI.UpdateEnvironment();
+
+        Color ambient;
+        XmlAttribute a = node.Attributes["ambient"];
+        if (a == null) ambient = new Color(.4f, .4f, .4f);
+        else ambient = parse_color_value(a.Value);
+
+        RenderSettings.ambientLight = ambient;
     }
 
     private void parse_celestial(XmlNode node) {
-        float azimuth = parse_float(node, "azimuth");
-        float elevation = parse_float(node, "elevation");
+        float azimuth = parse_float(node, "azimuth", 30f);
+        float elevation = parse_float(node, "elevation", 20f);
         Color color = parse_color(node);
-        float intensity = parse_float(node, "intensity");
+        float intensity = parse_float(node, "intensity", 0.6f);
         bool visible = parse_bool(node, "visible");
-        float size = parse_float(node, "size", 100f);
-        //TODO: celestial prefab
+        float size = parse_float(node, "size", 30f);
+        
+        var pos = GeomBuilder.to_cartesian(
+            azimuth * Mathf.Deg2Rad, 
+            elevation * Mathf.Deg2Rad, 
+            960f
+        );
+
+        GameObject c = (GameObject)GameObject.Instantiate(
+            celestial_fab, pos, Quaternion.identity);
+        var light = c.GetComponent<Light>();
+        light.color = color;
+        light.intensity = intensity;
+        if (!visible) light.flare = null;
+        var mat = c.GetComponent<MeshRenderer>().material;
+        mat.SetColor(Shader.PropertyToID("_Color"), color);
+        c.transform.SetParent(parent.transform);
+        c.transform.LookAt(-pos);
+        c.transform.localScale = new Vector3(size, size, size);
+        
     }
 
     private void parse_goody(XmlNode node) {

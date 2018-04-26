@@ -133,7 +133,7 @@ public class Grenade : Projectile {
         if (hit_sc != null) {
             if (dist.y < 0)
                 //hit_sc.crouch_spring.vel -= dist.normalized.y * hitpower;
-                hit_sc.crouch_factor -= dist.normalized.y * hitpower;
+                //hit_sc.crouch_factor -= dist.normalized.y * hitpower;
 
             hit_sc.state.momentum += dist.normalized * hitpower;
             hit_sc.was_hit(hitpower, power);
