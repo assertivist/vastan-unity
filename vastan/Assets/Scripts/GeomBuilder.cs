@@ -328,7 +328,7 @@ public class GeomBuilder {
         return this;                          
     }
 
-    private Vector3 to_cartesian(float azimuth, 
+    public static Vector3 to_cartesian(float azimuth, 
                                  float elevation, 
                                  float length) {
         float x = length * Mathf.Sin(azimuth) * Mathf.Cos(elevation);
