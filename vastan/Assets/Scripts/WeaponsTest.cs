@@ -65,7 +65,7 @@ public class WeaponsTest : MonoBehaviour {
         if (current_l_root) {
             Destroy(current_l_root);
         }
-        Level l = new Level();
+        Level l = new Level(GetComponent<Camera>());
         l.load(level);
         current_l_root = l.game_object();
         current_l_root.transform.SetParent(side_spot.transform);

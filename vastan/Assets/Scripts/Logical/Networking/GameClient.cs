@@ -74,7 +74,7 @@ public class GameClient : Game {
 
         if (SceneInformation == null) {
             LoadSceneInfo();
-            GameLevel = new Level();
+            GameLevel = new Level(GetComponent<Camera>());
             GameLevel.load(GameLevelFile);
             GameObject level_object = GameLevel.game_object();
             level_object.transform.parent = SceneInformation.transform;

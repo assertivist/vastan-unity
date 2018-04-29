@@ -39,6 +39,19 @@ public class Level {
 	private Mesh ground;
     private Color ground_color;
 
+    private bool have_camera = false;
+    private Camera my_camera;
+
+    private bool celestials_found = false;
+
+    public Level() {
+
+    }
+    public Level (Camera cam) {
+        have_camera = true;
+        my_camera = cam;
+    }
+
     public static XmlNode get_mapnode(string path)
     {
         TextAsset ta = (TextAsset)Resources.Load(path);
@@ -251,31 +264,38 @@ public class Level {
     }
 
     private void parse_celestial(XmlNode node) {
+        celestials_found = true;
         float azimuth = parse_float(node, "azimuth", 30f);
         float elevation = parse_float(node, "elevation", 20f);
         Color color = parse_color(node);
         float intensity = parse_float(node, "intensity", 0.6f);
         bool visible = parse_bool(node, "visible");
         float size = parse_float(node, "size", 30f);
-        
+        if(have_camera)
+            add_celestial(azimuth, elevation, color, intensity, size, visible);
+    }
+
+    private void add_celestial(float azimuth, float elevation, Color color, float intensity, float size, bool visible) {
         var pos = GeomBuilder.to_cartesian(
-            azimuth * Mathf.Deg2Rad, 
-            elevation * Mathf.Deg2Rad, 
+            azimuth * Mathf.Deg2Rad,
+            elevation * Mathf.Deg2Rad,
             960f
         );
-
         GameObject c = (GameObject)GameObject.Instantiate(
-            celestial_fab, pos, Quaternion.identity);
+           celestial_fab, pos, Quaternion.identity);
         var light = c.GetComponent<Light>();
         light.color = color;
         light.intensity = intensity;
-        if (!visible) light.flare = null;
+        if (!visible) {
+            c.GetComponent<MeshRenderer>().enabled = false;
+        }
         var mat = c.GetComponent<MeshRenderer>().material;
         mat.SetColor(Shader.PropertyToID("_Color"), color);
         c.transform.SetParent(parent.transform);
         c.transform.LookAt(-pos);
         c.transform.localScale = new Vector3(size, size, size);
-        
+        var f = c.GetComponent<FollowCamera>();
+        f.c = my_camera;
     }
 
     private void parse_goody(XmlNode node) {
@@ -391,6 +411,13 @@ public class Level {
 		ground_go.transform.SetParent(parent.transform);
         var mat = ground_go.GetComponent<Renderer>().material;
         mat.SetColor(Shader.PropertyToID("_Color"), ground_color);
+
+        if(!celestials_found) {
+            //Add default directional lights
+            add_celestial(90, 90, Color.white, .6f, 30, false);
+            add_celestial(200, 20, Color.white, .3f, 30, false);
+        }
+
         return parent;
     }
 
