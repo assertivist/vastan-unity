@@ -10,7 +10,7 @@ public class Leg : MonoBehaviour {
     public float speed;
 
     public bool on_ground = false;
-    public float crouch_factor = 0;
+    public float ride_height = 0;
 
     private const float crouch_dist = .0083f;
 
@@ -65,18 +65,13 @@ public class Leg : MonoBehaviour {
 
     // yo we walkin'?
     public bool walking = false;
-
-    // how tall the leg is at rest
-    // used for calculating crouch offset
-    private float hip_rest;
+    
 
     // initialization
     void Start () {
         // calculate our leg piece lengths
         top_length = (bottom.position - hip.position).magnitude;
         bottom_length = (foot.position - bottom.position).magnitude;
-
-        hip_rest = hip.localPosition.z;
         
         // initial ellipse function domain
         recompute_wf_domain();
@@ -241,7 +236,7 @@ public class Leg : MonoBehaviour {
 
 	// called once per frame
 	void Update () {
-        float sp = speed * 10;
+        float sp = speed * 20;
         int walkstep_sp = Mathf.RoundToInt(sp * 8);
         if (walking) {
             if (direction > 0) {
@@ -271,13 +266,13 @@ public class Leg : MonoBehaviour {
         c = Mathf.Clamp(
             sp * 2, 
             min_walkfunc_size_factor, 
-            max_walkfunc_size_factor - (.5f * crouch_factor));
+            max_walkfunc_size_factor * (ride_height * .5f));
         
         recompute_wf_domain();
 
-        var temp = hip.transform.localPosition;
-        temp.z = hip_rest - (crouch_factor * crouch_dist);
-        hip.transform.localPosition = temp;
+        var temp = hip.transform.position;
+        temp.y = walker.transform.position.y + ride_height;
+        hip.transform.position = temp;
 
         recompute_wf_x();
         place_leg();

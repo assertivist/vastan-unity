@@ -75,15 +75,14 @@ public class SceneCharacter3D : SceneCharacter
     public static float base_mass = 140f;
     public float mass = base_mass;
 
-    private static float max_head_height = 1.25f;
+    private static float max_head_height = 1.75f;
     private static float min_head_height = .9f;
 
     public float stance = max_head_height;
     private float max_stance = max_head_height;
     private float min_stance = min_head_height;
     private float elevation = max_head_height;
-    private float head_height = max_head_height;
-
+    public float head_height = max_head_height;
     private float jump_base_power = .7f;
     public bool is_on_the_ground = false;
 
@@ -238,10 +237,10 @@ public class SceneCharacter3D : SceneCharacter
 
         elevation = stance - crouch;
         head_height = elevation + (_headRot.y * -.01f);
-        //Debug.Log(headHeight);
-        var temp = head.transform.localPosition;
-        temp.z = head_rest_y + head_height * crouch_dist;
-        head.transform.localPosition = temp;
+
+        var temp = head.transform.position;
+        temp.y = head_height + transform.position.y + .35f;
+        head.transform.position = temp;
         
         var previous_pos = state.pos;
 
@@ -291,8 +290,8 @@ public class SceneCharacter3D : SceneCharacter
         left_leg.direction = vert;
         right_leg.direction = vert;
 
-        left_leg.crouch_factor = -head_height;
-        right_leg.crouch_factor = -head_height;
+        left_leg.ride_height = head_height;
+        right_leg.ride_height = head_height;
 
         var xz_vel = state.velocity;
         xz_vel.y = 0;
@@ -325,9 +324,9 @@ public class SceneCharacter3D : SceneCharacter
             }
             if (will_jump && state.on_ground) {
                 //state.velocity.y /= 2f;
-                Debug.Log(crouch);
-                var spd = (((-crouch / 2f) + jump_base_power) * base_mass) / get_total_mass();
-                state.accel.y = spd * 1900;
+                var spd = (((crouch / 2f) + jump_base_power) * base_mass) / get_total_mass();
+                Debug.Log(crouch + " " + spd);
+                state.accel.y = spd * 800;
             }
             crouch /= 2f;
             will_jump = false;
