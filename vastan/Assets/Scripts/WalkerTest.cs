@@ -28,8 +28,6 @@ public class WalkerTest : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        var turn = Input.GetAxis("Horizontal");
-        walker_char.Move(Input.GetAxis("Vertical"), turn, Time.fixedDeltaTime, Input.GetButton("Jump"));
 
         // Get raw mouse input for a cleaner reading on more sensitive mice.
         var mouseDelta = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
@@ -73,6 +71,11 @@ public class WalkerTest : MonoBehaviour {
             }
             cam_is_static = !cam_is_static;
         }
+    }
+
+    private void FixedUpdate() {
+        var turn = Input.GetAxis("Horizontal");
+        walker_char.Move(Input.GetAxis("Vertical"), turn, Time.fixedDeltaTime, Input.GetButton("Jump"));
     }
 
     void attach_cam_to_walker(SceneCharacter3D walker) {

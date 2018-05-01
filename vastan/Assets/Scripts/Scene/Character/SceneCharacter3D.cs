@@ -76,7 +76,7 @@ public class SceneCharacter3D : SceneCharacter
     public float mass = base_mass;
 
     private static float max_head_height = 1.75f;
-    private static float min_head_height = .9f;
+    private static float min_head_height = .75f;
 
     public float stance = max_head_height;
     private float max_stance = max_head_height;
@@ -260,7 +260,10 @@ public class SceneCharacter3D : SceneCharacter
         Debug.DrawLine(tp, tp + (state.accel * 10), Color.cyan);
         Debug.DrawLine(tp, tp + (state.momentum * .1f), Color.black);
         move = (previous_pos - state.pos);
-        if (move.magnitude > .001) 
+        if (state.on_ground && move.y < .01) {
+            move.y = 0;
+        }
+        if (move.magnitude > .001f) 
             Controller.Move(move * -1f);
         //Controller.SimpleMove(state.velocity);
 	}
@@ -301,15 +304,16 @@ public class SceneCharacter3D : SceneCharacter
     }
 
     private void JumpUpdate(bool jump, float duration) {
+        float dt = duration * Game.AVARA_FPS;
         // jump key is being pressed
         if (jump) {
             //crouch_factor = Mathf.Min(1.0f - bob_amount, crouch_factor + crouch_dt);
             //crouch_spring.vel += 400f * duration;
             if (!will_jump) {
-                crouch += (stance - crouch - min_stance) / 8f;
+                crouch += (stance - crouch - min_stance) / 8f * dt;
             }
             else {
-                crouch += (stance - crouch - min_stance) / 4f;
+                crouch += (stance - crouch - min_stance) / 4f * dt;
             }
             will_jump = true;
         }
@@ -327,8 +331,9 @@ public class SceneCharacter3D : SceneCharacter
                 var spd = (((crouch / 2f) + jump_base_power) * base_mass) / get_total_mass();
                 Debug.Log(crouch + " " + spd);
                 state.accel.y = spd * 800;
+                state.recalculate();
             }
-            crouch /= 2f;
+            crouch = Mathf.Max(crouch / 2f * dt, 0);
             will_jump = false;
         }
 
@@ -338,7 +343,13 @@ public class SceneCharacter3D : SceneCharacter
             //crouch_spring.vel = -state.velocity.y * spring_body_conversion;
             //state.velocity.y = 0;
             // state.momentum.y = -0.1f * state.momentum.y * Time.deltaTime;
+            //state.accel.y = 0;
+            crouch -= state.velocity.y * dt;
+            state.velocity.y = 0;
             state.accel.y = 0;
+            //state.pos.y = transform.position.y;
+            state.recalculate();
+            
         }
     }
 

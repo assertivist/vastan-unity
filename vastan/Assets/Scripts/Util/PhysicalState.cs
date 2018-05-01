@@ -45,10 +45,10 @@ public class WalkerPhysics : Integrator
         var d = new Vector3(accel.x, 0, accel.z) - v;
         if (d.magnitude > friction / 5f) {
             d = d.normalized;
-            d *= friction * 60000f * dt;
+            d *= friction * 50000f * dt;
         } 
         else {
-            d *= friction * 60000f * dt;
+            d *= friction * 50000f * dt;
         }
 
         if (!on_ground) {
@@ -59,7 +59,7 @@ public class WalkerPhysics : Integrator
             d.z -= momentum.z * friction * 2500f * dt;
             //accel.y = Mathf.Max(accel.y, 0);
             velocity.y = 0f;
-            //momentum.y = Math.Max(momentum.y, 0);
+            momentum.y = Math.Max(momentum.y, 0);
         }
 
         d.y = accel.y;
