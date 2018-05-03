@@ -1,4 +1,6 @@
-﻿Shader "Custom/TutorialShader" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/TutorialShader" {
 	Properties {
 		_AmbientColor ("Ambient Color", Color) = (1, 1, 1, 1)
 		_AmbientIntensity ("Ambient Intensity", Range(0.0, 1.0)) = 1
@@ -16,7 +18,7 @@
 
 			float4 vertexShader(float4 v:POSITION) : SV_POSITION
 			{
-				return mul(UNITY_MATRIX_MVP, v);
+				return UnityObjectToClipPos(v);
 			}
 
 			fixed4 fragmentShader() : SV_Target

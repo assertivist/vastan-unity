@@ -217,7 +217,8 @@ public class Leg : MonoBehaviour {
             angles.z = 0f;
             angles.y = 0f;
 
-            top.localEulerAngles = angles;
+            if (!float.IsNaN(angles.x))
+                top.localEulerAngles = angles;
 
             float tb_angle_cos = ((Mathf.Pow(top_length, 2) + 
                 Mathf.Pow(bottom_length, 2) -
@@ -229,7 +230,8 @@ public class Leg : MonoBehaviour {
             angles.z = 0;
             angles.y = 0;
 
-            bottom.localEulerAngles = angles;
+            if (!float.IsNaN(angles.x))
+                bottom.localEulerAngles = angles;
         }
         else return;
     }

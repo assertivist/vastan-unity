@@ -1,6 +1,11 @@
 # Created by http://www.gitignore.io
 
+# don't commit blender cache files
 *.blend1
+*.blend2
+
+# don't commit visual studio cache
+.vs
 
 ### Unity ###
 [Ll]ibrary/
