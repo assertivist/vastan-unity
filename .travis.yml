@@ -5,8 +5,8 @@ rvm:
 install:
   - sudo /usr/local/Cellar/python/2.7.14/bin/python2.7 -c "import ssl; print ssl.OPENSSL_VERSION"
   - git clone https://github.com/sttz/install-unity
-  - sudo /usr/local/Cellar/python/2.7.14/bin/python2.7 ./install-unity/install-unity.py --package Unity 5.4.4
-  - sudo /usr/local/Cellar/python/2.7.14/bin/python2.7 ./install-unity/install-unity.py --package Linux --package Windows 5.4.4
+  - sudo /usr/local/Cellar/python/2.7.14/bin/python2.7 ./install-unity/install-unity.py --package Unity 2018.1
+  - sudo /usr/local/Cellar/python/2.7.14/bin/python2.7 ./install-unity/install-unity.py --package Linux --package Windows 2018.1
 script:
   - ./build.sh
 before_deploy:
@@ -17,14 +17,7 @@ before_deploy:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: scp -o StrictHostKeyChecking=no -r $TRAVIS_BUILD_DIR/Package/* vastan@vastan.net:/home/vastan/public_html/release/development
-    on:
-      branch: development
-  - provider: script
-    skip_cleanup: true
-    script: scp -o StrictHostKeyChecking=no -r $TRAVIS_BUILD_DIR/Package/* vastan@vastan.net:/home/vastan/public_html/release/master
-    on:
-      branch: master
+    script: scp -o StrictHostKeyChecking=no -r $TRAVIS_BUILD_DIR/Package/ vastan@vastan.net:/home/vastan/public_html/release/%{branch}
 notifications:
   irc: 
     channels:
