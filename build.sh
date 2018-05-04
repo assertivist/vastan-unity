@@ -2,7 +2,7 @@
 
 project="vastan"
 filename="$project"
-unity_exe="false"
+unity_exe="/Applications/Unity/Unity.app/Contents/MacOS/Unity"
 options="-batchmode -nographics -silent-crashes -projectPath $(pwd)/$project"
 workspace="$(pwd)/Build"
 packages="$(pwd)/Package"
