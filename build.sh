@@ -39,7 +39,7 @@ macbuilt=$?
 build_for_target linux buildLinuxUniversalPlayer exe
 linbuilt=$?
 
-exit $winbuilt && $macbuilt && $linbuilt
+exit $winbuilt || $macbuilt || $linbuilt
 
 notify()
 {
