@@ -19,7 +19,7 @@ build_for_target()
   extension=$3
 
   echo "Attempting to build $project for $target"
-  $unity_exe \
+  succeed=$unity_exe \
     $options \
     -logFile $(pwd)/Build/$target/build.log \
     -$unitytarget "$workspace/$target/$filename.$extension" \
@@ -28,11 +28,12 @@ build_for_target()
   cd $workspace
   zip -r9 $packages/$project-$target-$commit.zip $target
   cd $myhome
+  return $succeed
 }
 
-$windows=build_for_target windows buildWindowsPlayer exe
-$osx=build_for_target osx buildOSXUniversalPlayer app
-$linux=build_for_target linux buildLinuxUniversalPlayer exe
+windows=build_for_target windows buildWindowsPlayer exe
+osx=build_for_target osx buildOSXUniversalPlayer app
+linux=build_for_target linux buildLinuxUniversalPlayer exe
 
 find $packages
 
