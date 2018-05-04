@@ -34,10 +34,13 @@ build_for_target()
 
 build_for_target windows buildWindowsPlayer exe
 winbuilt=$?
+cat windows/build.log
 build_for_target osx buildOSXUniversalPlayer app
 macbuilt=$?
+cat osx/build.log
 build_for_target linux buildLinuxUniversalPlayer exe
 linbuilt=$?
+cat linux/build.log
 
 exit $winbuilt || $macbuilt || $linbuilt
 
