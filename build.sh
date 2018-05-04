@@ -1,5 +1,7 @@
 #!/bin/sh
 
+email=$1
+pass=$2
 project="vastan"
 filename="$project"
 unity_exe="/Applications/Unity/Unity.app/Contents/MacOS/Unity"
@@ -22,8 +24,11 @@ build_for_target()
   sudo $unity_exe \
     $options \
     -logFile $workspace/$target/build.log \
+    -username $email \
+    -password $pass \
     -$unitytarget "$workspace/$target/$filename.$extension" \
     -quit
+    
   success=$?
   cat $workspace/$target/build.log
   cd $workspace
