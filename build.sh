@@ -17,11 +17,11 @@ build_for_target()
   target=$1
   unitytarget=$2
   extension=$3
-
+  cd $project
   echo "Attempting to build $project for $target"
   sudo $unity_exe \
     $options \
-    -logFile $(pwd)/Build/$target/build.log \
+    -logFile $workspace/$target/build.log \
     -$unitytarget "$workspace/$target/$filename.$extension" \
     -quit
   success=$?
