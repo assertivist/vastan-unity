@@ -25,7 +25,7 @@ build_for_target()
     -$unitytarget "$workspace/$target/$filename.$extension" \
     -quit
   success=$?
-  cat $(pwd)/Build/$target/build.log
+  cat $workspace/$target/build.log
   cd $workspace
   zip -r9 $packages/$project-$target-$commit.zip $target
   
