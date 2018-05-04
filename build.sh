@@ -37,7 +37,7 @@ linux=build_for_target linux buildLinuxUniversalPlayer exe
 
 find $packages
 
-return $windows && $osx && $linux
+$windows && $osx && $linux
 
 notify()
 {
