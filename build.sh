@@ -30,11 +30,13 @@ build_for_target()
   cd $myhome
 }
 
-build_for_target windows buildWindowsPlayer exe
-build_for_target osx buildOSXUniversalPlayer app
-build_for_target linux buildLinuxUniversalPlayer exe
+$windows=build_for_target windows buildWindowsPlayer exe
+$osx=build_for_target osx buildOSXUniversalPlayer app
+$linux=build_for_target linux buildLinuxUniversalPlayer exe
 
 find $packages
+
+return $windows && $osx && $linux
 
 notify()
 {
