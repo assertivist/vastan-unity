@@ -8,7 +8,7 @@ install:
   - sudo /usr/local/Cellar/python/2.7.14/bin/python2.7 ./install-unity/install-unity.py --package Unity --discover http://download.unity3d.com/download_unity/d4d99f31acba/MacEditorInstaller/Unity-2018.1.0f2.pkg 2018.1.0f2
   - sudo /usr/local/Cellar/python/2.7.14/bin/python2.7 ./install-unity/install-unity.py --package Linux --package Windows --discover http://download.unity3d.com/download_unity/d4d99f31acba/MacEditorInstaller/Unity-2018.1.0f2.pkg 2018.1.0f2
 script:
-  - ./build.sh
+  - ./build.sh "andy.halstead@gmail.com" $unity_password
 before_deploy:
   - openssl aes-256-cbc -K $encrypted_c0435a387948_key -iv $encrypted_c0435a387948_iv -in deploy_rsa.enc -out /tmp/deploy_rsa -d
   - eval "$(ssh-agent -s)"
