@@ -5,8 +5,8 @@ rvm:
 install:
   - sudo /usr/local/Cellar/python/2.7.14/bin/python2.7 -c "import ssl; print ssl.OPENSSL_VERSION"
   - git clone https://github.com/sttz/install-unity
-  - sudo /usr/local/Cellar/python/2.7.14/bin/python2.7 ./install-unity/install-unity.py --package Unity --discover http://download.unity3d.com/download_unity/d4d99f31acba/MacEditorInstaller/Unity-2018.1.0f2.pkg
-  - sudo /usr/local/Cellar/python/2.7.14/bin/python2.7 ./install-unity/install-unity.py --package Linux --package Windows --discover http://download.unity3d.com/download_unity/d4d99f31acba/MacEditorInstaller/Unity-2018.1.0f2.pkg
+  - sudo /usr/local/Cellar/python/2.7.14/bin/python2.7 ./install-unity/install-unity.py --package Unity --discover http://download.unity3d.com/download_unity/d4d99f31acba/MacEditorInstaller/Unity-2018.1.0f2.pkg 2018.1.0f2
+  - sudo /usr/local/Cellar/python/2.7.14/bin/python2.7 ./install-unity/install-unity.py --package Linux --package Windows --discover http://download.unity3d.com/download_unity/d4d99f31acba/MacEditorInstaller/Unity-2018.1.0f2.pkg 2018.1.0f2
 script:
   - ./build.sh
 before_deploy:
