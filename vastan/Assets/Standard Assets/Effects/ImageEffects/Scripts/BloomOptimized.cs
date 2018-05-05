@@ -10,13 +10,13 @@ namespace UnityStandardAssets.ImageEffects
     {
 
         public enum Resolution
-		{
+        {
             Low = 0,
             High = 1,
         }
 
         public enum BlurType
-		{
+        {
             Standard = 0,
             Sgx = 1,
         }
@@ -40,7 +40,7 @@ namespace UnityStandardAssets.ImageEffects
 
 
         public override bool CheckResources ()
-		{
+        {
             CheckSupport (false);
 
             fastBloomMaterial = CheckShaderAndCreateMaterial (fastBloomShader, fastBloomMaterial);
@@ -51,15 +51,15 @@ namespace UnityStandardAssets.ImageEffects
         }
 
         void OnDisable ()
-		{
+        {
             if (fastBloomMaterial)
                 DestroyImmediate (fastBloomMaterial);
         }
 
         void OnRenderImage (RenderTexture source, RenderTexture destination)
-		{
+        {
             if (CheckResources() == false)
-			{
+            {
                 Graphics.Blit (source, destination);
                 return;
             }
@@ -81,7 +81,7 @@ namespace UnityStandardAssets.ImageEffects
             var passOffs= blurType == BlurType.Standard ? 0 : 2;
 
             for(int i = 0; i < blurIterations; i++)
-			{
+            {
                 fastBloomMaterial.SetVector ("_Parameter", new Vector4 (blurSize * widthMod + (i*1.0f), 0.0f, threshold, intensity));
 
                 // vertical blur

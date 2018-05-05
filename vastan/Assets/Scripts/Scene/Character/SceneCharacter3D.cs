@@ -6,7 +6,7 @@ using ServerSideCalculations.Networking;
 
 public class SceneCharacter3D : SceneCharacter
 {
-	public CharacterController Controller { get; set; }
+    public CharacterController Controller { get; set; }
     public GameObject[] body_pieces;
     public GameObject visor;
     public GameObject guns;
@@ -24,7 +24,7 @@ public class SceneCharacter3D : SceneCharacter
     public AudioClip damage_sound;
 
     public Vector2 targetDirection;
-	public float PitchAngle { get; set; }
+    public float PitchAngle { get; set; }
     private Vector2 _headRot;
 
     private const float bob_amount = .12f;
@@ -45,32 +45,32 @@ public class SceneCharacter3D : SceneCharacter
     //public float spring_min_liftoff_factor = 8.5f;
     //public float spring_max_liftoff_factor = 9f;
 
-	float max_energy = 5f;
+    float max_energy = 5f;
     public float energy = 5f;
-	float energy_charge = .030f;
+    float energy_charge = .030f;
 
-	float shield_charge = .030f;
-	float max_shield = 3f;
+    float shield_charge = .030f;
+    float max_shield = 3f;
     public float shield = 3f;
 
-	float max_plasma_power = .8f;
-	public float min_plasma_power = .25f;
-	float plasma_charge = .035f;
+    float max_plasma_power = .8f;
+    public float min_plasma_power = .25f;
+    float plasma_charge = .035f;
 
     public float plasma1 = .8f;
     public float plasma2 = .8f;
 
-	int max_grenades = 6;
-	public int grenades = 6;
+    int max_grenades = 6;
+    public int grenades = 6;
 
-	int max_missiles = 4;
-	public int missiles = 4;
+    int max_missiles = 4;
+    public int missiles = 4;
 
-	int max_boosters = 3;
-	int boosters = 3;
-	bool boosting = false;
-	float boost_timer = 0;
-	float boost_time = 0;
+    int max_boosters = 3;
+    int boosters = 3;
+    bool boosting = false;
+    float boost_timer = 0;
+    float boost_time = 0;
 
     public static float base_mass = 140f;
     public float mass = base_mass;
@@ -108,47 +108,47 @@ public class SceneCharacter3D : SceneCharacter
     }
 
     private float plasma_update(float dt, float plasma) {
-		float guncharge = ((energy + energy_charge) * plasma_charge) / max_energy;
-		float new_energy = plasma;
-		if (plasma < max_plasma_power) {
-			energy -= guncharge * dt;
-			if (plasma > min_plasma_power) {
-				new_energy = plasma + (guncharge * .850f * dt);
-			} else {
-				new_energy = plasma + (guncharge * 1.050f * dt);
-			}
-			if (new_energy > max_plasma_power)
-				new_energy = max_plasma_power;
-		}
-		return new_energy;
-	}
+        float guncharge = ((energy + energy_charge) * plasma_charge) / max_energy;
+        float new_energy = plasma;
+        if (plasma < max_plasma_power) {
+            energy -= guncharge * dt;
+            if (plasma > min_plasma_power) {
+                new_energy = plasma + (guncharge * .850f * dt);
+            } else {
+                new_energy = plasma + (guncharge * 1.050f * dt);
+            }
+            if (new_energy > max_plasma_power)
+                new_energy = max_plasma_power;
+        }
+        return new_energy;
+    }
 
-	public void energy_update(float dt) {
-		plasma1 = plasma_update(dt, plasma1);
-		plasma2 = plasma_update(dt, plasma2);
+    public void energy_update(float dt) {
+        plasma1 = plasma_update(dt, plasma1);
+        plasma2 = plasma_update(dt, plasma2);
 
-		if (shield < max_shield) {
-			float regen = (shield_charge * energy) / max_energy;
+        if (shield < max_shield) {
+            float regen = (shield_charge * energy) / max_energy;
 
-			if (boosting)
-				shield += shield_charge * dt;
+            if (boosting)
+                shield += shield_charge * dt;
 
-			shield += (regen / 8f) * dt;
+            shield += (regen / 8f) * dt;
 
-			shield = Mathf.Min(shield, max_shield);
-			energy -= regen * dt;
-		}
+            shield = Mathf.Min(shield, max_shield);
+            energy -= regen * dt;
+        }
 
-		energy += energy_charge * dt;
-		if (boosting)
-			energy += energy_charge * 4 * dt;
+        energy += energy_charge * dt;
+        if (boosting)
+            energy += energy_charge * 4 * dt;
 
-		energy = Mathf.Min(max_energy, energy);
-		energy = Mathf.Max(energy, 0f);
+        energy = Mathf.Min(max_energy, energy);
+        energy = Mathf.Max(energy, 0f);
 
         this.BaseCharacter.CurrentHealth = shield;
-	}
-	
+    }
+    
     // Use this for initialization
     public void Start() {
         Controller = GetComponent<CharacterController>();
@@ -168,7 +168,11 @@ public class SceneCharacter3D : SceneCharacter
         foreach(GameObject g in body_pieces) {
             g.GetComponent<Renderer>().material = my_material;
         }
+        
+    }
 
+    void OnControllerColliderHit(ControllerColliderHit h) {
+        
     }
 
     public void recolor_walker(Color c) {
@@ -199,27 +203,27 @@ public class SceneCharacter3D : SceneCharacter
     }
 
     public override bool MissingController ()
-	{
-		return Controller == null;
-	}
+    {
+        return Controller == null;
+    }
 
 
-	public override void ExecuteControlCommand (ControlCommand control)
-	{	
-		////Debug.Log ("Executing control command " + control.ToString ());
-		
-		Move (control.Forward, control.Turn, control.Duration, control.Jump);
-		Look (control.LookHorz, control.LookVert);
-	}
+    public override void ExecuteControlCommand (ControlCommand control)
+    {    
+        ////Debug.Log ("Executing control command " + control.ToString ());
+        
+        Move (control.Forward, control.Turn, control.Duration, control.Jump);
+        Look (control.LookHorz, control.LookVert);
+    }
 
-	/**
-	* Move the player's position
-	*/
-	public void Move (float forward, float turn, float duration, bool jump)
-	{
-		if (Controller == null) {
-			return;
-		}
+    /**
+    * Move the player's position
+    */
+    public void Move (float forward, float turn, float duration, bool jump)
+    {
+        if (Controller == null) {
+            return;
+        }
         
         LegUpdate(forward, turn);
 
@@ -260,13 +264,13 @@ public class SceneCharacter3D : SceneCharacter
         Debug.DrawLine(tp, tp + (state.accel * 10), Color.cyan);
         Debug.DrawLine(tp, tp + (state.momentum * .1f), Color.black);
         move = (previous_pos - state.pos);
-        if (state.on_ground && move.y < .01) {
-            move.y = 0;
-        }
+        
         if (move.magnitude > .001f) 
             Controller.Move(move * -1f);
         //Controller.SimpleMove(state.velocity);
-	}
+    }
+
+
 
     public void LegUpdate(float vert, float turn) {
         if (vert > 0 && walking == 0) {
@@ -321,7 +325,7 @@ public class SceneCharacter3D : SceneCharacter
             if (state.on_ground && state.accel.y < .3) {
                 //if (crouch_spring.vel < -spring_min_liftoff_factor 
                 //    && crouch_spring.pos > 0.25f && !will_jump) {
-					//state.accel.y = crouch_spring.vel * -150f;
+                    //state.accel.y = crouch_spring.vel * -150f;
                    
                     //state.momentum.y = 0f;
                 //}
@@ -357,7 +361,7 @@ public class SceneCharacter3D : SceneCharacter
 
     // Turn/tilt the player's head as needed
     public void Look (float yawAmount, float pitchAmount)
-	{
+    {
         var _smoothMouse = new Vector2(yawAmount, pitchAmount);
         // Allow the script to clamp based on a desired target value.
         var targetOrientation = Quaternion.Euler(targetDirection);
@@ -382,21 +386,21 @@ public class SceneCharacter3D : SceneCharacter
         head.transform.localRotation *= targetOrientation;
     }
 
-	public override float GetCurrentSpeed ()
-	{
+    public override float GetCurrentSpeed ()
+    {
         return state.velocity.magnitude;
-		//if (Controller != null) {
-		//	return Controller.velocity.magnitude;
-		//} else {
-		//	return 0;
-		//}
-	}
+        //if (Controller != null) {
+        //    return Controller.velocity.magnitude;
+        //} else {
+        //    return 0;
+        //}
+    }
 
     /// <summary>
-	/// Gets the current ObjectState to store for the server
-	/// </summary>
-	/// <returns>The current state.</returns>
-	public ObjectState GetCurrentState() {
+    /// Gets the current ObjectState to store for the server
+    /// </summary>
+    /// <returns>The current state.</returns>
+    public ObjectState GetCurrentState() {
         return new ObjectState(
             BaseCharacter.Id,
             transform.position,

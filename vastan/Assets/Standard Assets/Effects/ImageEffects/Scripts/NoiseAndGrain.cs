@@ -8,7 +8,7 @@ namespace UnityStandardAssets.ImageEffects
     [RequireComponent (typeof(Camera))]
     [AddComponentMenu ("Image Effects/Noise/Noise And Grain (Filmic)")]
     public class NoiseAndGrain : PostEffectsBase
-	{
+    {
 
         public float intensityMultiplier = 0.25f;
 
@@ -39,13 +39,13 @@ namespace UnityStandardAssets.ImageEffects
 
 
         public override bool CheckResources ()
-		{
+        {
             CheckSupport (false);
 
             noiseMaterial = CheckShaderAndCreateMaterial (noiseShader, noiseMaterial);
 
             if (dx11Grain && supportDX11)
-			{
+            {
 #if UNITY_EDITOR
                 dx11NoiseShader = Shader.Find("Hidden/NoiseAndGrainDX11");
 #endif
@@ -58,9 +58,9 @@ namespace UnityStandardAssets.ImageEffects
         }
 
         void OnRenderImage (RenderTexture source, RenderTexture destination)
-		{
+        {
             if (CheckResources()==false || (null==noiseTexture))
-			{
+            {
                 Graphics.Blit (source, destination);
                 if (null==noiseTexture) {
                     Debug.LogWarning("Noise & Grain effect failing as noise texture is not assigned. please assign.", transform);
@@ -71,7 +71,7 @@ namespace UnityStandardAssets.ImageEffects
             softness = Mathf.Clamp(softness, 0.0f, 0.99f);
 
             if (dx11Grain && supportDX11)
-			{
+            {
                 // We have a fancy, procedural noise pattern in this version, so no texture needed
 
                 dx11NoiseMaterial.SetFloat("_DX11NoiseTime", Time.frameCount);
@@ -92,7 +92,7 @@ namespace UnityStandardAssets.ImageEffects
                     DrawNoiseQuadGrid (source, destination, dx11NoiseMaterial, noiseTexture, (monochrome ? 1 : 0));
             }
             else
-			{
+            {
                 // normal noise (DX9 style)
 
                 if (noiseTexture) {
@@ -120,7 +120,7 @@ namespace UnityStandardAssets.ImageEffects
         }
 
         static void DrawNoiseQuadGrid (RenderTexture source, RenderTexture dest, Material fxMaterial, Texture2D noise, int passNr)
-		{
+        {
             RenderTexture.active = dest;
 
             float noiseSize = (noise.width * 1.0f);
@@ -141,9 +141,9 @@ namespace UnityStandardAssets.ImageEffects
             GL.Begin (GL.QUADS);
 
             for (float x1 = 0.0f; x1 < 1.0f; x1 += stepSizeX)
-			{
+            {
                 for (float y1 = 0.0f; y1 < 1.0f; y1 += stepSizeY)
-				{
+                {
                     float tcXStart = Random.Range (0.0f, 1.0f);
                     float tcYStart = Random.Range (0.0f, 1.0f);
 

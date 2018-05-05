@@ -20,7 +20,7 @@ public class VastanPlayer : NetworkBehaviour {
     private bool did_color = false;
     // Use this for initialization
     void Start () {
-	    ps = GetComponent<PlayerState>();
+        ps = GetComponent<PlayerState>();
         //look = cockpit.gameObject.GetComponent<Look>();
         legs = new List<Leg>(GetComponents<Leg>());
 
@@ -74,8 +74,8 @@ public class VastanPlayer : NetworkBehaviour {
         
     }
 
-	// Update is called once per frame
-	void Update () {
+    // Update is called once per frame
+    void Update () {
         if (!isLocalPlayer)
             return;
 

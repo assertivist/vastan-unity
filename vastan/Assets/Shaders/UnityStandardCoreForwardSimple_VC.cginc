@@ -24,7 +24,7 @@ struct VertexOutputBaseSimple
 
     half4 normalWorld                   : TEXCOORD5; // w: fresnelTerm
 
-	half4 color : COLOR;
+    half4 color : COLOR;
 #ifdef _NORMALMAP
     half3 tangentSpaceLightDir          : TEXCOORD6;
     #if SPECULAR_HIGHLIGHTS
@@ -222,22 +222,22 @@ half4 fragForwardBaseSimpleInternal (VertexOutputBaseSimple i)
     half3 attenuatedLightColor = gi.light.color * ndotl;
 
     half3 c = BRDF3_Indirect(s.diffColor, s.specColor, gi.indirect, PerVertexGrazingTerm(i, s), PerVertexFresnelTerm(i));
-	c += BRDF3DirectSimple(s.diffColor, s.specColor, s.smoothness, rl) * attenuatedLightColor;
+    c += BRDF3DirectSimple(s.diffColor, s.specColor, s.smoothness, rl) * attenuatedLightColor;
     c += Emission(i.tex.xy);
 #if _VERTEXCOLOR
-	c *= i.color * _IntensityVC;
+    c *= i.color * _IntensityVC;
 #endif
 #if _VERTEXCOLOR_LERP
-	c *= lerp(half4(1, 1, 1, 1), i.color, _IntensityVC);
+    c *= lerp(half4(1, 1, 1, 1), i.color, _IntensityVC);
 #endif
 
     UNITY_APPLY_FOG(i.fogCoord, c);
 
 #if _VERTEXCOLOR
-	s.alpha *= i.color.a;
+    s.alpha *= i.color.a;
 #endif
 #if _VERTEXCOLOR_LERP
-	s.alpha *= lerp(1, i.color.a, _IntensityVC);
+    s.alpha *= lerp(1, i.color.a, _IntensityVC);
 #endif
 
     return OutputForward (half4(c, 1), s.alpha);
@@ -253,7 +253,7 @@ struct VertexOutputForwardAddSimple_VC
     UNITY_POSITION(pos);
     float4 tex                          : TEXCOORD0;
     float3 posWorld                     : TEXCOORD1;
-	half4 color : COLOR;
+    half4 color : COLOR;
 
 #if !defined(_NORMALMAP) && SPECULAR_HIGHLIGHTS
     UNITY_FOG_COORDS_PACKED(2, half4) // x: fogCoord, yzw: reflectVec
@@ -317,7 +317,7 @@ VertexOutputForwardAddSimple vertForwardAddSimple (VertexInput_VC v)
         #endif
     #endif
 
-	o.color = lerp(float4(1, 1, 1, 1), float4(1, 1, 1, 1) * v.color, _IntensityVC);
+    o.color = lerp(float4(1, 1, 1, 1), float4(1, 1, 1, 1) * v.color, _IntensityVC);
     UNITY_TRANSFER_FOG(o,o.pos);
     return o;
 }
@@ -376,7 +376,7 @@ half4 fragForwardAddSimpleInternal (VertexOutputForwardAddSimple i)
 
     UNITY_LIGHT_ATTENUATION(atten, i, s.posWorld)
     c *= atten * saturate(dot(LightSpaceNormal(i, s), i.lightDir));
-	c *= i.color
+    c *= i.color
 
     UNITY_APPLY_FOG_COLOR(i.fogCoord, c.rgb, half4(0,0,0,0)); // fog towards black in additive pass
     return OutputForward (half4(c, 1), s.alpha);

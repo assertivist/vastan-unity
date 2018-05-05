@@ -9,45 +9,45 @@ using System;
 [Serializable]
 public class ControlCommand
 {
-	public int CharacterId { get; set; }
-	
-	public int Id { get; set; }
-	
-	public float Duration { get; set; }
-	
-	public float Forward { get; set; }
-	
-	public float Turn { get; set; }
-	
-	public bool Jump { get; set; }
-	
-	public float LookHorz { get; set; }
-	
-	public float LookVert { get; set; }
-	
-	
-	public ControlCommand (int newCharacterId, int newId)
-	{
-		CharacterId = newCharacterId;
-		Id = newId;
-	}
-	
-	
-	public ControlCommand (int newCharacterId, int newId, float newDuration, float newForward, float newTurn, float newLookHz, float newLookVt, bool jump)
-	{	
-		CharacterId = newCharacterId;
-		Id = newId;
-		Duration = newDuration;
-		Forward = newForward;
-		Turn = newTurn;
-		LookHorz = newLookHz;
-		LookVert = newLookVt;
-		Jump = jump;
-	}
+    public int CharacterId { get; set; }
+    
+    public int Id { get; set; }
+    
+    public float Duration { get; set; }
+    
+    public float Forward { get; set; }
+    
+    public float Turn { get; set; }
+    
+    public bool Jump { get; set; }
+    
+    public float LookHorz { get; set; }
+    
+    public float LookVert { get; set; }
+    
+    
+    public ControlCommand (int newCharacterId, int newId)
+    {
+        CharacterId = newCharacterId;
+        Id = newId;
+    }
+    
+    
+    public ControlCommand (int newCharacterId, int newId, float newDuration, float newForward, float newTurn, float newLookHz, float newLookVt, bool jump)
+    {    
+        CharacterId = newCharacterId;
+        Id = newId;
+        Duration = newDuration;
+        Forward = newForward;
+        Turn = newTurn;
+        LookHorz = newLookHz;
+        LookVert = newLookVt;
+        Jump = jump;
+    }
 
-	public override string ToString ()
-	{
-		return "F: " + Forward + ", Turn: " + Turn;
-	}
-	
+    public override string ToString ()
+    {
+        return "F: " + Forward + ", Turn: " + Turn;
+    }
+    
 }

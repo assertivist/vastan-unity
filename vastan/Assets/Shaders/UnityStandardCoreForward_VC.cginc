@@ -17,7 +17,7 @@
     half4 fragAdd (VertexOutputForwardAddSimple i) : SV_Target { return fragForwardAddSimpleInternal(i); }
 #else
     #include "UnityStandardCore_VC.cginc"
-	VertexOutputForwardBase vertBase (VertexInput_VC v) { return vertForwardBase(v); }
+    VertexOutputForwardBase vertBase (VertexInput_VC v) { return vertForwardBase(v); }
     VertexOutputForwardAdd vertAdd (VertexInput_VC v) { return vertForwardAdd(v); }
     half4 fragBase (VertexOutputForwardBase i) : SV_Target { return fragForwardBaseInternal(i); }
     half4 fragAdd (VertexOutputForwardAdd i) : SV_Target { return fragForwardAddInternal(i); }

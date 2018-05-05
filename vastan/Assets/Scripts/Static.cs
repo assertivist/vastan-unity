@@ -2,5 +2,5 @@
 using System.Collections;
 
 public class Static : MonoBehaviour {
-	// static geometry
+    // static geometry
 }

@@ -78,7 +78,7 @@ namespace UnityStandardAssets.ImageEffects
                     Graphics.Blit (source, color2A, m_ChromAberrationMaterial, 0);
 
                     for(int i = 0; i < 2; i++)
-                    {	// maybe make iteration count tweakable
+                    {    // maybe make iteration count tweakable
                         m_SeparableBlurMaterial.SetVector ("offsets",new Vector4 (0.0f, blurSpread * oneOverBaseSize, 0.0f, 0.0f));
                         RenderTexture color2B = RenderTexture.GetTemporary (rtW / 2, rtH / 2, 0, source.format);
                         Graphics.Blit (color2A, color2B, m_SeparableBlurMaterial);
@@ -91,11 +91,11 @@ namespace UnityStandardAssets.ImageEffects
                     }
                 }
 
-                m_VignetteMaterial.SetFloat("_Intensity", (1.0f / (1.0f - intensity) - 1.0f));		// intensity for vignette
-                m_VignetteMaterial.SetFloat("_Blur", (1.0f / (1.0f - blur)) - 1.0f);					// blur intensity
-                m_VignetteMaterial.SetTexture ("_VignetteTex", color2A);	// blurred texture
+                m_VignetteMaterial.SetFloat("_Intensity", (1.0f / (1.0f - intensity) - 1.0f));        // intensity for vignette
+                m_VignetteMaterial.SetFloat("_Blur", (1.0f / (1.0f - blur)) - 1.0f);                    // blur intensity
+                m_VignetteMaterial.SetTexture ("_VignetteTex", color2A);    // blurred texture
 
-                Graphics.Blit (source, color, m_VignetteMaterial, 0);			// prepass blit: darken & blur corners
+                Graphics.Blit (source, color, m_VignetteMaterial, 0);            // prepass blit: darken & blur corners
             }
 
             m_ChromAberrationMaterial.SetFloat ("_ChromaticAberration", chromaticAberration);

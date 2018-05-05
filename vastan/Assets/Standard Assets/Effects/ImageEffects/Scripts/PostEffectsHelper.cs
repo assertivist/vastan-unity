@@ -73,7 +73,7 @@ namespace UnityStandardAssets.ImageEffects
         static void DrawBorder (
             RenderTexture dest ,
             Material material )
-		{
+        {
             float x1;
             float x2;
             float y1;
@@ -151,7 +151,7 @@ namespace UnityStandardAssets.ImageEffects
         }
 
         static void DrawLowLevelQuad (  float x1, float x2, float y1, float y2, RenderTexture source, RenderTexture dest, Material material )
-		{
+        {
             // Make the destination texture the target for all rendering
             RenderTexture.active = dest;
             // Assign the source texture to a property from a shader

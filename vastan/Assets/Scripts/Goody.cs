@@ -12,18 +12,18 @@ public class Goody : MonoBehaviour {
     public bool active = true;
     public bool taken = false;
 
-	// Use this for initialization
-	void Start () {
-	
-	}
+    // Use this for initialization
+    void Start () {
+    
+    }
 
     void set_mesh(Mesh m) {
         var mymf = GetComponent<MeshFilter>();
         mymf.mesh = m;
     }
-	
-	// Update is called once per frame
-	void Update () {
+    
+    // Update is called once per frame
+    void Update () {
         transform.Rotate(spin * Time.deltaTime);
-	}
+    }
 }

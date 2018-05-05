@@ -7,7 +7,7 @@ namespace UnityStandardAssets.ImageEffects
     [RequireComponent (typeof(Camera))]
     [AddComponentMenu ("Image Effects/Edge Detection/Crease Shading")]
     public class CreaseShading : PostEffectsBase
-	{
+    {
         public float intensity = 0.5f;
         public int softness = 1;
         public float spread = 1.0f;
@@ -23,7 +23,7 @@ namespace UnityStandardAssets.ImageEffects
 
 
         public override bool CheckResources ()
-		{
+        {
             CheckSupport (true);
 
             blurMaterial = CheckShaderAndCreateMaterial (blurShader, blurMaterial);
@@ -36,9 +36,9 @@ namespace UnityStandardAssets.ImageEffects
         }
 
         void OnRenderImage (RenderTexture source, RenderTexture destination)
-		{
+        {
             if (CheckResources()==false)
-			{
+            {
                 Graphics.Blit (source, destination);
                 return;
             }
@@ -56,7 +56,7 @@ namespace UnityStandardAssets.ImageEffects
             Graphics.Blit (hrTex, lrTex1);
 
             for(int i = 0; i < softness; i++)
-			{
+            {
                 RenderTexture lrTex2 = RenderTexture.GetTemporary (rtW/2, rtH/2, 0);
                 blurMaterial.SetVector ("offsets", new Vector4 (0.0f, spread * oneOverBaseSize, 0.0f, 0.0f));
                 Graphics.Blit (lrTex1, lrTex2, blurMaterial);

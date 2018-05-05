@@ -221,9 +221,9 @@ public class GameServer : Game
 
         //TODO: REmove? Position the camera
         GameObject mainCamera = GameObject.FindGameObjectWithTag( "MainCamera" );
-		Vector3 pos = new Vector3(20, 20, 20);
-		pos.y += 25;
-		mainCamera.transform.position = pos;
+        Vector3 pos = new Vector3(20, 20, 20);
+        pos.y += 25;
+        mainCamera.transform.position = pos;
         mainCamera.transform.LookAt(Vector3.zero);
 
         GameLevel = new Level();
@@ -299,7 +299,7 @@ public class GameServer : Game
             throw new InvalidOperationException("AI prefab needs an AI component that matches the 3D/2D aspect of the game");
         }
 
-        ////Debug.Log ("AI scene char: " + aiSceneCharacter);	
+        ////Debug.Log ("AI scene char: " + aiSceneCharacter);    
 
         int charId = AI_ID_INDEX + AICount;
         AICount++;
@@ -400,16 +400,16 @@ public class GameServer : Game
 
             // 7: Send the character's state to all players
             ////Debug.Log ("Updating char " + character.BaseCharacter.Id + character.transform.ToCoordinates ());
-			GetComponent<NetworkView>().RPC(
-				"UpdateCharacter", 
-				RPCMode.Others, 
-				character.BaseCharacter.Id, 
-				character.transform.position, 
-				character.transform.localEulerAngles.y, 
-				character.walking, 
-				character.head.transform.localRotation, 
-				character.state.velocity, 
-				character.crouch,
+            GetComponent<NetworkView>().RPC(
+                "UpdateCharacter", 
+                RPCMode.Others, 
+                character.BaseCharacter.Id, 
+                character.transform.position, 
+                character.transform.localEulerAngles.y, 
+                character.walking, 
+                character.head.transform.localRotation, 
+                character.state.velocity, 
+                character.crouch,
                 character.stance);
         }
 

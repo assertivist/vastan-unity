@@ -12,26 +12,26 @@ namespace UnityStandardAssets.ImageEffects
         static float MAX_RADIUS = 10.0f;
 
         public enum MotionBlurFilter {
-            CameraMotion = 0,			// global screen blur based on cam motion
-            LocalBlur = 1,				// cheap blur, no dilation or scattering
-            Reconstruction = 2,			// advanced filter (simulates scattering) as in plausible motion blur paper
-            ReconstructionDX11 = 3,		// advanced filter (simulates scattering) as in plausible motion blur paper
-            ReconstructionDisc = 4,		// advanced filter using scaled poisson disc sampling
+            CameraMotion = 0,            // global screen blur based on cam motion
+            LocalBlur = 1,                // cheap blur, no dilation or scattering
+            Reconstruction = 2,            // advanced filter (simulates scattering) as in plausible motion blur paper
+            ReconstructionDX11 = 3,        // advanced filter (simulates scattering) as in plausible motion blur paper
+            ReconstructionDisc = 4,        // advanced filter using scaled poisson disc sampling
         }
 
         // settings
         public MotionBlurFilter filterType = MotionBlurFilter.Reconstruction;
-        public bool  preview = false;				// show how blur would look like in action ...
-        public Vector3 previewScale = Vector3.one;	// ... given this movement vector
+        public bool  preview = false;                // show how blur would look like in action ...
+        public Vector3 previewScale = Vector3.one;    // ... given this movement vector
 
         // params
         public float movementScale = 0.0f;
         public float rotationScale = 1.0f;
-        public float maxVelocity = 8.0f;	// maximum velocity in pixels
-        public float minVelocity = 0.1f;	// minimum velocity in pixels
-        public float velocityScale = 0.375f;	// global velocity scale
-        public float softZDistance = 0.005f;	// for z overlap check softness (reconstruction filter only)
-        public int velocityDownsample = 1;	// low resolution velocity buffer? (optimization)
+        public float maxVelocity = 8.0f;    // maximum velocity in pixels
+        public float minVelocity = 0.1f;    // minimum velocity in pixels
+        public float velocityScale = 0.375f;    // global velocity scale
+        public float softZDistance = 0.005f;    // for z overlap check softness (reconstruction filter only)
+        public int velocityDownsample = 1;    // low resolution velocity buffer? (optimization)
         public LayerMask excludeLayers = 0;
         private GameObject tmpCam = null;
 

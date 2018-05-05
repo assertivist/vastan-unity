@@ -10,51 +10,51 @@
 
 Shader "Hidden/DLAA" {
 Properties {
-	_MainTex ("Base (RGB)", 2D) = "white" {}
+    _MainTex ("Base (RGB)", 2D) = "white" {}
 }
 
 CGINCLUDE
-	
-	#include "UnityCG.cginc"
+    
+    #include "UnityCG.cginc"
 
-	uniform sampler2D _MainTex;
-	uniform float4 _MainTex_TexelSize;
+    uniform sampler2D _MainTex;
+    uniform float4 _MainTex_TexelSize;
 
-	struct v2f {
-		float4 pos : SV_POSITION;
-		float2 uv : TEXCOORD0;
-	};
-	
-	#define LD( o, dx, dy ) o = tex2D( _MainTex, texCoord + float2( dx, dy ) * _MainTex_TexelSize.xy );
-	
-	float GetIntensity( float3 col )
-	{
-    	return dot( col, float3( 0.33f, 0.33f, 0.33f ) );
-	}	
-	
-	float4 highPassPre( float2 texCoord )
-	{
-	 	LD(float4 sCenter, 0.0,0.0)
-	 	LD(float4 sUpLeft, -1.0,-1.0)
-	 	LD(float4 sUpRight, 1.0,-1.0)
-	 	LD(float4 sDownLeft, -1.0,1.0)
-	 	LD(float4 sDownRight, 1.0,1.0)
-	 
-		float4 diff		= 4.0f * abs( (sUpLeft + sUpRight + sDownLeft + sDownRight) - 4.0f * sCenter );
-		float edgeMask	= GetIntensity(diff.xyz);
-	
-		return float4(sCenter.rgb, edgeMask);
-	}
-	
-	// Softer (5-pixel wide high-pass)
-	/*
-	void HighPassEdgeHV (out float4 edge_h, out float4 edge_v, float4 center, float4 w_h, float4 w_v, float2 texCoord) {
+    struct v2f {
+        float4 pos : SV_POSITION;
+        float2 uv : TEXCOORD0;
+    };
+    
+    #define LD( o, dx, dy ) o = tex2D( _MainTex, texCoord + float2( dx, dy ) * _MainTex_TexelSize.xy );
+    
+    float GetIntensity( float3 col )
+    {
+        return dot( col, float3( 0.33f, 0.33f, 0.33f ) );
+    }    
+    
+    float4 highPassPre( float2 texCoord )
+    {
+         LD(float4 sCenter, 0.0,0.0)
+         LD(float4 sUpLeft, -1.0,-1.0)
+         LD(float4 sUpRight, 1.0,-1.0)
+         LD(float4 sDownLeft, -1.0,1.0)
+         LD(float4 sDownRight, 1.0,1.0)
+     
+        float4 diff        = 4.0f * abs( (sUpLeft + sUpRight + sDownLeft + sDownRight) - 4.0f * sCenter );
+        float edgeMask    = GetIntensity(diff.xyz);
+    
+        return float4(sCenter.rgb, edgeMask);
+    }
+    
+    // Softer (5-pixel wide high-pass)
+    /*
+    void HighPassEdgeHV (out float4 edge_h, out float4 edge_v, float4 center, float4 w_h, float4 w_v, float2 texCoord) {
         edge_h = abs( w_h - 4.0f * center ) / 4.0f;
-        edge_v = abs( w_v - 4.0f * center ) / 4.0f;		
-	}
+        edge_v = abs( w_v - 4.0f * center ) / 4.0f;        
+    }
 
-	// Sharper (3-pixel wide high-pass)	
-	void EdgeHV (out float4 edge_h, out float4 edge_v, float4 center, float2 texCoord) {
+    // Sharper (3-pixel wide high-pass)    
+    void EdgeHV (out float4 edge_h, out float4 edge_v, float4 center, float2 texCoord) {
         float4 left, right, top, bottom;
 
         LD( left,  -1,  0 )
@@ -63,14 +63,14 @@ CGINCLUDE
         LD( bottom, 0,  1 )
         
         edge_h = abs( left + right - 2.0f * center ) / 2.0f;
-        edge_v = abs( top + bottom - 2.0f * center ) / 2.0f;		
-	} 
-	*/
-	
-	float4 edgeDetectAndBlur(  float2 texCoord )
-	{
-	float lambda = 3.0f;
-	float epsilon = 0.1f;
+        edge_v = abs( top + bottom - 2.0f * center ) / 2.0f;        
+    } 
+    */
+    
+    float4 edgeDetectAndBlur(  float2 texCoord )
+    {
+    float lambda = 3.0f;
+    float epsilon = 0.1f;
     
     //
     // Short Edges
@@ -152,7 +152,7 @@ CGINCLUDE
         float4 clr_v = center;
         float4 clr_h = center;
 
-		// we had to hack this because DIV by 0 gives some artefacts on different platforms
+        // we had to hack this because DIV by 0 gives some artefacts on different platforms
         float hx = center_lum == top_lum ? 0.0 : saturate( 0 + ( lb_h_lum - top_lum    ) / ( center_lum - top_lum    ) );
         float hy = center_lum == bottom_lum ? 0.0 : saturate( 1 + ( lb_h_lum - center_lum ) / ( center_lum - bottom_lum ) );
         float vx = center_lum == left_lum ? 0.0 : saturate( 0 + ( lb_v_lum - left_lum   ) / ( center_lum - left_lum   ) );
@@ -171,12 +171,12 @@ CGINCLUDE
     }
 
     return clr;
-  	}	
+      }    
 
-	float4 edgeDetectAndBlurSharper(float2 texCoord)
-	{
-	float lambda = 3.0f;
-	float epsilon = 0.1f;
+    float4 edgeDetectAndBlurSharper(float2 texCoord)
+    {
+    float lambda = 3.0f;
+    float epsilon = 0.1f;
     
     //
     // Short Edges
@@ -256,7 +256,7 @@ CGINCLUDE
         float4 clr_v = center;
         float4 clr_h = center;
 
-		// we had to hack this because DIV by 0 gives some artefacts on different platforms
+        // we had to hack this because DIV by 0 gives some artefacts on different platforms
         float hx = center_lum == top_lum ? 0.0 : saturate( 0 + ( lb_h_lum - top_lum    ) / ( center_lum - top_lum    ) );
         float hy = center_lum == bottom_lum ? 0.0 : saturate( 1 + ( lb_h_lum - center_lum ) / ( center_lum - bottom_lum ) );
         float vx = center_lum == left_lum ? 0.0 : saturate( 0 + ( lb_v_lum - left_lum   ) / ( center_lum - left_lum   ) );
@@ -275,70 +275,70 @@ CGINCLUDE
     }
 
     return clr;
-  	}	
+      }    
 
 
-	v2f vert( appdata_img v ) {
-		v2f o;
-		o.pos = UnityObjectToClipPos (v.vertex);
-		
-		float2 uv = v.texcoord.xy;
-		o.uv.xy = uv;
-		
-		return o;
-	}
+    v2f vert( appdata_img v ) {
+        v2f o;
+        o.pos = UnityObjectToClipPos (v.vertex);
+        
+        float2 uv = v.texcoord.xy;
+        o.uv.xy = uv;
+        
+        return o;
+    }
 
-	half4 fragFirst (v2f i) : SV_Target {		 	 	    
-		return highPassPre (i.uv);
-	}
-	
-	half4 fragSecond (v2f i) : SV_Target {		 	 	    
-	    return edgeDetectAndBlur( i.uv );
-	}
+    half4 fragFirst (v2f i) : SV_Target {                      
+        return highPassPre (i.uv);
+    }
+    
+    half4 fragSecond (v2f i) : SV_Target {                      
+        return edgeDetectAndBlur( i.uv );
+    }
 
-	half4 fragThird (v2f i) : SV_Target {		 	 	    
-	    return edgeDetectAndBlurSharper( i.uv );
-	}
-			
-ENDCG	
+    half4 fragThird (v2f i) : SV_Target {                      
+        return edgeDetectAndBlurSharper( i.uv );
+    }
+            
+ENDCG    
 
 SubShader {
-	Pass {
-		ZTest Always Cull Off ZWrite Off
-	
-		CGPROGRAM
-	
-		#pragma vertex vert
-		#pragma fragment fragFirst
+    Pass {
+        ZTest Always Cull Off ZWrite Off
+    
+        CGPROGRAM
+    
+        #pragma vertex vert
+        #pragma fragment fragFirst
         #pragma exclude_renderers d3d11_9x
-		
-		ENDCG
-	}
-	
-	Pass {
-		ZTest Always Cull Off ZWrite Off
-	
-		CGPROGRAM
-	
-		#pragma vertex vert
-		#pragma fragment fragSecond
-		#pragma target 3.0
+        
+        ENDCG
+    }
+    
+    Pass {
+        ZTest Always Cull Off ZWrite Off
+    
+        CGPROGRAM
+    
+        #pragma vertex vert
+        #pragma fragment fragSecond
+        #pragma target 3.0
         #pragma exclude_renderers d3d11_9x
-		
-		ENDCG
-	}
+        
+        ENDCG
+    }
 
-	Pass {
-		ZTest Always Cull Off ZWrite Off
-	
-		CGPROGRAM
-	
-		#pragma vertex vert
-		#pragma fragment fragThird
-		#pragma target 3.0
-		
-		ENDCG
-	}	
+    Pass {
+        ZTest Always Cull Off ZWrite Off
+    
+        CGPROGRAM
+    
+        #pragma vertex vert
+        #pragma fragment fragThird
+        #pragma target 3.0
+        
+        ENDCG
+    }    
 }
 
 Fallback off

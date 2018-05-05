@@ -55,14 +55,14 @@ namespace UnityStandardAssets.ImageEffects
 
             // depth buffer need
             /*
-		bool  newVal = useDepthTexture.boolValue;
-		if (newVal != oldVal) {
-			if (newVal)
-				(target as SunShafts).camera.depthTextureMode |= DepthTextureMode.Depth;
-			else
-				(target as SunShafts).camera.depthTextureMode &= ~DepthTextureMode.Depth;
-		}
-		*/
+        bool  newVal = useDepthTexture.boolValue;
+        if (newVal != oldVal) {
+            if (newVal)
+                (target as SunShafts).camera.depthTextureMode |= DepthTextureMode.Depth;
+            else
+                (target as SunShafts).camera.depthTextureMode &= ~DepthTextureMode.Depth;
+        }
+        */
 
             EditorGUILayout.PropertyField (resolution,  new GUIContent("Resolution"));
             EditorGUILayout.PropertyField (screenBlendMode, new GUIContent("Blend mode"));

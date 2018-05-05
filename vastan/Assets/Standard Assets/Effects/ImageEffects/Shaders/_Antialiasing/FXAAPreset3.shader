@@ -2,12 +2,12 @@
 
 Shader "Hidden/FXAA Preset 3" {
 Properties {
-	_MainTex ("Base (RGB)", 2D) = "white" {}
+    _MainTex ("Base (RGB)", 2D) = "white" {}
 }
 
 SubShader {
-	Pass {
-		ZTest Always Cull Off ZWrite Off
+    Pass {
+        ZTest Always Cull Off ZWrite Off
 
 CGPROGRAM
 #pragma vertex vert
@@ -800,16 +800,16 @@ Position on span is used to compute sub-pixel filter offset using simple ramp,
 
 
 struct v2f {
-	float4 pos : SV_POSITION;
-	float2 uv : TEXCOORD0;
+    float4 pos : SV_POSITION;
+    float2 uv : TEXCOORD0;
 };
 
 v2f vert (appdata_img v)
 {
-	v2f o;
-	o.pos = UnityObjectToClipPos (v.vertex);
-	o.uv = v.texcoord.xy;
-	return o;
+    v2f o;
+    o.pos = UnityObjectToClipPos (v.vertex);
+    o.uv = v.texcoord.xy;
+    return o;
 }
 
 sampler2D _MainTex;
@@ -817,11 +817,11 @@ float4 _MainTex_TexelSize;
 
 float4 frag (v2f i) : SV_Target
 {
-	return float4(FxaaPixelShader(i.uv.xy, _MainTex, _MainTex_TexelSize.xy).xyz, 0.0f);
+    return float4(FxaaPixelShader(i.uv.xy, _MainTex, _MainTex_TexelSize.xy).xyz, 0.0f);
 }
-	
+    
 ENDCG
-	}
+    }
 }
 
 Fallback "Hidden/FXAA II"

@@ -6,9 +6,9 @@ namespace UnityStandardAssets.ImageEffects
     [ExecuteInEditMode]
     [AddComponentMenu ("Image Effects/Color Adjustments/Color Correction (Curves, Saturation)")]
     public class ColorCorrectionCurves : PostEffectsBase
-	{
+    {
         public enum ColorCorrectionMode
-		{
+        {
             Simple = 0,
             Advanced = 1
         }
@@ -51,16 +51,16 @@ namespace UnityStandardAssets.ImageEffects
 
 
         new void Start ()
-		{
+        {
             base.Start ();
             updateTexturesOnStartup = true;
         }
 
-        void Awake () {	}
+        void Awake () {    }
 
 
         public override bool CheckResources ()
-		{
+        {
             CheckSupport (mode == ColorCorrectionMode.Advanced);
 
             ccMaterial = CheckShaderAndCreateMaterial (simpleColorCorrectionCurvesShader, ccMaterial);
@@ -88,13 +88,13 @@ namespace UnityStandardAssets.ImageEffects
         }
 
         public void UpdateParameters ()
-		{
+        {
             CheckResources(); // textures might not be created if we're tweaking UI while disabled
 
             if (redChannel != null && greenChannel != null && blueChannel != null)
-			{
+            {
                 for (float i = 0.0f; i <= 1.0f; i += 1.0f / 255.0f)
-				{
+                {
                     float rCh = Mathf.Clamp (redChannel.Evaluate(i), 0.0f, 1.0f);
                     float gCh = Mathf.Clamp (greenChannel.Evaluate(i), 0.0f, 1.0f);
                     float bCh = Mathf.Clamp (blueChannel.Evaluate(i), 0.0f, 1.0f);
@@ -123,20 +123,20 @@ namespace UnityStandardAssets.ImageEffects
         }
 
         void UpdateTextures ()
-		{
+        {
             UpdateParameters ();
         }
 
         void OnRenderImage (RenderTexture source, RenderTexture destination)
-		{
+        {
             if (CheckResources()==false)
-			{
+            {
                 Graphics.Blit (source, destination);
                 return;
             }
 
             if (updateTexturesOnStartup)
-			{
+            {
                 UpdateParameters ();
                 updateTexturesOnStartup = false;
             }
@@ -147,12 +147,12 @@ namespace UnityStandardAssets.ImageEffects
             RenderTexture renderTarget2Use = destination;
 
             if (selectiveCc)
-			{
+            {
                 renderTarget2Use = RenderTexture.GetTemporary (source.width, source.height);
             }
 
             if (useDepthCorrection)
-			{
+            {
                 ccDepthMaterial.SetTexture ("_RgbTex", rgbChannelTex);
                 ccDepthMaterial.SetTexture ("_ZCurve", zCurveTex);
                 ccDepthMaterial.SetTexture ("_RgbDepthTex", rgbDepthChannelTex);
@@ -161,7 +161,7 @@ namespace UnityStandardAssets.ImageEffects
                 Graphics.Blit (source, renderTarget2Use, ccDepthMaterial);
             }
             else
-			{
+            {
                 ccMaterial.SetTexture ("_RgbTex", rgbChannelTex);
                 ccMaterial.SetFloat ("_Saturation", saturation);
 
@@ -169,7 +169,7 @@ namespace UnityStandardAssets.ImageEffects
             }
 
             if (selectiveCc)
-			{
+            {
                 selectiveCcMaterial.SetColor ("selColor", selectiveFromColor);
                 selectiveCcMaterial.SetColor ("targetColor", selectiveToColor);
                 Graphics.Blit (renderTarget2Use, destination, selectiveCcMaterial);

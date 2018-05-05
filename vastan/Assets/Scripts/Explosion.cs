@@ -5,12 +5,12 @@ public class Explosion : MonoBehaviour {
         var ps = GetComponent<ParticleSystem>();
         ps.startColor = c;
     }
-	
-	// Update is called once per frame
-	void Update () {
+    
+    // Update is called once per frame
+    void Update () {
         var ps = GetComponent<ParticleSystem>();
         if (!ps.isPlaying) {
             Destroy(gameObject);
         }
-	}
+    }
 }

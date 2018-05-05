@@ -7,7 +7,7 @@ namespace UnityStandardAssets.ImageEffects
     [RequireComponent (typeof(Camera))]
     [AddComponentMenu ("Image Effects/Displacement/Fisheye")]
     public class Fisheye : PostEffectsBase
-	{
+    {
         [Range(0.0f, 1.5f)]
         public float strengthX = 0.05f;
         [Range(0.0f, 1.5f)]
@@ -18,7 +18,7 @@ namespace UnityStandardAssets.ImageEffects
 
 
         public override bool CheckResources ()
-		{
+        {
             CheckSupport (false);
             fisheyeMaterial = CheckShaderAndCreateMaterial(fishEyeShader,fisheyeMaterial);
 
@@ -28,9 +28,9 @@ namespace UnityStandardAssets.ImageEffects
         }
 
         void OnRenderImage (RenderTexture source, RenderTexture destination)
-		{
+        {
             if (CheckResources()==false)
-			{
+            {
                 Graphics.Blit (source, destination);
                 return;
             }

@@ -139,7 +139,7 @@ namespace UnityStandardAssets.ImageEffects
             }
             else {
                 // capture full coc in alpha channel (fromTo is not read, but bound to detect screen flip)
-				fromTo.MarkRestoreExpected(); // only touching alpha channel, RT restore expected
+                fromTo.MarkRestoreExpected(); // only touching alpha channel, RT restore expected
                 Graphics.Blit (fromTo, fromTo, dofHdrMaterial,  0);
             }
         }
@@ -258,7 +258,7 @@ namespace UnityStandardAssets.ImageEffects
 
                     Graphics.DrawProceduralIndirect (MeshTopology.Points, cbDrawArgs, 0);
 
-                    Graphics.Blit (dest2, destination);	// hackaround for DX11 high resolution flipfun (OPTIMIZEME)
+                    Graphics.Blit (dest2, destination);    // hackaround for DX11 high resolution flipfun (OPTIMIZEME)
 
                     RenderTexture.ReleaseTemporary(dest2);
                     RenderTexture.ReleaseTemporary(rtSuperLow1);

@@ -363,9 +363,9 @@ struct VertexOutputForwardBase
     float3 eyeVec                         : TEXCOORD1;
     float4 tangentToWorldAndPackedData[3] : TEXCOORD2;    // [3x3:tangentToWorld | 1x3:viewDirForParallax or worldPos]
     half4 ambientOrLightmapUV             : TEXCOORD5;    // SH or Lightmap UV
-	half4 color : COLOR;
+    half4 color : COLOR;
 
-	UNITY_LIGHTING_COORDS(6, 7)
+    UNITY_LIGHTING_COORDS(6, 7)
 
 //#if !defined (UNITY_HALF_PRECISION_FRAGMENT_SHADER_REGISTERS)
 //    UNITY_SHADOW_COORDS(6)
@@ -386,7 +386,7 @@ struct VertexOutputForwardBase
 VertexOutputForwardBase vertForwardBase (VertexInput_VC v)
 {
     UNITY_SETUP_INSTANCE_ID(v);
-	VertexOutputForwardBase o;
+    VertexOutputForwardBase o;
     UNITY_INITIALIZE_OUTPUT(VertexOutputForwardBase, o);
     UNITY_TRANSFER_INSTANCE_ID(v, o);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
@@ -432,7 +432,7 @@ VertexOutputForwardBase vertForwardBase (VertexInput_VC v)
         o.tangentToWorldAndPackedData[2].w = viewDirForParallax.z;
     #endif
 
-	o.color = v.color;
+    o.color = v.color;
     UNITY_TRANSFER_FOG(o,o.pos);
     return o;
 }
@@ -453,20 +453,20 @@ half4 fragForwardBaseInternal (VertexOutputForwardBase i)
     UnityGI gi = FragmentGI (s, occlusion, i.ambientOrLightmapUV, atten, mainLight);
 
     half4 c = UNITY_BRDF_PBS (s.diffColor, s.specColor, s.oneMinusReflectivity, s.smoothness, s.normalWorld, -s.eyeVec, gi.light, gi.indirect);
-	c.rgb += Emission(i.tex.xy);
+    c.rgb += Emission(i.tex.xy);
 #if _VERTEXCOLOR
-	c *= i.color * _IntensityVC;
+    c *= i.color * _IntensityVC;
 #endif
 #if _VERTEXCOLOR_LERP
-	c *= lerp(half4(1, 1, 1, 1), i.color, _IntensityVC);
+    c *= lerp(half4(1, 1, 1, 1), i.color, _IntensityVC);
 #endif
 
     UNITY_APPLY_FOG(i.fogCoord, c.rgb);
 #if _VERTEXCOLOR
-	s.alpha *= i.color.a;
+    s.alpha *= i.color.a;
 #endif
 #if _VERTEXCOLOR_LERP
-	s.alpha *= lerp(1, i.color.a, _IntensityVC);
+    s.alpha *= lerp(1, i.color.a, _IntensityVC);
 #endif
     return OutputForward (c, s.alpha);
 }
@@ -486,10 +486,10 @@ struct VertexOutputForwardAdd
     float3 eyeVec                       : TEXCOORD1;
     float4 tangentToWorldAndLightDir[3] : TEXCOORD2;    // [3x3:tangentToWorld | 1x3:lightDir]
     float3 posWorld                     : TEXCOORD5;
-	half4  color						: COLOR;
+    half4  color                        : COLOR;
 
 
-	UNITY_LIGHTING_COORDS(6, 7)
+    UNITY_LIGHTING_COORDS(6, 7)
 
 //#if !defined (UNITY_HALF_PRECISION_FRAGMENT_SHADER_REGISTERS)
 //    UNITY_SHADOW_COORDS(6)
@@ -549,9 +549,9 @@ VertexOutputForwardAdd vertForwardAdd (VertexInput_VC v)
         o.viewDirForParallax = mul (rotation, ObjSpaceViewDir(v.vertex));
     #endif
 
-	//#if defined(_VERTEXCOLOR) || defined(_VERTEXCOLOR_LERP)
-		o.color = lerp(fixed4(1, 1, 1, 1), fixed4(1, 1, 1, 1) * v.color, _IntensityVC);
-	//#endif
+    //#if defined(_VERTEXCOLOR) || defined(_VERTEXCOLOR_LERP)
+        o.color = lerp(fixed4(1, 1, 1, 1), fixed4(1, 1, 1, 1) * v.color, _IntensityVC);
+    //#endif
 
     UNITY_TRANSFER_FOG(o,o.pos);
     return o;
@@ -589,7 +589,7 @@ struct VertexOutputDeferred_VC
     float3 eyeVec                         : TEXCOORD1;
     float4 tangentToWorldAndPackedData[3] : TEXCOORD2;    // [3x3:tangentToWorld | 1x3:viewDirForParallax or worldPos]
     half4 ambientOrLightmapUV             : TEXCOORD5;    // SH or Lightmap UVs
-	half4 color : COLOR;
+    half4 color : COLOR;
 
     #if UNITY_REQUIRE_FRAG_WORLDPOS && !UNITY_PACK_WORLDPOS_WITH_TANGENT
         float3 posWorld                     : TEXCOORD6;
@@ -603,7 +603,7 @@ struct VertexOutputDeferred_VC
 VertexOutputDeferred_VC vertDeferred (VertexInput_VC v)
 {
     UNITY_SETUP_INSTANCE_ID(v);
-	VertexOutputDeferred_VC o;
+    VertexOutputDeferred_VC o;
     UNITY_INITIALIZE_OUTPUT(VertexOutputDeferred_VC, o);
     UNITY_TRANSFER_INSTANCE_ID(v, o);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
@@ -655,14 +655,14 @@ VertexOutputDeferred_VC vertDeferred (VertexInput_VC v)
     #endif
 
 #if defined(_VERTEXCOLOR) || defined(_VERTEXCOLOR_LERP)
-		o.color = v.color;
+        o.color = v.color;
 #endif
-	
+    
     return o;
 }
 
 void fragDeferred (
-	VertexOutputDeferred_VC i,
+    VertexOutputDeferred_VC i,
     out half4 outGBuffer0 : SV_Target0,
     out half4 outGBuffer1 : SV_Target1,
     out half4 outGBuffer2 : SV_Target2,
@@ -705,10 +705,10 @@ void fragDeferred (
     half3 emissiveColor = UNITY_BRDF_PBS (s.diffColor, s.specColor, s.oneMinusReflectivity, s.smoothness, s.normalWorld, -s.eyeVec, gi.light, gi.indirect).rgb;
 
 #if _VERTEXCOLOR
-	emissiveColor *= i.color * _IntensityVC;
+    emissiveColor *= i.color * _IntensityVC;
 #endif
 #if _VERTEXCOLOR_LERP
-	emissiveColor *= lerp(half3(1, 1, 1), i.color.rgb, _IntensityVC);
+    emissiveColor *= lerp(half3(1, 1, 1), i.color.rgb, _IntensityVC);
 #endif
 
     #ifdef _EMISSION
@@ -720,12 +720,12 @@ void fragDeferred (
     #endif
 
 #if _VERTEXCOLOR
-		s.diffColor *= i.color * _IntensityVC;
-		s.specColor *= i.color * _IntensityVC;
+        s.diffColor *= i.color * _IntensityVC;
+        s.specColor *= i.color * _IntensityVC;
 #endif
 #if _VERTEXCOLOR_LERP
-		s.diffColor = lerp(s.diffColor, s.diffColor * i.color.rgb, _IntensityVC);
-		s.specColor = lerp(s.specColor, s.specColor * i.color.rgb, _IntensityVC);
+        s.diffColor = lerp(s.diffColor, s.diffColor * i.color.rgb, _IntensityVC);
+        s.specColor = lerp(s.specColor, s.specColor * i.color.rgb, _IntensityVC);
 #endif
 
     UnityStandardData data;

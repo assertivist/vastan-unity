@@ -15,9 +15,9 @@ public class GeomTest : MonoBehaviour {
         GameObject l_root = l.game_object();
         l_root.transform.SetParent(transform);
     }
-	
-	// Update is called once per frame
-	void Update () {
+    
+    // Update is called once per frame
+    void Update () {
         //transform.Rotate(0, .01f * Time.deltaTime, 0);
-	}
+    }
 }

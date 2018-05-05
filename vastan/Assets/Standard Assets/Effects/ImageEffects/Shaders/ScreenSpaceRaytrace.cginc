@@ -20,46 +20,46 @@ float distanceSquared(float3 A, float3 B) {
 }
 
 void swap(inout float v0, inout float v1) {
-	float temp = v0;
-	v0 = v1;
-	v1 = temp;
+    float temp = v0;
+    v0 = v1;
+    v1 = temp;
 }
 
 
 bool isIntersecting(float rayZMin, float rayZMax, float sceneZ, float layerThickness) {
-	return (rayZMax >= sceneZ - layerThickness) && (rayZMin <= sceneZ);
+    return (rayZMax >= sceneZ - layerThickness) && (rayZMin <= sceneZ);
 }
 
 void rayIterations(inout float2 P, inout float stepDirection, inout float end, inout int stepCount, inout int maxSteps, inout bool intersecting,
-		inout float sceneZ, inout float2 dP, inout float3 Q, inout float3 dQ, inout float k, inout float dk,
-		inout float rayZMin, inout float rayZMax, inout float prevZMaxEstimate, inout bool permute, inout float2 hitPixel, 
-		inout float2 invSize, inout float layerThickness) {
+        inout float sceneZ, inout float2 dP, inout float3 Q, inout float3 dQ, inout float k, inout float dk,
+        inout float rayZMin, inout float rayZMax, inout float prevZMaxEstimate, inout bool permute, inout float2 hitPixel, 
+        inout float2 invSize, inout float layerThickness) {
 
     UNITY_LOOP
-	for (;
+    for (;
                 ( (P.x * stepDirection) <= end) && 
                   (stepCount < maxSteps) &&
                   (!intersecting);
                 P += dP, Q.z += dQ.z, k += dk, stepCount += 1) {
                 
         // The depth range that the ray covers within this loop iteration. 
-		// Assume that the ray is moving in increasing z and swap if backwards.
+        // Assume that the ray is moving in increasing z and swap if backwards.
         rayZMin = prevZMaxEstimate;
         //rayZMin = (dQ.z * -0.5 + Q.z) / (dk * -0.5 + k);
-		// Compute the value at 1/2 pixel into the future
+        // Compute the value at 1/2 pixel into the future
         rayZMax = (dQ.z * 0.5 + Q.z) / (dk * 0.5 + k);
-		prevZMaxEstimate = rayZMax;
+        prevZMaxEstimate = rayZMax;
         if (rayZMin > rayZMax) { swap(rayZMin, rayZMax); }
 
         // Undo the homogeneous operation to obtain the camera-space
         // Q at each point
-		hitPixel = permute ? P.yx : P;
-		
+        hitPixel = permute ? P.yx : P;
+        
         sceneZ = tex2Dlod(_CameraDepthTexture, float4(hitPixel * invSize,0,0)).r;
-    	sceneZ = -LinearEyeDepth(sceneZ);
-    	
-		intersecting = isIntersecting(rayZMin, rayZMax, sceneZ, layerThickness);
-    		
+        sceneZ = -LinearEyeDepth(sceneZ);
+        
+        intersecting = isIntersecting(rayZMin, rayZMax, sceneZ, layerThickness);
+            
     } // pixel on ray
     P -= dP, Q.z -= dQ.z, k -= dk;
 }
@@ -77,16 +77,16 @@ bool castDenseScreenSpaceRay
     float           jitterFraction,
     int             maxSteps,
     float           layerThickness,
-    float        	maxRayTraceDistance,
+    float            maxRayTraceDistance,
     out float2      hitPixel,
-    int			    stepRate,
-    bool			refine,
-	out float3		csHitPoint,
-	out float       stepCount) {
+    int                stepRate,
+    bool            refine,
+    out float3        csHitPoint,
+    out float       stepCount) {
 
-	float2 invSize = float2(1.0 / csZBufferSize.x, 1.0 / csZBufferSize.y);
+    float2 invSize = float2(1.0 / csZBufferSize.x, 1.0 / csZBufferSize.y);
 
-   	// Initialize to off screen
+       // Initialize to off screen
     hitPixel = float2(-1, -1);
     
     float nearPlaneZ = -0.01;
@@ -95,7 +95,7 @@ bool castDenseScreenSpaceRay
                         ((nearPlaneZ - csOrigin.z) / csDirection.z) :
                         maxRayTraceDistance;
                         
-	float3 csEndPoint = csDirection * rayLength + csOrigin;
+    float3 csEndPoint = csDirection * rayLength + csOrigin;
 
     // Project into screen space
     // This matrix has a lot of zeroes in it. We could expand
@@ -114,7 +114,7 @@ bool castDenseScreenSpaceRay
     float k0 = 1.0 / H0.w;
     float k1 = 1.0 / H1.w;
 
-	// Screen-space endpoints
+    // Screen-space endpoints
     float2 P0 = H0.xy * k0;
     float2 P1 = H1.xy * k1;
 
@@ -155,19 +155,19 @@ bool castDenseScreenSpaceRay
 
     float2 delta = P1 - P0;
 
-	// Assume horizontal
+    // Assume horizontal
     bool permute = false;
-	if (abs(delta.x) < abs(delta.y)) {
-		// More-vertical line. Create a permutation that swaps x and y in the output
-		permute = true;
+    if (abs(delta.x) < abs(delta.y)) {
+        // More-vertical line. Create a permutation that swaps x and y in the output
+        permute = true;
 
         // Directly swizzle the inputs
-		delta = delta.yx;
-		P1 = P1.yx;
-		P0 = P0.yx;        
-	}
+        delta = delta.yx;
+        P1 = P1.yx;
+        P0 = P0.yx;        
+    }
     
-	// From now on, "x" is the primary iteration direction and "y" is the secondary one
+    // From now on, "x" is the primary iteration direction and "y" is the secondary one
 
     float stepDirection = sign(delta.x);
     float invdx = stepDirection / delta.x;
@@ -177,23 +177,23 @@ bool castDenseScreenSpaceRay
     float3 dQ = (Q1 - Q0) * invdx;
     float   dk = (k1 - k0) * invdx;
 
-	dP *= stepRate; 
-	dQ *= stepRate; 
-	dk *= stepRate;
-	
-	P0 += dP * jitterFraction; 
-	Q0 += dQ * jitterFraction; 
-	k0 += dk * jitterFraction;
+    dP *= stepRate; 
+    dQ *= stepRate; 
+    dk *= stepRate;
+    
+    P0 += dP * jitterFraction; 
+    Q0 += dQ * jitterFraction; 
+    k0 += dk * jitterFraction;
 
-	// Slide P from P0 to P1, (now-homogeneous) Q from Q0 to Q1, and k from k0 to k1
+    // Slide P from P0 to P1, (now-homogeneous) Q from Q0 to Q1, and k from k0 to k1
     float3 Q = Q0;
     float  k = k0;
 
-	// We track the ray depth at +/- 1/2 pixel to treat pixels as clip-space solid 
-	// voxels. Because the depth at -1/2 for a given pixel will be the same as at 
-	// +1/2 for the previous iteration, we actually only have to compute one value 
-	// per iteration.
-	float prevZMaxEstimate = csOrigin.z;
+    // We track the ray depth at +/- 1/2 pixel to treat pixels as clip-space solid 
+    // voxels. Because the depth at -1/2 for a given pixel will be the same as at 
+    // +1/2 for the previous iteration, we actually only have to compute one value 
+    // per iteration.
+    float prevZMaxEstimate = csOrigin.z;
     stepCount = 0.0;
     float rayZMax = prevZMaxEstimate, rayZMin = prevZMaxEstimate;
     float sceneZ = 100000;
@@ -202,60 +202,60 @@ bool castDenseScreenSpaceRay
     // the step direction for a signed comparison
     float end = P1.x * stepDirection;
 
-	bool intersecting = isIntersecting(rayZMin, rayZMax, sceneZ, layerThickness);
+    bool intersecting = isIntersecting(rayZMin, rayZMax, sceneZ, layerThickness);
     // We only advance the z field of Q in the inner loop, since
     // Q.xy is never used until after the loop terminates
    
-	//int rayIterations = min(maxSteps, stepsToGetOffscreen);
-	
-
-	float2 P = P0;
-
-	int originalStepCount = 0;
-	rayIterations(P, stepDirection, end,  originalStepCount,  maxSteps, intersecting,
-		 sceneZ, dP, Q, dQ,  k,  dk, 
-		 rayZMin,  rayZMax,  prevZMaxEstimate, permute, hitPixel, 
-		 invSize,  layerThickness);
-	
-		 
-	stepCount = originalStepCount;
-	if (refine && intersecting && stepRate > 1) {
-	
-		
-		// We're going back a step.
-		P -= dP, Q.z -= dQ.z, k -= dk;
-		prevZMaxEstimate = Q.z / k;
-		rayZMin = prevZMaxEstimate;
-		rayZMax = prevZMaxEstimate;
-		
-		intersecting = false;
-		int refinementStepCount = 0;
-		int refinementMaxSteps = stepRate;
-	
-		float refinementConstant = 1.0 / stepRate;
-		dQ.z *= refinementConstant;
-		dP *= refinementConstant;
-		dk *= refinementConstant;
-	
-    	// Refinement
-    	rayIterations(P, stepDirection, end,  refinementStepCount,  refinementMaxSteps, intersecting,
-		 	sceneZ, dP, Q, dQ,  k,  dk,
-		 	rayZMin,  rayZMax,  prevZMaxEstimate, permute, hitPixel, 
-		 	invSize,  layerThickness);
-		stepCount += refinementStepCount * refinementConstant - 1.0;
-		//stepCount = refinementStepCount;
-		intersecting = true;
- 	}
+    //int rayIterations = min(maxSteps, stepsToGetOffscreen);
     
-	
-	// Loop only advanced the Z component. Now that we know where we are going
-	// update xy
+
+    float2 P = P0;
+
+    int originalStepCount = 0;
+    rayIterations(P, stepDirection, end,  originalStepCount,  maxSteps, intersecting,
+         sceneZ, dP, Q, dQ,  k,  dk, 
+         rayZMin,  rayZMax,  prevZMaxEstimate, permute, hitPixel, 
+         invSize,  layerThickness);
+    
+         
+    stepCount = originalStepCount;
+    if (refine && intersecting && stepRate > 1) {
+    
+        
+        // We're going back a step.
+        P -= dP, Q.z -= dQ.z, k -= dk;
+        prevZMaxEstimate = Q.z / k;
+        rayZMin = prevZMaxEstimate;
+        rayZMax = prevZMaxEstimate;
+        
+        intersecting = false;
+        int refinementStepCount = 0;
+        int refinementMaxSteps = stepRate;
+    
+        float refinementConstant = 1.0 / stepRate;
+        dQ.z *= refinementConstant;
+        dP *= refinementConstant;
+        dk *= refinementConstant;
+    
+        // Refinement
+        rayIterations(P, stepDirection, end,  refinementStepCount,  refinementMaxSteps, intersecting,
+             sceneZ, dP, Q, dQ,  k,  dk,
+             rayZMin,  rayZMax,  prevZMaxEstimate, permute, hitPixel, 
+             invSize,  layerThickness);
+        stepCount += refinementStepCount * refinementConstant - 1.0;
+        //stepCount = refinementStepCount;
+        intersecting = true;
+     }
+    
+    
+    // Loop only advanced the Z component. Now that we know where we are going
+    // update xy
     Q.xy += dQ.xy * stepCount;
     // Q is a vector, so we are trying to get by with 1 division instead of 3.
-	csHitPoint = Q * (1.0 / k);
+    csHitPoint = Q * (1.0 / k);
 
     return intersecting;
 }
 
-			
+            
 #endif // SCREEN_SPACE_RAYTRACE_INCLUDED

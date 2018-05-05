@@ -7,7 +7,7 @@ public class Grenade : Projectile {
     public AudioSource grenade_sound;
     public float power = 2.25f;
     
-	public float radius = .15f;
+    public float radius = .15f;
 
     private float gravity = .120f * 1.4f;
     private float friction = .01f;
@@ -42,7 +42,7 @@ public class Grenade : Projectile {
     }
     
 
-	void Update () {
+    void Update () {
         if (!isActiveAndEnabled) { return; }
         restart_sound(.1f);
 
@@ -82,8 +82,8 @@ public class Grenade : Projectile {
         //Debug.Log("fired by: " + fired_by);
         //Debug.Log("hit: " + other.gameObject.GetInstanceID() + other.gameObject.name);
         direct_hit(c.contacts);
-		asplode();
-	}
+        asplode();
+    }
 
     void direct_hit(ContactPoint[] contacts) {
         foreach (ContactPoint contact in contacts) {
@@ -99,12 +99,12 @@ public class Grenade : Projectile {
         splash_force();
     }
                               
-	void splash_force() {
+    void splash_force() {
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, 6f);
-		int i = 0;
-		while (i < hitColliders.Length)
-		{
-			var go = hitColliders[i].gameObject;
+        int i = 0;
+        while (i < hitColliders.Length)
+        {
+            var go = hitColliders[i].gameObject;
             if (go == gameObject) {
                 // don't apply force to myself (grenade prefab)
                 i++;
@@ -122,9 +122,9 @@ public class Grenade : Projectile {
             var hitpower = Projectile.explosion_scale(power, dist);
             apply_force_to_gameobject(hitpower, go, dist);
 
-			i++;
-		}
-	}
+            i++;
+        }
+    }
     
 
     void apply_force_to_gameobject(float hitpower, GameObject go, Vector3 dist) {

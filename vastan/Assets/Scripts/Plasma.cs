@@ -43,7 +43,7 @@ public class Plasma : Projectile {
         return p;
     }
 
-	public void set_energy(float e) {
+    public void set_energy(float e) {
         //TODO: Use a material for crying out loud
         energy = e;
         Color c = new Color(1f, 0, 0) * energy;
@@ -52,47 +52,47 @@ public class Plasma : Projectile {
         m.colors = cs.ToArray();
     }
     private void Update() {
-		if (!isActiveAndEnabled) return;
+        if (!isActiveAndEnabled) return;
         decay(6f);
         restart_sound(.144f);
     }
 
-	private void FixedUpdate() {
-		if (!isActiveAndEnabled) { return; }
-		gameObject.transform.position += speed * Time.fixedDeltaTime * Game.AVARA_FPS;
-		gameObject.transform.Rotate(0, 0, 200f * Time.fixedDeltaTime);
+    private void FixedUpdate() {
+        if (!isActiveAndEnabled) { return; }
+        gameObject.transform.position += speed * Time.fixedDeltaTime * Game.AVARA_FPS;
+        gameObject.transform.Rotate(0, 0, 200f * Time.fixedDeltaTime);
 
-		RaycastHit hit_info;
-		Debug.DrawRay(transform.position, transform.forward * .5f);
-		if (Physics.Raycast(transform.position, transform.forward, out hit_info, .5f)) {
+        RaycastHit hit_info;
+        Debug.DrawRay(transform.position, transform.forward * .5f);
+        if (Physics.Raycast(transform.position, transform.forward, out hit_info, .5f)) {
 
-			var hit = hit_info.collider.gameObject;
+            var hit = hit_info.collider.gameObject;
 
-			var hit_player = hit.GetComponent<SceneCharacter3D>();
-			if (hit_player != null) {
+            var hit_player = hit.GetComponent<SceneCharacter3D>();
+            if (hit_player != null) {
                 hit_player.state.momentum += transform.forward * energy * 3f;
                 hit_player.was_hit(energy, max_energy);
                 asplode();
-			}
+            }
 
-			var hit_ai = hit.GetComponent<AI3D>();
-			if (hit_ai != null) {
-				hit_ai.state.momentum += transform.forward * energy * 3f;
+            var hit_ai = hit.GetComponent<AI3D>();
+            if (hit_ai != null) {
+                hit_ai.state.momentum += transform.forward * energy * 3f;
                 hit_ai.was_hit(energy, max_energy);
                 asplode();
             }
  
-			var hit_static = hit.GetComponent<Static>();
-			if (hit_static != null) {
+            var hit_static = hit.GetComponent<Static>();
+            if (hit_static != null) {
                 hit_wall = true;
-				asplode();
-			}
-			else {
-				asplode();
-			}
-			Debug.Log(hit);
-		}
+                asplode();
+            }
+            else {
+                asplode();
+            }
+            Debug.Log(hit);
+        }
 
-	}
+    }
 
 }

@@ -7,7 +7,7 @@ namespace UnityStandardAssets.ImageEffects
     [RequireComponent(typeof(Camera))]
     [AddComponentMenu("Image Effects/Color Adjustments/Contrast Enhance (Unsharp Mask)")]
     public class ContrastEnhance : PostEffectsBase
-	{
+    {
         [Range(0.0f, 1.0f)]
         public float intensity = 0.5f;
         [Range(0.0f,0.999f)]
@@ -24,7 +24,7 @@ namespace UnityStandardAssets.ImageEffects
 
 
         public override bool CheckResources ()
-		{
+        {
             CheckSupport (false);
 
             contrastCompositeMaterial = CheckShaderAndCreateMaterial (contrastCompositeShader, contrastCompositeMaterial);
@@ -36,9 +36,9 @@ namespace UnityStandardAssets.ImageEffects
         }
 
         void OnRenderImage (RenderTexture source, RenderTexture destination)
-		{
+        {
             if (CheckResources()==false)
-			{
+            {
                 Graphics.Blit (source, destination);
                 return;
             }

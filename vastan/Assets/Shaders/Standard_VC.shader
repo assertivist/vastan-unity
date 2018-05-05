@@ -83,7 +83,7 @@ Shader "Standard_VC"
             #pragma shader_feature _ _SPECULARHIGHLIGHTS_OFF
             #pragma shader_feature _ _GLOSSYREFLECTIONS_OFF
             #pragma shader_feature _PARALLAXMAP
-			#pragma shader_feature _VERTEXCOLOR_OFF _VERTEXCOLOR _VERTEXCOLOR_LERP
+            #pragma shader_feature _VERTEXCOLOR_OFF _VERTEXCOLOR _VERTEXCOLOR_LERP
 
             #pragma multi_compile_fwdbase
             #pragma multi_compile_fog

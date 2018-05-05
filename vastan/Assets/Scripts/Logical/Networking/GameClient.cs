@@ -98,7 +98,7 @@ public class GameClient : Game {
         }
 
         if (MyPlayer == null && SceneCharacters != null 
-			&& SceneCharacters.ContainsKey(MyCharacter.Id)) {
+            && SceneCharacters.ContainsKey(MyCharacter.Id)) {
             MyPlayer = SceneCharacters[MyCharacter.Id];
             MyPlayer.Client = this;
             MyPlayer.BaseCharacter = MyCharacter;
@@ -199,7 +199,7 @@ public class GameClient : Game {
             character.head.transform.localRotation = headRot;
             character.crouch = crouch;
             character.stance = stance;
-			character.transform.localEulerAngles = new Vector3(0, direction, 0);
+            character.transform.localEulerAngles = new Vector3(0, direction, 0);
             return;
         }
 
@@ -327,12 +327,12 @@ public class GameClient : Game {
             if (directionDiff > 10) {
                 Debug.Log(directionDiff);
             }
-			angle = angle + (directionDiff * portionOfDiffToMove);
-			if (angle > 359) angle -= 359f;
-			if (angle < 0) angle = 359f - angle;
-			character.transform.localEulerAngles = new Vector3(
-				0, angle, 0);
-			//character.state.angle = angle;
+            angle = angle + (directionDiff * portionOfDiffToMove);
+            if (angle > 359) angle -= 359f;
+            if (angle < 0) angle = 359f - angle;
+            character.transform.localEulerAngles = new Vector3(
+                0, angle, 0);
+            //character.state.angle = angle;
 
 
             Quaternion currentHeadRot = character.head.transform.localRotation;
@@ -371,8 +371,8 @@ public class GameClient : Game {
 
 
     /**
-	* If the player is moving, valIdate the player's position
-	*/
+    * If the player is moving, valIdate the player's position
+    */
     //Transform previousTransform = player.transform;
     public bool PositionCorrection = true;
     public float ValidatePositionInterval;
@@ -398,8 +398,8 @@ public class GameClient : Game {
 
 
     /**
-	 * 12: Reposition the player to match the server
-	*/
+     * 12: Reposition the player to match the server
+    */
     [RPC]
     public void CorrectPosition(int lastControlCommandApplied, Vector3 correctPosition, Vector3 correctMomentum, float correctDirection, Vector3 correctVelocity, float crouch, float stance) {
         ////Debug.Log (MyPlayer.networkView.viewID + ") " + "Correcting my position");
@@ -677,9 +677,9 @@ public class GameClient : Game {
 
         // 10B: Send the control request to the server
         GetComponent<NetworkView>().RPC(
-			"RequestControl", 
-			RPCMode.Server, 
-			CurrentControlCommand.Serialize());
+            "RequestControl", 
+            RPCMode.Server, 
+            CurrentControlCommand.Serialize());
     }
 
     #endregion
@@ -730,7 +730,7 @@ public class GameClient : Game {
             MyCamera.transform.position = pos;
 
             // Look at the player
-			MyCamera.transform.LookAt(MyPlayer.transform.position + MyPlayer.transform.up * MyPlayer.BaseCharacter.Height * ((SceneCharacter3D)MyPlayer).PitchAngle); // Without this, the camera doesn't turn L/R at all
+            MyCamera.transform.LookAt(MyPlayer.transform.position + MyPlayer.transform.up * MyPlayer.BaseCharacter.Height * ((SceneCharacter3D)MyPlayer).PitchAngle); // Without this, the camera doesn't turn L/R at all
         }
         else
         {

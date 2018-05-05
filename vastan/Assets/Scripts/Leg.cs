@@ -236,8 +236,8 @@ public class Leg : MonoBehaviour {
         else return;
     }
 
-	// called once per frame
-	void Update () {
+    // called once per frame
+    void Update () {
         float sp = speed * 20;
         int walkstep_sp = Mathf.RoundToInt(sp * 8);
         if (walking) {

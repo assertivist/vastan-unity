@@ -8,46 +8,46 @@ using System.Collections.Generic;
 public class AI3D : SceneCharacter3D, IArtificialIntelligence
 {
     
-	public SceneCharacter Target { get; set; }
+    public SceneCharacter Target { get; set; }
 
-	public GameServer Server { get; set; }
+    public GameServer Server { get; set; }
 
-	public SceneCharacter3D GetSceneChar ()
-	{
-		return this; 
-	}
+    public SceneCharacter3D GetSceneChar ()
+    {
+        return this; 
+    }
     new void Start () {
         
         //fwd = Vector3.zero;
         base.Start();
     }
-	// Update is called once per frame
-	void Update ()
-	{
-		this.UpdateAI ();
-	}
+    // Update is called once per frame
+    void Update ()
+    {
+        this.UpdateAI ();
+    }
 
-	#region Movement
+    #region Movement
 
-	public override bool MissingController ()
-	{
-		return false;
-	}
+    public override bool MissingController ()
+    {
+        return false;
+    }
 
 
-	public override float GetCurrentSpeed ()
-	{
-		return 0f;
-	}
+    public override float GetCurrentSpeed ()
+    {
+        return 0f;
+    }
 
-	float MaxTurnSpeed = 10;
-	
-	public void RunAtTarget ()
-	{
+    float MaxTurnSpeed = 10;
+    
+    public void RunAtTarget ()
+    {
 
-		if (!((Character)Target).IsAlive) {
-			return;
-		}
+        if (!((Character)Target).IsAlive) {
+            return;
+        }
 
         //Debug.Log ("Turning toward " + Target.transform.position + " at " + MaxTurnSpeed + "*" + Time.deltaTime);
 
@@ -78,7 +78,7 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
         // Move toward the Target
         if (Vector3.Distance (Target.transform.position, transform.position) >= ((Character)this).ArmLength) {
             
-		}
+        }
 
         base.Move(0f, turn, Time.fixedDeltaTime, false);
     }
@@ -87,31 +87,31 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
     
     #region Combat
 
-	public float AttackDelay;
+    public float AttackDelay;
 
-	public float TimeLastAttacked;
+    public float TimeLastAttacked;
 
 
-	public void AttackTarget ()
-	{
-		var timeSinceLastAttack = Time.time - TimeLastAttacked;
-		if (timeSinceLastAttack < AttackDelay) {
-			return;
-		}			
-		
-		TimeLastAttacked = Time.time;
-		
-		foreach (var potentialTarget in Server.SceneCharacters.Values) {
-			// Check friendly fire
-			if (!Server.FriendlyFire && ((Character)potentialTarget).Team == BaseCharacter.Team) {
-				continue;
-			}
-			
-			if (potentialTarget.transform.IsWithinArc (this.transform, BaseCharacter.ArmLength + 2f, 120f)) {
-				Server.CharacterHits (this, (Character)potentialTarget); // 16D-E
-			}
-		}
-	}
+    public void AttackTarget ()
+    {
+        var timeSinceLastAttack = Time.time - TimeLastAttacked;
+        if (timeSinceLastAttack < AttackDelay) {
+            return;
+        }            
+        
+        TimeLastAttacked = Time.time;
+        
+        foreach (var potentialTarget in Server.SceneCharacters.Values) {
+            // Check friendly fire
+            if (!Server.FriendlyFire && ((Character)potentialTarget).Team == BaseCharacter.Team) {
+                continue;
+            }
+            
+            if (potentialTarget.transform.IsWithinArc (this.transform, BaseCharacter.ArmLength + 2f, 120f)) {
+                Server.CharacterHits (this, (Character)potentialTarget); // 16D-E
+            }
+        }
+    }
     
     #endregion Combat
     

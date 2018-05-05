@@ -22,13 +22,13 @@ namespace ServerSideCalculations.Networking
         public float Stance { get; set; }
         
         public float Walking { get; set; }
-		
-		
-		public ObjectState ()
-		{
-		}
-		
-		public ObjectState (
+        
+        
+        public ObjectState ()
+        {
+        }
+        
+        public ObjectState (
             int networkId, 
             Vector3 position, 
             float angle, 
@@ -37,15 +37,15 @@ namespace ServerSideCalculations.Networking
             float crouch,
             float stance,
             int walking)
-		{
-			NetworkId = networkId;
-			Position = position;
+        {
+            NetworkId = networkId;
+            Position = position;
             Angle = angle;
             HeadRot = headRot;
             Velocity = velocity;
             Crouch = crouch;
             Stance = stance;
             Walking = walking;
-		}
-	}
+        }
+    }
 }

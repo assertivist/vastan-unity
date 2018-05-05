@@ -353,7 +353,7 @@ namespace UnityStandardAssets.ImageEffects
 
         void AddBokeh ( RenderTexture bokehInfo, RenderTexture tempTex, RenderTexture finalTarget) {
             if (bokehMaterial) {
-                var meshes = Quads.GetMeshes (tempTex.width, tempTex.height);	// quads: exchanging more triangles with less overdraw
+                var meshes = Quads.GetMeshes (tempTex.width, tempTex.height);    // quads: exchanging more triangles with less overdraw
 
                 RenderTexture.active = tempTex;
                 GL.Clear (false, true, new Color (0.0f, 0.0f, 0.0f, 0.0f));

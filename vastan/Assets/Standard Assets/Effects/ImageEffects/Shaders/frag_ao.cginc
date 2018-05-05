@@ -1,7 +1,7 @@
 
 half frag_ao (v2f_ao i, int sampleCount, float3 samples[INPUT_SAMPLE_COUNT])
 {
-	// read random normal from noise texture
+    // read random normal from noise texture
     half3 randN = tex2D (_RandomTexture, i.uvr).xyz * 2.0 - 1.0;    
     
     // read scene depth/normal
@@ -16,7 +16,7 @@ half frag_ao (v2f_ao i, int sampleCount, float3 samples[INPUT_SAMPLE_COUNT])
     float occ = 0.0;
     for (int s = 0; s < sampleCount; ++s)
     {
-    	// Reflect sample direction around a random vector
+        // Reflect sample direction around a random vector
         half3 randomDir = reflect(samples[s], randN);
         
         // Make it point to the upper hemisphere
@@ -28,7 +28,7 @@ half frag_ao (v2f_ao i, int sampleCount, float3 samples[INPUT_SAMPLE_COUNT])
         float2 offset = randomDir.xy * scale;
         float sD = depth - (randomDir.z * _Params.x);
 
-		// Sample depth at offset location
+        // Sample depth at offset location
         float4 sampleND = tex2D (_CameraDepthNormalsTexture, i.uv + offset);
         float sampleD;
         float3 sampleN;
@@ -36,10 +36,10 @@ half frag_ao (v2f_ao i, int sampleCount, float3 samples[INPUT_SAMPLE_COUNT])
         sampleD *= _ProjectionParams.z;
         float zd = saturate(sD-sampleD);
         if (zd > _Params.y) {
-        	// This sample occludes, contribute to occlusion
-	        occ += pow(1-zd,_Params.z); // sc2
-	        //occ += 1.0-saturate(pow(1.0 - zd, 11.0) + zd); // nullsq
-        	//occ += 1.0/(1.0+zd*zd*10); // iq
+            // This sample occludes, contribute to occlusion
+            occ += pow(1-zd,_Params.z); // sc2
+            //occ += 1.0-saturate(pow(1.0 - zd, 11.0) + zd); // nullsq
+            //occ += 1.0/(1.0+zd*zd*10); // iq
         }        
     }
     occ /= sampleCount;

@@ -152,7 +152,7 @@ namespace UnityStandardAssets.ImageEffects
             else if (bloomBlurIterations > 10) bloomBlurIterations = 10;
 
             for (int iter = 0; iter < bloomBlurIterations; iter++)
-			{
+            {
                 float spreadForPass = (1.0f + (iter * 0.25f)) * sepBlurSpread;
 
                 // vertical blur
@@ -170,7 +170,7 @@ namespace UnityStandardAssets.ImageEffects
                 secondQuarterRezColor = blur4;
 
                 if (quality > BloomQuality.Cheap)
-				{
+                {
                     if (iter == 0)
                     {
                         Graphics.SetRenderTarget(quarterRezColor);
@@ -195,18 +195,18 @@ namespace UnityStandardAssets.ImageEffects
             // lens flares: ghosting, anamorphic or both (ghosted anamorphic flares)
 
             if (lensflareIntensity > Mathf.Epsilon)
-			{
+            {
 
                 RenderTexture rtFlares4 = RenderTexture.GetTemporary (rtW4, rtH4, 0, rtFormat);
 
                 if (lensflareMode == 0)
-				{
+                {
                     // ghosting only
 
                     BrightFilter (lensflareThreshold, secondQuarterRezColor, rtFlares4);
 
                     if (quality > BloomQuality.Cheap)
-					{
+                    {
                         // smooth a little
                         blurAndFlaresMaterial.SetVector ("_Offsets", new Vector4 (0.0f, (1.5f) / (1.0f * quarterRezColor.height), 0.0f, 0.0f));
                         Graphics.SetRenderTarget(quarterRezColor);
@@ -224,7 +224,7 @@ namespace UnityStandardAssets.ImageEffects
                     BlendFlares (rtFlares4, secondQuarterRezColor);
                 }
                 else
-				{
+                {
 
                     //Vignette (0.975ff, rtFlares4, rtFlares4);
                     //DrawBorder(rtFlares4, screenBlend, 8);
@@ -262,7 +262,7 @@ namespace UnityStandardAssets.ImageEffects
 
                     // additional blur passes
                     for (int iter = 0; iter < hollywoodFlareBlurIterations; iter++)
-					{
+                    {
                         stretchWidth = (hollyStretchWidth * 2.0f / widthOverHeight) * oneOverBaseSize;
 
                         blurAndFlaresMaterial.SetVector ("_Offsets", new Vector4 (stretchWidth * flareXRot, stretchWidth * flareyRot, 0.0f, 0.0f));
@@ -278,7 +278,7 @@ namespace UnityStandardAssets.ImageEffects
                         // anamorphic lens flares
                         AddTo (1.0f, quarterRezColor, secondQuarterRezColor);
                     else
-					{
+                    {
                         // "combined" lens flares
 
                         Vignette (1.0f, quarterRezColor, rtFlares4);
@@ -291,13 +291,13 @@ namespace UnityStandardAssets.ImageEffects
 
             int blendPass = (int) realBlendMode;
             //if (Mathf.Abs(chromaticBloom) < Mathf.Epsilon)
-            //	blendPass += 4;
+            //    blendPass += 4;
 
             screenBlend.SetFloat ("_Intensity", bloomIntensity);
             screenBlend.SetTexture ("_ColorBuffer", source);
 
             if (quality > BloomQuality.Cheap)
-			{
+            {
                 RenderTexture halfRezColorUp = RenderTexture.GetTemporary (rtW2, rtH2, 0, rtFormat);
                 Graphics.Blit (secondQuarterRezColor, halfRezColorUp);
                 Graphics.Blit (halfRezColorUp, destination, screenBlend, blendPass);

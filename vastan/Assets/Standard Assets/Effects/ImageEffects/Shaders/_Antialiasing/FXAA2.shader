@@ -2,12 +2,12 @@
 
 Shader "Hidden/FXAA II" {
 Properties {
-	_MainTex ("Base (RGB)", 2D) = "white" {}
+    _MainTex ("Base (RGB)", 2D) = "white" {}
 }
 
 SubShader {
-	Pass {
-		ZTest Always Cull Off ZWrite Off
+    Pass {
+        ZTest Always Cull Off ZWrite Off
 
 CGPROGRAM
 
@@ -160,29 +160,29 @@ float2 rcpFrame) {   // Constant {1.0/frameWidth, 1.0/frameHeight}.
 
 
 struct v2f {
-	float4 pos : SV_POSITION;
-	float4 uv : TEXCOORD0;
+    float4 pos : SV_POSITION;
+    float4 uv : TEXCOORD0;
 };
 
 float4 _MainTex_TexelSize;
 
 v2f vert (appdata_img v)
 {
-	v2f o;
-	o.pos = UnityObjectToClipPos (v.vertex);
-	o.uv = FxaaVertexShader (v.texcoord.xy*2-1, _MainTex_TexelSize.xy);
-	return o;
+    v2f o;
+    o.pos = UnityObjectToClipPos (v.vertex);
+    o.uv = FxaaVertexShader (v.texcoord.xy*2-1, _MainTex_TexelSize.xy);
+    return o;
 }
 
 sampler2D _MainTex;
 
 float4 frag (v2f i) : SV_Target
 {
-	return float4(FxaaPixelShader(i.uv, _MainTex, _MainTex_TexelSize.xy).xyz, 0.0f);
+    return float4(FxaaPixelShader(i.uv, _MainTex, _MainTex_TexelSize.xy).xyz, 0.0f);
 }
-	
+    
 ENDCG
-	}
+    }
 }
 
 Fallback off

@@ -113,7 +113,7 @@ namespace UnityStandardAssets.ImageEffects
                 return;
             }
 
-			// ----------------------------------------------------------------
+            // ----------------------------------------------------------------
             // FXAA antialiasing modes
 
             if (mode == AAMode.FXAA3Console && (materialFXAAIII != null))
@@ -140,14 +140,14 @@ namespace UnityStandardAssets.ImageEffects
             }
             else if (mode == AAMode.SSAA && ssaa != null)
             {
-				// ----------------------------------------------------------------
+                // ----------------------------------------------------------------
                 // SSAA antialiasing
                 Graphics.Blit(source, destination, ssaa);
             }
             else if (mode == AAMode.DLAA && dlaa != null)
             {
-				// ----------------------------------------------------------------
-				// DLAA antialiasing
+                // ----------------------------------------------------------------
+                // DLAA antialiasing
 
                 source.anisoLevel = 0;
                 RenderTexture interim = RenderTexture.GetTemporary(source.width, source.height);
