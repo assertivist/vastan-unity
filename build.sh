@@ -1,7 +1,7 @@
 #!/bin/sh
 serial=$1
-username=$2
-password=$3
+email=$2
+pass=$3
 project="vastan"
 filename="$project"
 unity_exe="/Applications/Unity/Unity.app/Contents/MacOS/Unity"
@@ -23,14 +23,15 @@ build_for_target()
   echo "Attempting to build $project for $target"
   sudo $unity_exe \
     $options \
-    -serial $serial \
-    -username $username \
-    -password $password \
     -logFile $workspace/$target/build.log \
+    -serial $serial \
+    -username $email \
+    -password $pass \
     -$unitytarget "$workspace/$target/$filename.$extension" \
     -quit
+    
   success=$?
-  cat $(pwd)/Build/$target/build.log
+  cat $workspace/$target/build.log
   cd $workspace
   zip -r9 $packages/$project-$target-$commit.zip $target
   
