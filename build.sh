@@ -1,9 +1,11 @@
 #!/bin/sh
-
+serial=$1
+username=$2
+password=$3
 project="vastan"
 filename="$project"
 unity_exe="/Applications/Unity/Unity.app/Contents/MacOS/Unity"
-options="-batchmode -nographics -silent-crashes -projectPath $(pwd)/$project"
+options="-batchmode -serial $serial -nographics -silent-crashes -projectPath $(pwd)/$project"
 workspace="$(pwd)/Build"
 packages="$(pwd)/Package"
 myhome="$(pwd)"
@@ -21,6 +23,9 @@ build_for_target()
   echo "Attempting to build $project for $target"
   sudo $unity_exe \
     $options \
+    -serial $serial \
+    -username $username \
+    -password $password \
     -logFile $workspace/$target/build.log \
     -$unitytarget "$workspace/$target/$filename.$extension" \
     -quit
