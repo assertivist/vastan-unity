@@ -154,7 +154,7 @@ public class Leg : MonoBehaviour {
         Vector3 from = foot.position;
         from.y += 1f;
         Ray r = new Ray(from, Vector3.down);
-        Debug.DrawRay(from, Vector3.down, Color.green);
+        //Debug.DrawRay(from, Vector3.down, Color.green);
         var result = new RaycastHit();
         bool hit = Physics.Raycast(r, out result);
         if (hit) {
@@ -181,8 +181,8 @@ public class Leg : MonoBehaviour {
             floor_pos.z = target_pos.z;
             target_vector = hip_pos - floor_pos;
             on_ground = true;
-            if (Debug.isDebugBuild)
-                Debug.DrawLine(hip_pos, floor_pos, Color.yellow);
+            //if (Debug.isDebugBuild)
+            //    Debug.DrawLine(hip_pos, floor_pos, Color.yellow);
         }
         else {
             target_vector = hip_pos - target_pos;

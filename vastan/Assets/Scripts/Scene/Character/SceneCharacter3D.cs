@@ -171,10 +171,6 @@ public class SceneCharacter3D : SceneCharacter
         
     }
 
-    void OnControllerColliderHit(ControllerColliderHit h) {
-        
-    }
-
     public void recolor_walker(Color c) {
         my_material.color = c;
         return;
@@ -264,13 +260,19 @@ public class SceneCharacter3D : SceneCharacter
         Debug.DrawLine(tp, tp + (state.accel * 10), Color.cyan);
         Debug.DrawLine(tp, tp + (state.momentum * .1f), Color.black);
         move = (previous_pos - state.pos);
-        
-        if (move.magnitude > .001f) 
-            Controller.Move(move * -1f);
-        //Controller.SimpleMove(state.velocity);
+
+        if (move.magnitude > .001f) {
+            CollisionFlags flags = Controller.Move(move * -1f);
+        }
     }
 
-
+    void OnControllerColliderHit(ControllerColliderHit h) {
+        var pos_adjust = h.normal * move.magnitude;
+        Debug.DrawLine(h.point, h.point + pos_adjust);
+        state.pos -= pos_adjust;
+        state.velocity = state.velocity - (h.normal * (Vector3.Dot(state.velocity, h.normal)));
+        state.momentum = state.momentum - (h.normal * (Vector3.Dot(state.momentum, h.normal)));
+    }
 
     public void LegUpdate(float vert, float turn) {
         if (vert > 0 && walking == 0) {
@@ -334,7 +336,7 @@ public class SceneCharacter3D : SceneCharacter
                 //state.velocity.y /= 2f;
                 var spd = (((crouch / 2f) + jump_base_power) * base_mass) / get_total_mass();
                 Debug.Log(crouch + " " + spd);
-                state.accel.y = spd * 800;
+                state.accel.y = spd;
                 state.recalculate();
             }
             crouch = Mathf.Max(crouch / 2f * dt, 0);
@@ -348,11 +350,11 @@ public class SceneCharacter3D : SceneCharacter
             //state.velocity.y = 0;
             // state.momentum.y = -0.1f * state.momentum.y * Time.deltaTime;
             //state.accel.y = 0;
-            crouch -= state.velocity.y * dt;
-            state.velocity.y = 0;
-            state.accel.y = 0;
+            //crouch -= state.velocity.y * dt;
+            //state.velocity.y = 0;
+            //state.accel.y = 0;
             //state.pos.y = transform.position.y;
-            state.recalculate();
+            //state.recalculate();
             
         }
     }
