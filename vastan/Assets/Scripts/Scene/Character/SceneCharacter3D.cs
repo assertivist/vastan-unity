@@ -270,8 +270,10 @@ public class SceneCharacter3D : SceneCharacter
         var pos_adjust = h.normal * move.magnitude;
         Debug.DrawLine(h.point, h.point + pos_adjust);
         state.pos -= pos_adjust;
-        state.velocity = state.velocity - (h.normal * (Vector3.Dot(state.velocity, h.normal)));
-        state.momentum = state.momentum - (h.normal * (Vector3.Dot(state.momentum, h.normal)));
+        //state.velocity = state.velocity - (h.normal * (Vector3.Dot(state.velocity, h.normal)));
+        //state.momentum = state.momentum - (h.normal * (Vector3.Dot(state.momentum, h.normal)));
+        state.velocity = state.velocity - (h.normal * Vector3.Dot(state.velocity, h.normal));
+        state.momentum = state.momentum - (h.normal * Vector3.Dot(state.momentum, h.normal));
     }
 
     public void LegUpdate(float vert, float turn) {
@@ -336,7 +338,9 @@ public class SceneCharacter3D : SceneCharacter
                 //state.velocity.y /= 2f;
                 var spd = (((crouch / 2f) + jump_base_power) * base_mass) / get_total_mass();
                 Debug.Log(crouch + " " + spd);
-                state.accel.y = spd;
+                //state.accel.y = spd;
+                state.accel.y = spd + 9.8f;
+                //state.velocity.y = spd * 10;
                 state.recalculate();
             }
             crouch = Mathf.Max(crouch / 2f * dt, 0);

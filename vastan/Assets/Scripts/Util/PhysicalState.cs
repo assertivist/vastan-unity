@@ -55,12 +55,12 @@ public class WalkerPhysics : Integrator
             accel.y -= 9.8f * dt;
         }
         else {
+            accel.y -= 9.8f * dt;
             d.x -= momentum.x * friction * 2500f * dt;
             d.z -= momentum.z * friction * 2500f * dt;
-            accel.y = 0;
             //accel.y = Mathf.Max(accel.y, 0);
             //velocity.y = 0f;
-            momentum.y = Math.Max(momentum.y, 0);
+            //momentum.y = Math.Max(momentum.y, 0);
         }
         
         d.y = accel.y;

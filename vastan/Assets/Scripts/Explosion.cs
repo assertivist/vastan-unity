@@ -2,7 +2,7 @@
 
 public class Explosion : MonoBehaviour {
     public void set_color(Color c) {
-        var ps = GetComponent<ParticleSystem>();
+        var ps = GetComponent<ParticleSystem>().main;
         ps.startColor = c;
     }
     
