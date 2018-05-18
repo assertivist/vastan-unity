@@ -38,12 +38,45 @@ public class WeaponsTest : MonoBehaviour {
     public float t = 0;
 
     GameObject current_l_root;
-    
+    Level current_level;
+
+    private string[] levels = {
+        "bwadi",
+        "icebox-classic",
+        "abtf",
+        "bodhi",
+        "coromoran",
+        "errant",
+        "IYA",
+        "phosphorus",
+        "nightsky",
+        "on-the-rocks",
+        "quell",
+        "stratocaster",
+        "vatnajokull",
+        "naloxone",
+        "nightsky"
+    };
+
+    private void OnGUI() {
+        GUILayout.BeginVertical();
+        foreach(string level in levels) {
+            if (GUILayout.Button(level)) {
+                switch_level(level);
+                walker_char.transform.position = current_level.get_incarn().position;
+                Transform incarn = current_level.get_incarn();
+                walker_char.state.pos = incarn.position;
+                walker_char.state.angle = incarn.rotation.eulerAngles.y;
+                walker_char.transform.SetPositionAndRotation(incarn.position, incarn.rotation);
+            }
+        }
+    }
+
     // Use this for initialization
     void Start() {
         walker_char = walker.GetComponent<SceneCharacter3D>();
         // Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.lockState = CursorLockMode.Locked;
         walker_char.recolor_walker(new Color(.7f, 0f, .3f));
         walker_char.BaseCharacter.Id = 1000;
 
@@ -69,6 +102,7 @@ public class WeaponsTest : MonoBehaviour {
         l.load(level);
         current_l_root = l.game_object();
         current_l_root.transform.SetParent(side_spot.transform);
+        current_level = l;
     }
 
     void fire_grenade(SceneCharacter3D character) {

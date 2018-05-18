@@ -7,7 +7,8 @@ using UnityEngine.Networking;
 public enum ObjectType {
     Static,
     Hologram,
-    Ground
+    Ground,
+    FreeSolid
 }
 
 public class Level {
@@ -19,12 +20,14 @@ public class Level {
 
     public List<Mesh> statics;
     public List<Mesh> holograms;
+    public List<Mesh> freesolids;
 
     private static Random rng = new Random();
 
     private GameObject static_fab;
     private GameObject ground_fab;
     private GameObject celestial_fab;
+    private GameObject freesolid_fab;
 
     public int incarn_count = 0;
     private int last_incarn = -1;
@@ -87,11 +90,11 @@ public class Level {
         static_fab = Resources.Load("LevelGeometry", typeof(GameObject)) as GameObject;
         ground_fab = Resources.Load("GroundGeometry", typeof(GameObject)) as GameObject;
         celestial_fab = Resources.Load("celestial_fab", typeof(GameObject)) as GameObject;
-
+        freesolid_fab = Resources.Load("FreeSolid", typeof(GameObject)) as GameObject;
         current_gb.init();
         statics = new List<Mesh>();
         holograms = new List<Mesh>();
-
+        freesolids = new List<Mesh>();
         parse_node(mapnode);
     }
 
@@ -105,6 +108,9 @@ public class Level {
                 break;
             case ObjectType.Ground:
                 ground = current_gb.get_mesh();
+                break;
+            case ObjectType.FreeSolid:
+                freesolids.Add(current_gb.get_mesh());
                 break;
         }
 
@@ -165,6 +171,11 @@ public class Level {
                     cycle_mesh(current_type);
                     parse_ground(node);
                     cycle_mesh(ObjectType.Ground);
+                    break;
+                case "freesolid":
+                    cycle_mesh(current_type);
+                    parse_node(node);
+                    cycle_mesh(ObjectType.FreeSolid);
                     break;
                 case "incarnator":
                     parse_incarnator(node);
@@ -400,6 +411,16 @@ public class Level {
             var go = GameObject.Instantiate(static_fab, Vector3.zero, Quaternion.identity);
             GameObject geom = go as GameObject;
             geom.GetComponent<MeshFilter>().mesh = m;
+            geom.transform.SetParent(parent.transform);
+        }
+
+        foreach (Mesh m in freesolids) {
+            var go = GameObject.Instantiate(freesolid_fab, Vector3.zero, Quaternion.identity);
+            GameObject geom = go as GameObject;
+            geom.GetComponent<MeshFilter>().mesh = m;
+            //geom.AddComponent<FreeSolid>();
+            var mc = geom.AddComponent<MeshCollider>();
+            mc.sharedMesh = m;
             geom.transform.SetParent(parent.transform);
         }
 
