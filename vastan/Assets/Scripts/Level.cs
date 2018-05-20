@@ -415,21 +415,18 @@ public class Level {
         }
 
         foreach (Mesh m in freesolids) {
-            var go = GameObject.Instantiate(freesolid_fab, Vector3.zero, Quaternion.identity);
+            var go = GameObject.Instantiate(freesolid_fab, m.bounds.center, Quaternion.identity);
             GameObject geom = go as GameObject;
             geom.GetComponent<MeshFilter>().mesh = m;
             //geom.AddComponent<FreeSolid>();
             var mc = geom.AddComponent<MeshCollider>();
+            mc.convex = true;
             mc.sharedMesh = m;
             geom.transform.SetParent(parent.transform);
         }
 
         GameObject ground_go = GameObject.Instantiate(ground_fab, Vector3.zero, Quaternion.identity) as GameObject;
         ground_go.GetComponent<MeshFilter>().mesh = ground;
-        BoxCollider b = ground_go.AddComponent<BoxCollider>();
-        b.center = new Vector3 (0, -10, 0);
-        b.size = new Vector3 (1000, 20, 1000);
-        ground_go.transform.SetParent(parent.transform);
         var mat = ground_go.GetComponent<Renderer>().material;
         mat.SetColor(Shader.PropertyToID("_Color"), ground_color);
 

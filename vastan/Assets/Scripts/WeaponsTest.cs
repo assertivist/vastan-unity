@@ -43,7 +43,9 @@ public class WeaponsTest : MonoBehaviour {
     private string[] levels = {
         "bwadi",
         "icebox-classic",
-        "abtf",
+        "iceboxClassic.pict",
+        "Tesla.pict"
+        /*"abtf",
         "bodhi",
         "coromoran",
         "errant",
@@ -55,7 +57,7 @@ public class WeaponsTest : MonoBehaviour {
         "stratocaster",
         "vatnajokull",
         "naloxone",
-        "nightsky"
+        "nightsky"*/
     };
 
     private void OnGUI() {

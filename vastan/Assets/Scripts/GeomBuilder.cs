@@ -25,6 +25,7 @@ public class GeomBuilder {
     private List<Vector3> new_verts;
     private List<int> new_triangles;
     private List<Color> new_colors;
+    private List<Vector3> new_normals;
     private delegate void AddVertXYZ(float p1, 
                                      float p2, 
                                      float p3);
@@ -36,6 +37,7 @@ public class GeomBuilder {
         new_verts = new List<Vector3>();
         new_triangles = new List<int>();
         new_colors = new List<Color>();
+        new_normals = new List<Vector3>();
     }
 
     private void add_last_verts_as_quad () {
@@ -63,6 +65,16 @@ public class GeomBuilder {
         int i = 0;
         while (i < (end_verts - start_verts)) {
             new_colors.Add(c);
+            i++;
+        }
+    }
+
+    private void add_vert_normals(Vector3 normal,
+                                  int start_verts,
+                                  int end_verts) {
+        int i = 0;
+        while (i < (end_verts - start_verts)) {
+            new_normals.Add(normal);
             i++;
         }
     }
@@ -328,6 +340,98 @@ public class GeomBuilder {
         return this;                          
     }
 
+    public GeomBuilder add_avara_bsp(string json) {
+        AvaraBSP bsp = new AvaraBSP(json);
+        Debug.Log("Polys: " + bsp.polys.Count);
+        Debug.Log("Unique Edges: " + bsp.unique_edges.Count);
+        Debug.Log("Edges");
+        foreach(int e in bsp.edges) {
+            Debug.Log(e);
+        }
+        Debug.Log("Points: " + bsp.points.Count);
+        //foreach (Vector4 point in bsp.points) {
+        //    new_verts.Add(point);
+        //}
+
+        foreach (PolyRecord p in bsp.polys) {
+           // Debug.Log(p);
+            var p1 = bsp.edges[p.first_edge];
+            var p2 = bsp.edges[p.first_edge + 1];
+            var p3 = bsp.edges[p.first_edge + 2];
+            var ue1 = bsp.unique_edges[p1];
+            var p1a = ue1.a;
+            var p1b = ue1.b;
+            var ue2 = bsp.unique_edges[p2];
+            var p2a = ue2.a;
+            var p2b = ue2.b;
+            var ue3 = bsp.unique_edges[p3];
+            var p3a = ue3.a;
+            var p3b = ue3.b;
+
+            //Debug.Log(p1a + " " + p1b);
+            //Debug.Log(p2a + " " + p2b);
+            //Debug.Log(p3a + " " + p3b);
+
+            var normal_rec = bsp.normal_records[p.normal_index];
+            //Debug.Log(normal_rec.normal_index);
+            var normal = bsp.vectors[normal_rec.normal_index];
+            var color_rec = bsp.colors[normal_rec.color_index];
+            var color_long = color_rec.color;
+            var b = color_long / 65536f;
+            var g = (color_long - b * 65536) / 256;
+            var r = color_long - b * 65536 - g * 256;
+            var color = new Color(r, g, b);
+
+            var start_vert = new_verts.Count;
+            new_verts.Add(bsp.points[p1a]);
+            new_verts.Add(bsp.points[p1b]);
+            new_verts.Add(bsp.points[p2a]);
+            new_verts.Add(bsp.points[p2b]);
+            new_verts.Add(bsp.points[p3a]);
+            new_verts.Add(bsp.points[p3b]);
+            new_triangles.Add(start_vert);
+            new_triangles.Add(start_vert + 1);
+            new_triangles.Add(start_vert + 2);
+            new_triangles.Add(start_vert + 1);
+            new_triangles.Add(start_vert + 2);
+            new_triangles.Add(start_vert + 3);
+            new_triangles.Add(start_vert + 2);
+            new_triangles.Add(start_vert + 3);
+            new_triangles.Add(start_vert + 4);
+            new_triangles.Add(start_vert + 3);
+            new_triangles.Add(start_vert + 4);
+            new_triangles.Add(start_vert + 5);
+            var end_vert = new_verts.Count;
+            add_vert_normals(normal, start_vert, end_vert);
+            add_vert_colors(color, start_vert, end_vert);
+            /*
+            start_vert = new_verts.Count;
+            new_verts.Add(bsp.points[p3b]);
+            new_verts.Add(bsp.points[p3a]);
+            new_verts.Add(bsp.points[p2b]);
+            new_verts.Add(bsp.points[p2a]);
+            new_verts.Add(bsp.points[p1b]);
+            new_verts.Add(bsp.points[p1a]);
+            new_triangles.Add(start_vert);
+            new_triangles.Add(start_vert + 1);
+            new_triangles.Add(start_vert + 2);
+            new_triangles.Add(start_vert + 1);
+            new_triangles.Add(start_vert + 2);
+            new_triangles.Add(start_vert + 3);
+            new_triangles.Add(start_vert + 2);
+            new_triangles.Add(start_vert + 3);
+            new_triangles.Add(start_vert + 4);
+            new_triangles.Add(start_vert + 3);
+            new_triangles.Add(start_vert + 4);
+            new_triangles.Add(start_vert + 5);
+            end_vert = new_verts.Count;
+            add_vert_normals(normal * -1, start_vert, end_vert);
+            add_vert_colors(color, start_vert, end_vert);*/
+            
+        }
+        return this;
+    }
+
     public static Vector3 to_cartesian(float azimuth, 
                                  float elevation, 
                                  float length) {
@@ -338,14 +442,15 @@ public class GeomBuilder {
     }
 
     public Mesh get_mesh () {
-        m = new Mesh();
-        m.name = uuid();
-
         m.vertices = new_verts.ToArray();
         m.colors = new_colors.ToArray();
         m.triangles = new_triangles.ToArray();
-
-        m.RecalculateNormals();
+        if (new_normals.Count > 0) {
+            m.normals = new_normals.ToArray();
+            //m.RecalculateNormals();
+        }
+        else
+            m.RecalculateNormals();
         m.RecalculateBounds();
         return m;
     }

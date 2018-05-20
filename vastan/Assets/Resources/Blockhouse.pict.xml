@@ -1,0 +1,195 @@
+<map designer="mantis  -   derek@leapnet.com">
+  <sky horizon="1.000,1.000,0.800" color="1.000,0.800,0.600"/>
+  <ground color="0.400,0.200,0.000"/>
+  <incarnator location="82.917,50,42.417" heading="135.0"/>
+  <incarnator location="119.472,50,42.417" heading="165.0"/>
+  <incarnator location="156.417,50,42.917" heading="225.0"/>
+  <incarnator location="155.917,50,111.917" heading="315.0"/>
+  <incarnator location="83.917,50,111.417" heading="45.0"/>
+  <incarnator location="119.500,50,112.917" heading="5.0"/>
+  <static>
+    <block size="12.000,6.000,12.000" center="81.917,3.000,113.917" color="0.800,0.600,0.000"/>
+    <block size="12.000,6.000,12.000" center="157.917,3.000,113.917" color="0.800,0.600,0.000"/>
+    <block size="12.000,6.000,12.000" center="157.917,3.000,41.917" color="0.800,0.600,0.000"/>
+    <block size="12.000,6.000,12.000" center="81.917,3.000,41.917" color="0.800,0.600,0.000"/>
+    <block size="12.000,6.000,8.000" center="157.917,3.000,67.917" color="0.800,0.600,0.000"/>
+    <block size="12.000,6.000,8.000" center="81.917,3.000,67.917" color="0.800,0.600,0.000"/>
+    <block size="7.500,6.000,12.000" center="131.667,3.000,113.917" color="0.800,0.600,0.000"/>
+    <block size="7.500,6.000,12.000" center="108.167,3.000,41.917" color="0.800,0.600,0.000"/>
+    <block size="12.000,6.000,8.000" center="157.917,3.000,87.917" color="0.800,0.600,0.000"/>
+    <block size="12.000,6.000,8.000" center="81.917,3.000,87.917" color="0.800,0.600,0.000"/>
+    <block size="7.500,6.000,12.000" center="131.667,3.000,41.917" color="0.800,0.600,0.000"/>
+    <block size="7.500,6.000,12.000" center="108.167,3.000,113.917" color="0.800,0.600,0.000"/>
+  </static>
+  <goody location="131.917,2,65.417" grenades="4" missiles="0" respawn="30" spin="2,0,0" shape=""/>
+  <goody location="104.917,2,93.417" grenades="4" missiles="0" respawn="30" spin="2,0,0" shape=""/>
+  <goody location="131.917,2,90.583" grenades="0" missiles="3" respawn="30" spin="2,0,0" shape=""/>
+  <goody location="105.417,2,67.583" grenades="0" missiles="3" respawn="30" spin="2,0,0" shape=""/>
+  <goody location="157.917,8,86.917" grenades="8" missiles="0" respawn="30" spin="2,0,0" shape=""/>
+  <goody location="80.917,8,68.083" grenades="0" missiles="6" respawn="30" spin="2,0,0" shape=""/>
+  <freesolid power="10" location="121.417,0,71.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="121.417,1.5,71.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="113.417,0,71.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="113.417,1.5,71.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="109.417,0,75.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="109.417,1.5,75.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="113.417,0,75.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="113.417,1.5,75.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="117.417,0,75.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="117.417,1.5,75.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="121.417,0,75.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="121.417,1.5,75.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="125.417,0,75.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="125.417,1.5,75.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="121.417,0,79.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="121.417,1.5,79.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="117.417,0,79.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="117.417,1.5,79.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="113.417,0,79.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="113.417,1.5,79.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="121.417,0,83.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="121.417,1.5,83.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="125.417,0,83.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="125.417,1.5,83.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="121.417,0,87.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="121.417,1.5,87.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="113.417,0,87.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="113.417,1.5,87.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="117.417,0,83.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="117.417,1.5,83.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="113.417,0,83.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="113.417,1.5,83.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="109.417,0,83.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="109.417,1.5,83.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="113.417,5,75.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="113.417,6.5,75.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="117.417,5,75.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="117.417,6.5,75.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="121.417,5,75.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="121.417,6.5,75.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="121.417,5,79.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="121.417,6.5,79.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="121.417,5,83.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="121.417,6.5,83.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="117.417,5,83.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="117.417,6.5,83.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="113.417,5,83.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="113.417,6.5,83.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="113.417,5,79.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="113.417,6.5,79.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="137.417,0,59.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="137.417,1.5,59.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="137.417,0,63.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="137.417,1.5,63.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="137.417,0,67.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="137.417,1.5,67.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="137.417,0,71.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="137.417,1.5,71.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="133.417,0,59.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="133.417,1.5,59.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="129.417,0,59.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="129.417,1.5,59.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="125.417,0,59.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="125.417,1.5,59.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="137.417,5,67.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="137.417,6.5,67.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="137.417,5,59.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="137.417,6.5,59.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="129.417,5,59.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="129.417,6.5,59.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="137.417,0,95.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="137.417,1.5,95.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="141.417,0,95.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="141.417,1.5,95.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="141.417,0,99.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="141.417,1.5,99.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="137.417,0,99.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="137.417,1.5,99.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="139.417,5,97.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="139.417,6.5,97.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="94.417,0,56.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="94.417,1.5,56.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="98.417,0,56.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="98.417,1.5,56.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="98.417,0,60.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="98.417,1.5,60.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="94.417,0,60.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="94.417,1.5,60.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="96.417,5,58.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="96.417,6.5,58.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="97.417,0,87.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="97.417,1.5,87.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="97.417,0,91.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="97.417,1.5,91.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="97.417,0,95.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="97.417,1.5,95.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="97.417,0,99.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="97.417,1.5,99.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="101.417,0,99.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="101.417,1.5,99.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="105.417,0,99.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="105.417,1.5,99.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="109.417,0,99.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="109.417,1.5,99.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="105.417,5,99.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="105.417,6.5,99.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="97.417,5,99.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="97.417,6.5,99.917" color="1,1,1"/>
+  </freesolid>
+  <freesolid power="10" location="97.417,5,91.917" color="1,1,1" mass="1" relativeGravity="0.2">
+    <block size="5,3,5" center="97.417,6.5,91.917" color="1,1,1"/>
+  </freesolid>
+</map>
