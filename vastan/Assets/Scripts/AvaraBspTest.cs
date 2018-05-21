@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class AvaraBspTest : MonoBehaviour {
+public class AvaraBspTest : MonoBehaviour
+{
+    public float speed = 200f;
     public GameObject static_fab;
     string[] shapes = {
         "3000_bspFlag.avarabsp",
-        "129_Shark.avarabsp",
+        /*"129_Shark.avarabsp",
         "1001_Godzilla.avarabsp",
         "1002_Silo.avarabsp",
         "1003_Hand.avarabsp",
@@ -26,7 +27,7 @@ public class AvaraBspTest : MonoBehaviour {
         "1024_Sun.avarabsp",
         "1025_Cow.avarabsp",
         "1026_Door2.avarabsp",
-        "1027_Bat.avarabsp"
+        "1027_Bat.avarabsp"*/
     };
     List<GameObject> objs = new List<GameObject>();
 	// Use this for initialization
@@ -52,7 +53,7 @@ public class AvaraBspTest : MonoBehaviour {
         var dt = Time.deltaTime;
         var count = 1;
 		foreach(GameObject s in objs) {
-            s.transform.Rotate(0, 8f * count * dt, 0);
+            s.transform.Rotate(0, speed * dt, 0);
             count++;
         }
 	}
