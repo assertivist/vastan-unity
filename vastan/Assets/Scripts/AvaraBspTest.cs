@@ -6,8 +6,8 @@ public class AvaraBspTest : MonoBehaviour
     public float speed = 200f;
     public GameObject static_fab;
     string[] shapes = {
-        "3000_bspFlag.avarabsp",
-        /*"129_Shark.avarabsp",
+        "3000_bspFlag.avarabsp",/*
+        "129_Shark.avarabsp",
         "1001_Godzilla.avarabsp",
         "1002_Silo.avarabsp",
         "1003_Hand.avarabsp",
@@ -32,16 +32,18 @@ public class AvaraBspTest : MonoBehaviour
     List<GameObject> objs = new List<GameObject>();
 	// Use this for initialization
 	void Start () {
+        Application.backgroundLoadingPriority = ThreadPriority.Low;
         var count = 0;
 		foreach(string file in shapes) {
             TextAsset ta = (TextAsset)Resources.Load(file);
             var gb = new GeomBuilder();
             gb.init();
-            gb.add_avara_bsp(ta.text);
+            gb.add_avara_bsp(ta.text, Color.red, Color.white);
             Mesh m = gb.get_mesh();
             Vector3 pos = new Vector3(count * 5f, 0, 0);
             GameObject c = (GameObject)GameObject.Instantiate(static_fab, pos, Quaternion.identity);
             c.GetComponent<MeshFilter>().mesh = m;
+            c.AddComponent<DrawNormals>();
             c.transform.SetParent(transform.parent);
             objs.Add(c);
             count++;
