@@ -39,9 +39,9 @@ public class VastanPlayer : NetworkBehaviour {
             "left_bottom_leg",
             "right_bottom_leg"
         };
-        var walker = transform.FindChild("walker");
+        var walker = transform.Find("walker");
         foreach (string name in recolor) {
-            var go = walker.FindChild(name);
+            var go = walker.Find(name);
             var renderer = go.GetComponent<SkinnedMeshRenderer>();
             foreach (Material m in renderer.materials) {
                 m.color = ps.color;

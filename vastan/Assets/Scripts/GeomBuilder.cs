@@ -355,16 +355,20 @@ public class GeomBuilder {
         foreach (PolyRecord p in bsp.polys) {
             add_avara_bsp_poly(bsp, p, marker1, marker2);
         }
+        //add_avara_bsp_poly(bsp, bsp.polys[0], marker1, marker2);
         return this;
     }
 
+    delegate void add_verts(List<int> triangle, EdgeRecord e);
     private void add_avara_bsp_poly(AvaraBSP bsp, PolyRecord p, Color marker1, Color marker2)
     {
         //Debug.Log(p1a + " " + p1b);
         //Debug.Log(p2a + " " + p2b);
         //Debug.Log(p3a + " " + p3b);
 
+        //Debug.Log("----");
         var normal_rec = bsp.normal_records[p.normal_index];
+        var base_point = normal_rec.base_point_index;
         //Debug.Log(normal_rec.normal_index);
         var normal = bsp.vectors[normal_rec.normal_index];
         var color_rec = bsp.colors[normal_rec.color_index];
@@ -399,206 +403,189 @@ public class GeomBuilder {
         {
             the_color = marker2;
         }
+        // orderd list of points around this face
+        List<int> verts = new List<int>();
+        // indexed list of nearest neighbors
+        // Dictionary<int, int[]> neighbors = new Dictionary<int, int[]>();
 
-        add_avara_bsp_verts(bsp, p, normal, the_color);
-        
-    }
-
-    private void add_avara_bsp_verts(AvaraBSP bsp, PolyRecord p, Vector3 normal, Color color)
-    {
-        List<EdgeRecord> edges = new List<EdgeRecord>();
         for (int i = 0; i < p.edge_count; i++)
         {
-            edges.Add(bsp.unique_edges[bsp.edges[p.first_edge + i]]);
-        }
-        HashSet<int> unique = new HashSet<int>();
-        foreach (EdgeRecord e in edges)
-        {
-            unique.Add(e.a);
-            unique.Add(e.b);
-        }
-        var face_verts = unique.ToArray();
-
-        avara_bsp_verts_tri(face_verts, normal, color, bsp.points, false);
-        avara_bsp_verts_tri(face_verts, normal, color, bsp.points, true);
-
-        return;
-        /*
-        var p1 = bsp.edges[p.first_edge];
-        var p2 = bsp.edges[p.first_edge + 1];
-        var p3 = bsp.edges[p.first_edge + 2];
-        var ue1 = bsp.unique_edges[p1];
-        var p1a = ue1.a;
-        var p1b = ue1.b;
-        var ue2 = bsp.unique_edges[p2];
-        var p2a = ue2.a;
-        var p2b = ue2.b;
-        var ue3 = bsp.unique_edges[p3];
-        var p3a = ue3.a;
-        var p3b = ue3.b;
-
-        start_vert = new_verts.Count;
-
-        // We get six points of which 3 are unique
-        //HashSet<int> unique = new HashSet<int>();
-        unique.Add(p1a);
-        unique.Add(p1b);
-        unique.Add(p2a);
-        unique.Add(p2b);
-        unique.Add(p3a);
-        unique.Add(p3b);
-        face_verts = unique.ToArray();
-
-        // Add unique verts
-        foreach (int vert in face_verts)
-        {
-            new_verts.Add(bsp.points[vert]);
+            EdgeRecord e = bsp.unique_edges[bsp.edges[p.first_edge + i]];
+            if(!verts.Contains(e.a)) {
+                verts.Add(e.a);
+            }
+            if(!verts.Contains(e.b)) {
+                verts.Add(e.b);
+            }
         }
 
-        // poly contains one tri
-        if (face_verts.Count() == 3) {
-            new_triangles.Add(start_vert + 2);
-            new_triangles.Add(start_vert + 1);
-            new_triangles.Add(start_vert);
+        Vector3 abs_normal = new Vector3(Mathf.Abs(normal.x), Mathf.Abs(normal.y), Mathf.Abs(normal.z));
+
+        float max_normal_component = Mathf.Max(abs_normal.x, abs_normal.y, abs_normal.z);
+
+        List<Vector2> faceverts = new List<Vector2>();
+        
+        var start_vert = new_verts.Count;
+        foreach(int vidx in verts) {
+            var v = bsp.points[vidx];
+            if(max_normal_component == abs_normal.x)
+                faceverts.Add(new Vector2(v.y, v.z));
+            if(max_normal_component == abs_normal.y)
+                faceverts.Add(new Vector2(v.x, v.z));
+            if(max_normal_component == abs_normal.z)
+                faceverts.Add(new Vector2(v.x, v.y));
+            new_verts.Add(v);
         }
-        // poly contains two tris (quad)
-        else if (face_verts.Count() == 4)
-        {
-            // first tri
-            new_triangles.Add(start_vert + 2);
-            new_triangles.Add(start_vert + 1);
-            new_triangles.Add(start_vert);
-            // second tri
-            new_triangles.Add(start_vert + 3);
-            new_triangles.Add(start_vert + 2);
-            new_triangles.Add(start_vert + 1);
-        }
+        var end_vert = new_verts.Count;
+        Triangulator tr = new Triangulator(faceverts.ToArray());
+        int[] indicies = tr.Triangulate();
+        new_triangles.AddRange(indicies.Select(i => i + start_vert));
         add_vert_normals(normal, start_vert, end_vert);
-        add_vert_colors(color, start_vert, end_vert);
-
+        add_vert_colors(the_color, start_vert, end_vert);
 
         start_vert = new_verts.Count;
-        // Add verts again for back face
-        foreach (int vert in face_verts)
-        {
-            new_verts.Add(bsp.points[vert]);
+        foreach(int vidx in verts) {
+            new_verts.Add(bsp.points[vidx]);
         }
-        // Add back triangle
-        // poly contains one tri
-        if (face_verts.Count() == 3)
-        {
-            new_triangles.Add(start_vert);
-            new_triangles.Add(start_vert + 1);
-            new_triangles.Add(start_vert + 2);
-        }
-        // poly contains two tris (quad)
-        else if (face_verts.Count() == 4)
-        {
-            // first tri
-            new_triangles.Add(start_vert);
-            new_triangles.Add(start_vert + 1);
-            new_triangles.Add(start_vert + 2);
-            // second tri
-            new_triangles.Add(start_vert + 1);
-            new_triangles.Add(start_vert + 2);
-            new_triangles.Add(start_vert + 3);
-        }
-
         end_vert = new_verts.Count;
-        add_vert_normals(normal * -1, start_vert, end_vert);
-        add_vert_colors(color, start_vert, end_vert);
+        new_triangles.AddRange(indicies.Reverse().Select(i => i + start_vert));
+        add_vert_normals(normal, start_vert, end_vert);
+        add_vert_colors(the_color, start_vert, end_vert);
+
+
+
+        /*
+        for(int i = 2; i < verts.Count; i++) {
+            avara_bsp_verts_tri(
+                new Vector3[] {
+                    bsp.points[verts[0]],
+                    bsp.points[verts[i - 1]],
+                    bsp.points[verts[i]]
+                },
+                bsp, normal, UnityEngine.Random.ColorHSV()
+            );
+        }
+         */
+
+
+
+
+        /*
+        //Dictionary<int, List<int>> vert_graph = new Dictionary<int, List<int>>();
+        add_verts add_edge = (t, e) =>
+        {
+            if (!t.Contains(e.a)) {
+                t.Add(e.a);
+            }
+            if (!t.Contains(e.b)) {
+                t.Add(e.b);
+            }
+        };
+        
+        Dictionary<int, int> verts = new Dictionary<int, int>();
+        List<int> triangle = new List<int>();
+        string tri = "";
+        for (int i = 0; i < p.edge_count; i++)
+        {
+            EdgeRecord e = bsp.unique_edges[bsp.edges[p.first_edge + i]];
+
+            add_edge(triangle, e);
+            if (triangle.Count() == 3) {
+                var lerp = (float)i / p.edge_count;
+                tri = "";
+                foreach(int t in triangle) {
+                    tri += t + " ";
+                    if (verts.ContainsKey(t))
+                        verts[t] += 1;
+                    else
+                        verts.Add(t, 1);
+                }
+                Debug.Log("Triangle: " + tri);
+                avara_bsp_verts_tri(triangle.Take(3).ToList(), bsp, normal, the_color);//Color.Lerp(the_color, Color.white, lerp));
+                
+                triangle.RemoveRange(0, 3);
+            }
+        }
+        tri = "";
+        foreach(int t in triangle) {
+            tri += t + " ";
+            if (verts.ContainsKey(t))
+                verts[t] += 1;
+            else
+                verts.Add(t, 1);
+        }
+        Debug.Log("Triangle: " + tri);
+        int count = 0;
+        foreach(KeyValuePair<int, int> kvp in verts.OrderByDescending(kvp => kvp.Value)) {
+            //Debug.Log(kvp.Key + ": " + kvp.Value); 
+            if (count < 3) {
+                triangle.Add(kvp.Key);
+            }
+            count++;
+        }
+        avara_bsp_verts_tri(triangle, bsp, normal, the_color);
+
+         */
+
+
+        /* 
+        foreach(KeyValuePair<int, List<int>> vert_graph_pair in vert_graph) {
+            string debug_verts = "";
+
+            foreach(int neighbor in vert_graph_pair.Value) {
+                debug_verts += neighbor + " ";
+            }
+            
+            if (vert_graph_pair.Value.Count() > 2) {
+                Debug.Log("Tri with more than 3 verts?");
+                Debug.Log(vert_graph_pair.Key + ": " + debug_verts);
+            }
+            Vector3[] vert_arr = {
+                bsp.points[vert_graph_pair.Key],
+                bsp.points[vert_graph_pair.Value[0]],
+                bsp.points[vert_graph_pair.Value[1]]
+            };
+            avara_bsp_verts_tri(vert_arr, normal, UnityEngine.Random.ColorHSV());
+
+        }
+        */
+        /* 
+        avara_bsp_verts_tri(new Vector3[] {
+                bsp.points[vert_graph.First().Key],
+                bsp.points[vert_graph.Last().Value[0]],
+                bsp.points[vert_graph.Last().Value[1]]
+        }, normal, Color.cyan);
+        avara_bsp_verts_tri(new Vector3[] {
+                bsp.points[vert_graph.Last().Key], 
+                bsp.points[vert_graph.First().Value[0]],
+                bsp.points[vert_graph.First().Value[1]]
+        }, normal, Color.magenta);
+        */
+    }
+
+    void avara_bsp_verts_tri(Vector3[] verts, AvaraBSP bsp, Vector3 normal, Color c)
+    {
+        var start_vert = new_verts.Count;
+        new_verts.AddRange(verts);
+        var end_vert = new_verts.Count;
+
+        new_triangles.Add(start_vert + 2);
+        new_triangles.Add(start_vert + 1);
+        new_triangles.Add(start_vert);
+        
+        add_vert_normals(normal, start_vert, end_vert);
+        add_vert_colors(c, start_vert, end_vert);
         
         start_vert = new_verts.Count;
-        new_verts.Add(bsp.points[p3b]);
-        new_verts.Add(bsp.points[p3a]);
-        new_verts.Add(bsp.points[p2b]);
-        new_verts.Add(bsp.points[p2a]);
-        new_verts.Add(bsp.points[p1b]);
-        new_verts.Add(bsp.points[p1a]);
+        new_verts.AddRange(verts);
+        end_vert = new_verts.Count;
+
         new_triangles.Add(start_vert);
         new_triangles.Add(start_vert + 1);
         new_triangles.Add(start_vert + 2);
-        new_triangles.Add(start_vert + 1);
-        new_triangles.Add(start_vert + 2);
-        new_triangles.Add(start_vert + 3);
-        new_triangles.Add(start_vert + 2);
-        new_triangles.Add(start_vert + 3);
-        new_triangles.Add(start_vert + 4);
-        new_triangles.Add(start_vert + 3);
-        new_triangles.Add(start_vert + 4);
-        new_triangles.Add(start_vert + 5);
-        end_vert = new_verts.Count;
-        add_vert_normals(normal * -1, start_vert, end_vert);
-        add_vert_colors(color, start_vert, end_vert);*/
-    }
-    void avara_bsp_verts_tri(int[] face_verts, Vector3 normal, Color c, List<Vector4> points, bool backface)
-    {
-
-        var start_vert = new_verts.Count;
-        foreach (int vert in face_verts)
-        {
-            new_verts.Add(points[vert]);
-        }
-        var end_vert = new_verts.Count;
-        if (backface)
-            add_vert_normals(normal * -1, start_vert, end_vert);
-        else
-            add_vert_normals(normal, start_vert, end_vert);
+        
+        add_vert_normals(normal, start_vert, end_vert);
         add_vert_colors(c, start_vert, end_vert);
-        var unique_count = face_verts.Count();
-
-        if (backface)
-        {
-            // poly contains one tri
-            if (unique_count == 3)
-            {
-                new_triangles.Add(start_vert);
-                new_triangles.Add(start_vert + 1);
-                new_triangles.Add(start_vert + 1);
-            }
-            // poly contains two tris (quad)
-            else if (unique_count == 4)
-            {
-                // first tri
-                new_triangles.Add(start_vert);
-                new_triangles.Add(start_vert + 1);
-                new_triangles.Add(start_vert + 2);
-                // second tri
-                new_triangles.Add(start_vert + 1);
-                new_triangles.Add(start_vert + 2);
-                new_triangles.Add(start_vert + 3);
-            }
-            else
-            {
-                Debug.Log("UNSUPPORTED # OF EDGES: " + unique_count);
-            }
-        }
-        else
-        {
-            // poly contains one tri
-            if (unique_count == 3)
-            {
-                new_triangles.Add(start_vert + 2);
-                new_triangles.Add(start_vert + 1);
-                new_triangles.Add(start_vert);
-            }
-            // poly contains two tris (quad)
-            else if (unique_count == 4)
-            {
-                // first tri
-                new_triangles.Add(start_vert + 2);
-                new_triangles.Add(start_vert + 1);
-                new_triangles.Add(start_vert);
-                // second tri
-                new_triangles.Add(start_vert + 3);
-                new_triangles.Add(start_vert + 2);
-                new_triangles.Add(start_vert + 1);
-            }
-            else
-            {
-                Debug.Log("UNSUPPORTED # OF EDGES: " + unique_count);
-            }
-        }
     }
 
     public static Vector3 to_cartesian(float azimuth, 
@@ -616,6 +603,7 @@ public class GeomBuilder {
         m.triangles = new_triangles.ToArray();
         if (new_normals.Count > 0) {
             m.normals = new_normals.ToArray();
+            m.RecalculateNormals();
         }
         else
             m.RecalculateNormals();

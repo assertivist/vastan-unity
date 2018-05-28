@@ -6,13 +6,17 @@ public class AvaraBspTest : MonoBehaviour
     public float speed = 200f;
     public GameObject static_fab;
     string[] shapes = {
-        "3000_bspFlag.avarabsp",/*
-        "129_Shark.avarabsp",
-        "1001_Godzilla.avarabsp",
-        "1002_Silo.avarabsp",
-        "1003_Hand.avarabsp",
+        //"3000_bspFlag.avarabsp",
+        //"203_Missile.avarabsp",
+        //"411_w1x1.avarabsp",
+        "102_Avara A.avarabsp",
+        "215_Small HECTOR.avarabsp",
+        "460_Sphere16.avarabsp",
+        "601_GroundArrow.avarabsp",
+        "705_Mushroom.avarabsp",
+        "610_Vines.avarabsp",
         "1004_Shark4.avarabsp",
-        "1005_Cloud7.avarabsp",
+        /*"1005_Cloud7.avarabsp",
         "1008_Steering.avarabsp",
         "1010_Ship.avarabsp",
         "1015_Laser.avarabsp",
@@ -53,10 +57,8 @@ public class AvaraBspTest : MonoBehaviour
 	// Update is called once per frame
 	void Update () {
         var dt = Time.deltaTime;
-        var count = 1;
 		foreach(GameObject s in objs) {
-            s.transform.Rotate(0, speed * dt, 0);
-            count++;
+            //s.transform.Rotate(0, speed * dt, 0);
         }
 	}
 }
