@@ -342,11 +342,7 @@ public class GeomBuilder {
 
     public GeomBuilder add_avara_bsp(string json, Color marker1, Color marker2) {
         AvaraBSP bsp = new AvaraBSP(json);
-        Debug.Log("Polys: " + bsp.polys.Count);
-        Debug.Log("Unique Edges: " + bsp.unique_edges.Count);
-        Debug.Log("Edges: " + bsp.edges.Count);
-        Debug.Log("Points: " + bsp.points.Count);
-
+ 
         foreach (PolyRecord p in bsp.polys) {
             add_avara_bsp_poly(bsp, p, marker1, marker2);
         }
@@ -358,10 +354,10 @@ public class GeomBuilder {
     {
         var normal_rec = bsp.normal_records[p.normal_index];
         var base_point = normal_rec.base_point_index;
-
+ 
         var normal = (Vector3)bsp.vectors[normal_rec.normal_index];
         normal.Normalize();
-
+ 
         var color_rec = bsp.colors[normal_rec.color_index];
         var color_long = (int)color_rec.color;
 
@@ -425,8 +421,6 @@ public class GeomBuilder {
         Vector3 u = (p1 - p0).normalized;
         Vector3 v = Vector3.Cross(u, normal);
 
-        
-
         // Center in 3 space
         Vector3 centroid3 = new Vector3(
             points.Sum(x => x.x) / points.Count(),
@@ -456,12 +450,6 @@ public class GeomBuilder {
                 Vector3.Dot((v3 - p0), v))
             );
 
-        Debug.Log("Centroid3: " + centroid3);
-        Debug.Log("Centroid2: " + centroid2);
-        Debug.Log("Normal: " + normal);
-        Debug.Log("Face Vert Count: " + faceverts.Count());
-        foreach(Vector2 v2 in faceverts) { Debug.Log(v2); }
-
         // Use triangulator on list of 2 space points
         Triangulator tr = new Triangulator(faceverts.ToArray());
         int[] indicies = tr.Triangulate();
@@ -480,6 +468,7 @@ public class GeomBuilder {
         start_vert = new_verts.Count;
         new_verts.AddRange(points);
         end_vert = new_verts.Count;
+
         // This time wind backwards (for opposite face, double sided)
         new_triangles.AddRange(indicies.Reverse().Select(i => i + start_vert));
         add_vert_normals(normal, start_vert, end_vert);
