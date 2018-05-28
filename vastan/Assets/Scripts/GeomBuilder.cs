@@ -346,36 +346,24 @@ public class GeomBuilder {
         Debug.Log("Unique Edges: " + bsp.unique_edges.Count);
         Debug.Log("Edges: " + bsp.edges.Count);
         Debug.Log("Points: " + bsp.points.Count);
-        //foreach (Vector4 point in bsp.points) {
-        //    new_verts.Add(point);
-        //}
-
-        //PolyRecord p = bsp.polys[0];
 
         foreach (PolyRecord p in bsp.polys) {
             add_avara_bsp_poly(bsp, p, marker1, marker2);
         }
-        //add_avara_bsp_poly(bsp, bsp.polys[0], marker1, marker2);
+
         return this;
     }
 
-    delegate void add_verts(List<int> triangle, EdgeRecord e);
     private void add_avara_bsp_poly(AvaraBSP bsp, PolyRecord p, Color marker1, Color marker2)
     {
-        //Debug.Log(p1a + " " + p1b);
-        //Debug.Log(p2a + " " + p2b);
-        //Debug.Log(p3a + " " + p3b);
-
-        //Debug.Log("----");
         var normal_rec = bsp.normal_records[p.normal_index];
         var base_point = normal_rec.base_point_index;
-        //Debug.Log(normal_rec.normal_index);
-        var normal = bsp.vectors[normal_rec.normal_index];
+
+        var normal = (Vector3)bsp.vectors[normal_rec.normal_index];
+        normal.Normalize();
+
         var color_rec = bsp.colors[normal_rec.color_index];
         var color_long = (int)color_rec.color;
-        //var b = color_long / 32767;
-        //var g = (color_long - b * 32767) / 256;
-        //var r = color_long - b * 32767 - g * 256;
 
         int b = (color_long >> 24) & 0xff;
         int g = (color_long >> 16) & 0xff;
@@ -403,10 +391,10 @@ public class GeomBuilder {
         {
             the_color = marker2;
         }
-        // orderd list of points around this face
+
+        // orderd list of references to 
+        // points around this face
         List<int> verts = new List<int>();
-        // indexed list of nearest neighbors
-        // Dictionary<int, int[]> neighbors = new Dictionary<int, int[]>();
 
         for (int i = 0; i < p.edge_count; i++)
         {
@@ -419,151 +407,86 @@ public class GeomBuilder {
             }
         }
 
-        Vector3 abs_normal = new Vector3(Mathf.Abs(normal.x), Mathf.Abs(normal.y), Mathf.Abs(normal.z));
+        // Ordered list of points
+        IOrderedEnumerable<Vector3> points =
+            verts.Select(i => (Vector3)bsp.points[i]).OrderBy(i => i.y);
 
-        float max_normal_component = Mathf.Max(abs_normal.x, abs_normal.y, abs_normal.z);
-
-        List<Vector2> faceverts = new List<Vector2>();
-        
-        var start_vert = new_verts.Count;
-        foreach(int vidx in verts) {
-            var v = bsp.points[vidx];
-            if(max_normal_component == abs_normal.x)
-                faceverts.Add(new Vector2(v.y, v.z));
-            if(max_normal_component == abs_normal.y)
-                faceverts.Add(new Vector2(v.x, v.z));
-            if(max_normal_component == abs_normal.z)
-                faceverts.Add(new Vector2(v.x, v.y));
-            new_verts.Add(v);
+        if (points.Count() == 3) {
+            // if we only have three verts, we don't need
+            // to do all the polygon shit. Just add the 
+            // triangle
+            avara_bsp_verts_tri(points, bsp, normal, the_color);
+            return;
         }
-        var end_vert = new_verts.Count;
+        
+        // Set up points and vectors for converting to 2-space
+        Vector3 p0 = bsp.points[verts[0]];
+        Vector3 p1 = bsp.points[verts[1]];
+        Vector3 u = (p1 - p0).normalized;
+        Vector3 v = Vector3.Cross(u, normal);
+
+        
+
+        // Center in 3 space
+        Vector3 centroid3 = new Vector3(
+            points.Sum(x => x.x) / points.Count(),
+            points.Sum(x => x.y) / points.Count(),
+            points.Sum(x => x.z) / points.Count()
+        );
+
+        // Center in 2 space
+        Vector2 centroid2 = new Vector2(
+            Vector3.Dot((centroid3 - p0), u),
+            Vector3.Dot((centroid3 - p0), v));
+
+        // Reorder the 3 space points by their 
+        // angle around created center point in 2 space
+        points = points
+             .OrderByDescending(vert =>
+                 (Mathf.Rad2Deg *
+                     (Mathf.Atan2(
+                         Vector3.Dot((vert - p0), u) - centroid2.x,
+                         Vector3.Dot((vert - p0), v) - centroid2.y)) + 360) % 360)
+              .ThenBy(vert => (vert - centroid3).magnitude);
+
+        // Ordered list of points in 2 space
+        IEnumerable <Vector2> faceverts = points
+            .Select(v3 => new Vector2(
+                Vector3.Dot((v3 - p0), u),
+                Vector3.Dot((v3 - p0), v))
+            );
+
+        Debug.Log("Centroid3: " + centroid3);
+        Debug.Log("Centroid2: " + centroid2);
+        Debug.Log("Normal: " + normal);
+        Debug.Log("Face Vert Count: " + faceverts.Count());
+        foreach(Vector2 v2 in faceverts) { Debug.Log(v2); }
+
+        // Use triangulator on list of 2 space points
         Triangulator tr = new Triangulator(faceverts.ToArray());
         int[] indicies = tr.Triangulate();
+
+        // Add list of points to new_verts
+        var start_vert = new_verts.Count;
+        new_verts.AddRange(points);
+        var end_vert = new_verts.Count;
+
+        // Add triangles from triangulator
         new_triangles.AddRange(indicies.Select(i => i + start_vert));
         add_vert_normals(normal, start_vert, end_vert);
         add_vert_colors(the_color, start_vert, end_vert);
 
+        // Do it again except...
         start_vert = new_verts.Count;
-        foreach(int vidx in verts) {
-            new_verts.Add(bsp.points[vidx]);
-        }
+        new_verts.AddRange(points);
         end_vert = new_verts.Count;
+        // This time wind backwards (for opposite face, double sided)
         new_triangles.AddRange(indicies.Reverse().Select(i => i + start_vert));
         add_vert_normals(normal, start_vert, end_vert);
         add_vert_colors(the_color, start_vert, end_vert);
-
-
-
-        /*
-        for(int i = 2; i < verts.Count; i++) {
-            avara_bsp_verts_tri(
-                new Vector3[] {
-                    bsp.points[verts[0]],
-                    bsp.points[verts[i - 1]],
-                    bsp.points[verts[i]]
-                },
-                bsp, normal, UnityEngine.Random.ColorHSV()
-            );
-        }
-         */
-
-
-
-
-        /*
-        //Dictionary<int, List<int>> vert_graph = new Dictionary<int, List<int>>();
-        add_verts add_edge = (t, e) =>
-        {
-            if (!t.Contains(e.a)) {
-                t.Add(e.a);
-            }
-            if (!t.Contains(e.b)) {
-                t.Add(e.b);
-            }
-        };
-        
-        Dictionary<int, int> verts = new Dictionary<int, int>();
-        List<int> triangle = new List<int>();
-        string tri = "";
-        for (int i = 0; i < p.edge_count; i++)
-        {
-            EdgeRecord e = bsp.unique_edges[bsp.edges[p.first_edge + i]];
-
-            add_edge(triangle, e);
-            if (triangle.Count() == 3) {
-                var lerp = (float)i / p.edge_count;
-                tri = "";
-                foreach(int t in triangle) {
-                    tri += t + " ";
-                    if (verts.ContainsKey(t))
-                        verts[t] += 1;
-                    else
-                        verts.Add(t, 1);
-                }
-                Debug.Log("Triangle: " + tri);
-                avara_bsp_verts_tri(triangle.Take(3).ToList(), bsp, normal, the_color);//Color.Lerp(the_color, Color.white, lerp));
-                
-                triangle.RemoveRange(0, 3);
-            }
-        }
-        tri = "";
-        foreach(int t in triangle) {
-            tri += t + " ";
-            if (verts.ContainsKey(t))
-                verts[t] += 1;
-            else
-                verts.Add(t, 1);
-        }
-        Debug.Log("Triangle: " + tri);
-        int count = 0;
-        foreach(KeyValuePair<int, int> kvp in verts.OrderByDescending(kvp => kvp.Value)) {
-            //Debug.Log(kvp.Key + ": " + kvp.Value); 
-            if (count < 3) {
-                triangle.Add(kvp.Key);
-            }
-            count++;
-        }
-        avara_bsp_verts_tri(triangle, bsp, normal, the_color);
-
-         */
-
-
-        /* 
-        foreach(KeyValuePair<int, List<int>> vert_graph_pair in vert_graph) {
-            string debug_verts = "";
-
-            foreach(int neighbor in vert_graph_pair.Value) {
-                debug_verts += neighbor + " ";
-            }
-            
-            if (vert_graph_pair.Value.Count() > 2) {
-                Debug.Log("Tri with more than 3 verts?");
-                Debug.Log(vert_graph_pair.Key + ": " + debug_verts);
-            }
-            Vector3[] vert_arr = {
-                bsp.points[vert_graph_pair.Key],
-                bsp.points[vert_graph_pair.Value[0]],
-                bsp.points[vert_graph_pair.Value[1]]
-            };
-            avara_bsp_verts_tri(vert_arr, normal, UnityEngine.Random.ColorHSV());
-
-        }
-        */
-        /* 
-        avara_bsp_verts_tri(new Vector3[] {
-                bsp.points[vert_graph.First().Key],
-                bsp.points[vert_graph.Last().Value[0]],
-                bsp.points[vert_graph.Last().Value[1]]
-        }, normal, Color.cyan);
-        avara_bsp_verts_tri(new Vector3[] {
-                bsp.points[vert_graph.Last().Key], 
-                bsp.points[vert_graph.First().Value[0]],
-                bsp.points[vert_graph.First().Value[1]]
-        }, normal, Color.magenta);
-        */
     }
 
-    void avara_bsp_verts_tri(Vector3[] verts, AvaraBSP bsp, Vector3 normal, Color c)
+    void avara_bsp_verts_tri(IEnumerable<Vector3> verts, AvaraBSP bsp, Vector3 normal, Color c)
     {
         var start_vert = new_verts.Count;
         new_verts.AddRange(verts);

@@ -7,14 +7,14 @@ public class AvaraBspTest : MonoBehaviour
     public GameObject static_fab;
     string[] shapes = {
         //"3000_bspFlag.avarabsp",
-        //"203_Missile.avarabsp",
+        "203_Missile.avarabsp",
         //"411_w1x1.avarabsp",
         "102_Avara A.avarabsp",
         "215_Small HECTOR.avarabsp",
         "460_Sphere16.avarabsp",
-        "601_GroundArrow.avarabsp",
-        "705_Mushroom.avarabsp",
-        "610_Vines.avarabsp",
+        //"601_GroundArrow.avarabsp",
+        //"705_Mushroom.avarabsp",
+        //"610_Vines.avarabsp",
         "1004_Shark4.avarabsp",
         /*"1005_Cloud7.avarabsp",
         "1008_Steering.avarabsp",
@@ -40,6 +40,10 @@ public class AvaraBspTest : MonoBehaviour
         var count = 0;
 		foreach(string file in shapes) {
             TextAsset ta = (TextAsset)Resources.Load(file);
+            if (!ta) {
+                Debug.Log("Error, couldn't read " + file);
+                continue;
+            }
             var gb = new GeomBuilder();
             gb.init();
             gb.add_avara_bsp(ta.text, Color.red, Color.white);
