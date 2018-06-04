@@ -1,0 +1,64 @@
+<map designer="Tyrant - rendon@earthlink.net">
+  <sky horizon="0.953,0.973,1.000" color="0.780,0.796,0.824"/>
+  <ground color="0.000,0.000,0.000"/>
+  <incarnator location="51.639,0,81.639" heading="0.0"/>
+  <incarnator location="79.639,0,21.639" heading="180.0"/>
+  <incarnator location="79.639,0,81.639" heading="0.0"/>
+  <incarnator location="51.639,0,21.639" heading="180.0"/>
+  <incarnator location="81.694,0,51.861" heading="270.0"/>
+  <incarnator location="49.639,0,51.861" heading="90.0"/>
+  <incarnator location="65.639,0,73.639" heading="0.0"/>
+  <incarnator location="65.639,0,29.639" heading="180.0"/>
+  <static>
+    <block size="2.000,3,68.000" center="46.694,1.5,51.694" color="0.110,0.000,0.027"/>
+    <block size="2.000,3,68.000" center="84.694,1.5,51.694" color="0.110,0.000,0.027"/>
+    <block size="36.000,3,2.000" center="65.694,1.5,18.694" color="0.110,0.000,0.027"/>
+    <block size="36.000,3,2.000" center="65.694,1.5,84.694" color="0.110,0.000,0.027"/>
+    <block size="1.000,3,2.000" center="121.694,1.5,790.194" color="0.400,0.082,0.086"/>
+    <block size="1.000,3,2.000" center="121.694,1.5,796.194" color="0.400,0.082,0.086"/>
+    <block size="1.000,3,2.000" center="121.694,1.5,802.194" color="0.400,0.082,0.086"/>
+    <block size="1.000,3,2.000" center="121.694,1.5,808.194" color="0.682,0.780,0.827"/>
+    <block size="1.000,3,2.000" center="121.694,1.5,814.194" color="0.682,0.780,0.827"/>
+    <block size="1.000,3,2.000" center="121.694,1.5,820.194" color="0.682,0.780,0.827"/>
+    <block size="36.000,3,16.000" center="65.694,1.5,51.694" color="0.682,0.780,0.827"/>
+    <block size="36.000,3,12.000" center="65.694,1.5,77.694" color="0.569,0.651,0.714"/>
+    <block size="36.000,3,12.000" center="65.694,1.5,25.694" color="0.569,0.651,0.714"/>
+    <block size="36.000,3,4.000" center="65.694,1.5,21.694" color="0.796,0.910,0.945"/>
+    <block size="2.000,3,68.000" center="46.694,1.5,51.694" color="0.063,0.063,0.196"/>
+    <block size="2.000,3,68.000" center="84.694,1.5,51.694" color="0.063,0.063,0.196"/>
+    <block size="36.000,3,2.000" center="65.694,1.5,18.694" color="0.063,0.063,0.196"/>
+    <block size="36.000,3,2.000" center="65.694,1.5,84.694" color="0.063,0.063,0.196"/>
+    <block size="36.000,3,4.000" center="65.694,1.5,81.694" color="0.796,0.910,0.945"/>
+    <block size="12.000,3,2.000" center="65.694,1.5,26.694" color="0.173,0.192,0.310"/>
+    <block size="14.000,3,16.000" center="54.694,1.5,51.694" color="0.455,0.522,0.600"/>
+    <block size="14.000,3,16.000" center="76.694,1.5,51.694" color="0.455,0.522,0.600"/>
+    <block size="1.500,3,1.500" center="58.944,1.5,56.944" color="0.173,0.192,0.310"/>
+    <block size="1.500,3,1.500" center="58.944,1.5,46.444" color="0.173,0.192,0.310"/>
+    <block size="1.500,3,1.500" center="72.444,1.5,56.944" color="0.173,0.192,0.310"/>
+    <block size="1.500,3,1.500" center="72.444,1.5,46.444" color="0.173,0.192,0.310"/>
+    <block size="1.500,3,12.000" center="58.944,1.5,51.694" color="0.173,0.192,0.310"/>
+    <block size="1.500,3,12.000" center="72.444,1.5,51.694" color="0.173,0.192,0.310"/>
+    <block size="12.000,3,2.000" center="65.694,1.5,76.694" color="0.173,0.192,0.310"/>
+    <ramp base="65.694,0,59.694" top="65.694,1,71.694" width="8.000" color="1.000,1.000,1.000"/>
+    <ramp base="51.694,0,71.694" top="51.694,1,59.694" width="8.000" color="1.000,1.000,1.000"/>
+    <ramp base="79.694,0,71.694" top="79.694,1,59.694" width="8.000" color="1.000,1.000,1.000"/>
+    <ramp base="65.694,0,43.694" top="65.694,1,31.694" width="8.000" color="1.000,1.000,1.000"/>
+    <ramp base="51.694,0,31.694" top="51.694,1,43.694" width="8.000" color="1.000,1.000,1.000"/>
+    <ramp base="79.694,0,31.694" top="79.694,1,43.694" width="8.000" color="1.000,1.000,1.000"/>
+    <ramp base="56.694,0,31.694" top="56.694,1,37.694" width="18.000" color="1.000,1.000,1.000"/>
+    <ramp base="56.694,0,37.694" top="56.694,1,43.694" width="18.000" color="1.000,1.000,1.000"/>
+    <ramp base="74.694,0,31.694" top="74.694,1,37.694" width="18.000" color="1.000,1.000,1.000"/>
+    <ramp base="74.694,0,37.694" top="74.694,1,43.694" width="18.000" color="1.000,1.000,1.000"/>
+    <ramp base="56.694,0,71.694" top="56.694,1,65.694" width="18.000" color="1.000,1.000,1.000"/>
+    <ramp base="56.694,0,65.694" top="56.694,1,59.694" width="18.000" color="1.000,1.000,1.000"/>
+    <ramp base="74.694,0,71.694" top="74.694,1,65.694" width="18.000" color="1.000,1.000,1.000"/>
+    <ramp base="74.694,0,65.694" top="74.694,1,59.694" width="18.000" color="1.000,1.000,1.000"/>
+  </static>
+  <goody location="53.222,0,51.722" grenades="0" missiles="0" respawn="30" spin="0,0,0" shape=""/>
+  <goody location="78.222,0,51.722" grenades="0" missiles="0" respawn="30" spin="0,0,0" shape=""/>
+  <goody location="65.722,0,22.722" grenades="0" missiles="0" respawn="30" spin="0,0,0" shape=""/>
+  <goody location="65.722,0,80.722" grenades="0" missiles="0" respawn="30" spin="0,0,0" shape=""/>
+  <goody location="65.722,0,51.722" grenades="0" missiles="0" respawn="30" spin="0,0,0" shape=""/>
+  <goody location="65.722,0,81.722" grenades="0" missiles="0" respawn="30" spin="0,0,0" shape=""/>
+  <goody location="65.722,0,21.722" grenades="0" missiles="0" respawn="30" spin="0,0,0" shape=""/>
+</map>

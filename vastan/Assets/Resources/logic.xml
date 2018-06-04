@@ -1,0 +1,39 @@
+<map>
+  <sky horizon="0.400,0.400,0.800" color="0.400,0.000,1.000"/>
+  <ground color="0.000,0.224,0.451"/>
+  <incarnator location="18.917,10,71.361" heading="45.0"/>
+  <incarnator location="55.417,10,71.361" heading="315.0"/>
+  <incarnator location="55.417,10,36.417" heading="225.0"/>
+  <incarnator location="20.417,10,36.417" heading="135.0"/>
+  <incarnator location="37.917,10,28.917" heading="180.0"/>
+  <incarnator location="37.917,10,78.917" heading="0.0"/>
+  <static>
+    <block size="4.000,1.5,3.000" center="43.917,0.75,44.417" color="0.800,0.600,1.000"/>
+    <block size="4.000,1.5,3.000" center="43.917,0.75,63.417" color="0.800,0.600,1.000"/>
+    <block size="3.000,1.5,22.000" center="47.417,0.75,53.917" color="0.800,0.600,1.000"/>
+    <block size="15.000,2,3.000" center="37.917,1,28.917" color="0.800,0.600,1.000"/>
+    <block size="15.000,2,3.000" center="37.917,1,78.917" color="0.800,0.600,1.000"/>
+    <block size="4.000,2,4.000" center="59.917,1,54.417" color="0.800,0.600,1.000"/>
+    <block size="9.000,1,9.000" center="37.917,0.5,53.917" color="0.800,0.600,1.000"/>
+    <block size="4.000,2,4.000" center="15.917,1,54.417" color="0.800,0.600,1.000"/>
+    <block size="4.000,1.5,3.000" center="31.917,0.75,63.417" color="0.800,0.600,1.000"/>
+    <block size="4.000,1.5,3.000" center="31.917,0.75,44.417" color="0.800,0.600,1.000"/>
+    <block size="3.000,1.5,22.000" center="28.417,0.75,53.917" color="0.800,0.600,1.000"/>
+    <block size="5.000,0,3.000" center="27.917,0,28.917" color="0.000,0.173,0.349"/>
+    <block size="4.000,0,22.000" center="24.917,0,53.917" color="0.000,0.173,0.349"/>
+    <block size="4.000,0,3.500" center="43.917,0,47.667" color="0.000,0.173,0.349"/>
+    <block size="4.000,0,3.000" center="39.917,0,44.417" color="0.000,0.173,0.349"/>
+    <block size="4.000,0,3.000" center="39.917,0,63.417" color="0.000,0.173,0.349"/>
+    <block size="5.000,0,3.000" center="27.917,0,78.917" color="0.000,0.173,0.349"/>
+    <block size="5.000,0,4.000" center="11.417,0,54.417" color="0.000,0.173,0.349"/>
+    <block size="5.000,0,4.000" center="55.417,0,54.417" color="0.000,0.173,0.349"/>
+    <block size="4.000,0,3.500" center="43.917,0,60.167" color="0.000,0.173,0.349"/>
+    <block size="3.500,0,9.000" center="44.167,0,53.917" color="0.000,0.173,0.349"/>
+    <block size="3.000,0,9.000" center="31.917,0,53.917" color="0.000,0.173,0.349"/>
+  </static>
+  <goody location="59.917,0,54.417" grenades="0" missiles="0" respawn="30" spin="0,0,0" shape=""/>
+  <goody location="15.917,0,54.417" grenades="0" missiles="0" respawn="30" spin="0,0,0" shape=""/>
+  <goody location="37.917,0,82.417" grenades="0" missiles="0" respawn="30" spin="0,0,0" shape=""/>
+  <goody location="37.917,0,25.417" grenades="0" missiles="0" respawn="30" spin="0,0,0" shape=""/>
+  <goody location="37.917,0,53.417" grenades="0" missiles="0" respawn="30" spin="0,0,0" shape=""/>
+</map>

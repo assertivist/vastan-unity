@@ -1,8 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 using SimpleJSON;
+
+public struct Triangle {
+    public int a, b, c;
+    public Triangle(int ina, int inb, int inc) {
+        a = ina;
+        b = inb;
+        c = inc;
+    }
+}
 
 public struct NormalRecord {
     public int normal_index;
@@ -12,8 +22,7 @@ public struct NormalRecord {
 }
 
 public struct EdgeRecord {
-    public int a;
-    public int b;
+    public int a, b;
 }
 
 public struct PolyRecord {
@@ -24,11 +33,6 @@ public struct PolyRecord {
     public int back_poly;
     public int visibility;
     public int reserved;
-}
-
-public struct ColorRecord {
-    public long color;
-    public int[] color_cache;
 }
 
 public class AvaraBSP {
@@ -46,7 +50,9 @@ public class AvaraBSP {
     public List<EdgeRecord> unique_edges = new List<EdgeRecord>();
     public List<PolyRecord> polys = new List<PolyRecord>();
     public List<Vector4> vectors = new List<Vector4>();
-    public List<ColorRecord> colors = new List<ColorRecord>();
+    public List<Vector4> colors = new List<Vector4>();
+    public List<List<Triangle>> triangles = new List<List<Triangle>>();
+    public List<List<int>> triangles_verts = new List<List<int>>();
 
     private Vector4 ArrayToVector4(JSONNode thing) {
         var array = thing.AsArray;
@@ -102,14 +108,24 @@ public class AvaraBSP {
         }
         foreach(JSONNode child in o["colors"]) {
             JSONArray arr = child.AsArray;
-            ColorRecord c = new ColorRecord();
-            c.color = arr[0].AsInt;
-            //c.color_cache = arr[1].AsArray;
-            colors.Add(c);
+            colors.Add(ArrayToVector4(arr));
         }
         foreach(JSONNode child in o["vectors"]) {
             Vector4 v = ArrayToVector4(child);
             vectors.Add(v);
+        }
+
+        foreach(JSONNode child in o["triangles_poly"]) {
+            JSONArray arr = child.AsArray;
+            triangles.Add(
+                arr.Linq.Select(i => 
+                    new Triangle(
+                        i.Value.Children.ElementAt(0).AsInt, 
+                        i.Value.Children.ElementAt(1).AsInt, 
+                        i.Value.Children.ElementAt(2).AsInt)).ToList());
+        }
+        foreach(JSONNode child in o["triangles_verts_poly"]) {
+            triangles_verts.Add(child.Children.Select(j => j.AsInt).ToList());
         }
     }
 }

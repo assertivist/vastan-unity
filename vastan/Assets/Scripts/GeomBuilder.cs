@@ -342,15 +342,16 @@ public class GeomBuilder {
 
     public GeomBuilder add_avara_bsp(string json, Color marker1, Color marker2) {
         AvaraBSP bsp = new AvaraBSP(json);
- 
+        int count = 0;
         foreach (PolyRecord p in bsp.polys) {
-            add_avara_bsp_poly(bsp, p, marker1, marker2);
+            add_avara_bsp_poly(bsp, p, count, marker1, marker2);
+            count++;
         }
 
         return this;
     }
 
-    private void add_avara_bsp_poly(AvaraBSP bsp, PolyRecord p, Color marker1, Color marker2)
+    private void add_avara_bsp_poly(AvaraBSP bsp, PolyRecord p, int idx, Color marker1, Color marker2)
     {
         var normal_rec = bsp.normal_records[p.normal_index];
         var base_point = normal_rec.base_point_index;
@@ -358,15 +359,7 @@ public class GeomBuilder {
         var normal = (Vector3)bsp.vectors[normal_rec.normal_index];
         normal.Normalize();
  
-        var color_rec = bsp.colors[normal_rec.color_index];
-        var color_long = (int)color_rec.color;
-
-        int b = (color_long >> 24) & 0xff;
-        int g = (color_long >> 16) & 0xff;
-        int r = (color_long >> 8) & 0xff;
-        int a = color_long & 0xff;
-
-        Color the_color = new Color(r / 254f, g / 254f, b / 254f, a / 254f);
+        Color the_color = (Color)bsp.colors[normal_rec.color_index];
 
         if ( // marker 1
             the_color.r == 1 &&
@@ -377,7 +370,7 @@ public class GeomBuilder {
         {
             the_color = marker1;
         }
-
+        
         if ( // marker 2
             the_color.r == 0 &&
             the_color.g == 1 &&
@@ -388,91 +381,17 @@ public class GeomBuilder {
             the_color = marker2;
         }
 
-        // orderd list of references to 
-        // points around this face
-        List<int> verts = new List<int>();
+        var verts = bsp.triangles_verts[idx];
+        var triangles = bsp.triangles[idx];
+        var points = verts.Select(x => bsp.points[x]);
 
-        for (int i = 0; i < p.edge_count; i++)
-        {
-            EdgeRecord e = bsp.unique_edges[bsp.edges[p.first_edge + i]];
-            if(!verts.Contains(e.a)) {
-                verts.Add(e.a);
-            }
-            if(!verts.Contains(e.b)) {
-                verts.Add(e.b);
-            }
+        foreach(Triangle tri in triangles) {
+            avara_bsp_verts_tri(new List<Vector3>() {
+                points.ElementAt(tri.a),
+                points.ElementAt(tri.b),
+                points.ElementAt(tri.c)
+            }, bsp, normal, the_color);
         }
-
-        // Ordered list of points
-        IOrderedEnumerable<Vector3> points =
-            verts.Select(i => (Vector3)bsp.points[i]).OrderBy(i => i.y);
-
-        if (points.Count() == 3) {
-            // if we only have three verts, we don't need
-            // to do all the polygon shit. Just add the 
-            // triangle
-            avara_bsp_verts_tri(points, bsp, normal, the_color);
-            return;
-        }
-        
-        // Set up points and vectors for converting to 2-space
-        Vector3 p0 = bsp.points[verts[0]];
-        Vector3 p1 = bsp.points[verts[1]];
-        Vector3 u = (p1 - p0).normalized;
-        Vector3 v = Vector3.Cross(u, normal);
-
-        // Center in 3 space
-        Vector3 centroid3 = new Vector3(
-            points.Sum(x => x.x) / points.Count(),
-            points.Sum(x => x.y) / points.Count(),
-            points.Sum(x => x.z) / points.Count()
-        );
-
-        // Center in 2 space
-        Vector2 centroid2 = new Vector2(
-            Vector3.Dot((centroid3 - p0), u),
-            Vector3.Dot((centroid3 - p0), v));
-
-        // Reorder the 3 space points by their 
-        // angle around created center point in 2 space
-        points = points
-             .OrderByDescending(vert =>
-                 (Mathf.Rad2Deg *
-                     (Mathf.Atan2(
-                         Vector3.Dot((vert - p0), u) - centroid2.x,
-                         Vector3.Dot((vert - p0), v) - centroid2.y)) + 360) % 360)
-              .ThenBy(vert => (vert - centroid3).magnitude);
-
-        // Ordered list of points in 2 space
-        IEnumerable <Vector2> faceverts = points
-            .Select(v3 => new Vector2(
-                Vector3.Dot((v3 - p0), u),
-                Vector3.Dot((v3 - p0), v))
-            );
-
-        // Use triangulator on list of 2 space points
-        Triangulator tr = new Triangulator(faceverts.ToArray());
-        int[] indicies = tr.Triangulate();
-
-        // Add list of points to new_verts
-        var start_vert = new_verts.Count;
-        new_verts.AddRange(points);
-        var end_vert = new_verts.Count;
-
-        // Add triangles from triangulator
-        new_triangles.AddRange(indicies.Select(i => i + start_vert));
-        add_vert_normals(normal, start_vert, end_vert);
-        add_vert_colors(the_color, start_vert, end_vert);
-
-        // Do it again except...
-        start_vert = new_verts.Count;
-        new_verts.AddRange(points);
-        end_vert = new_verts.Count;
-
-        // This time wind backwards (for opposite face, double sided)
-        new_triangles.AddRange(indicies.Reverse().Select(i => i + start_vert));
-        add_vert_normals(normal, start_vert, end_vert);
-        add_vert_colors(the_color, start_vert, end_vert);
     }
 
     void avara_bsp_verts_tri(IEnumerable<Vector3> verts, AvaraBSP bsp, Vector3 normal, Color c)
