@@ -32,8 +32,8 @@ public class WeaponsTest : MonoBehaviour {
     public GameObject grenades_text;
 
     Vector2 _smoothMouse; 
-    public Vector2 sensitivity = new Vector2(3, 3);
-    public Vector2 smoothing = new Vector2(3, 3);
+    public Vector2 sensitivity = new Vector2(1.2f, 1.2f);
+    public Vector2 smoothing = new Vector2(2.5f, 2.5f);
 
     public float t = 0;
 
@@ -219,10 +219,8 @@ public class WeaponsTest : MonoBehaviour {
                 }
                 if (p.GetType().Equals(typeof(Grenade)))
                     Instantiate(grenade_explode, pos, Quaternion.identity);
-                //GameClient.PlayClipAt(grenade_explode, pos);
                 if (p.hit_wall) {
                     Instantiate(wall_hit, pos, Quaternion.identity);
-                    //GameClient.PlayClipAt(wall_hit, pos);
                 }
             }
             if (!p.alive) {

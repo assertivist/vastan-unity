@@ -267,6 +267,9 @@ public class SceneCharacter3D : SceneCharacter
     }
 
     void OnControllerColliderHit(ControllerColliderHit h) {
+        if(Vector3.Angle(h.normal, Vector3.up) < Controller.slopeLimit) {
+            return;
+        }
         var pos_adjust = h.normal * move.magnitude;
         Debug.DrawLine(h.point, h.point + pos_adjust);
         state.pos -= pos_adjust;
@@ -343,7 +346,7 @@ public class SceneCharacter3D : SceneCharacter
                 //state.velocity.y = spd * 10;
                 state.recalculate();
             }
-            crouch = Mathf.Max(crouch / 2f * dt, 0);
+            crouch = Mathf.Max((crouch / 1.2f) * dt, 0);
             will_jump = false;
         }
 
