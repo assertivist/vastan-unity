@@ -3,73 +3,15 @@ using UnityEngine;
 
 
 
-public class InputTuple
+public struct InputTuple
 {
     public float forward;
     public float turn;
-    public InputTuple(float forward, float turn) {
+    public bool jump;
+    public InputTuple(float forward, float turn, bool jump) {
         this.forward = forward;
         this.turn = turn;
-    }
-}
-
-public class WalkerPhysics : Integrator
-{
-    public Vector3 forward_vector;
-    public Transform transform;
-    public bool on_ground;
-
-    public WalkerPhysics(
-        float mass, 
-        Transform transform, 
-        Vector3 velocity, 
-        Vector3 momentum, 
-        float angle) :
-        base(mass, transform.position, velocity, momentum, angle) {
-        this.transform = transform;
-    }
-
-    public override Vector3 acceleration(float dt, InputTuple i) {
-        forward_vector = transform.TransformDirection(Vector3.forward) * -1;
-
-        var v = forward_vector * i.forward;
-
-        // friction
-        if (on_ground) {
-            friction = 1f;
-        }
-        else {
-            friction = .02f;
-        }
-
-        var d = new Vector3(accel.x, 0, accel.z) - v;
-        if (d.magnitude > friction / 5f) {
-            d = d.normalized;
-            d *= friction * 40000f * dt;
-        } 
-        else {
-            d *= friction * 40000f * dt;
-        }
-
-        if (!on_ground) {
-            accel.y -= 9.8f * dt;
-        }
-        else {
-            accel.y -= 9.8f * dt;
-            d.x -= momentum.x * friction * 2500f * dt;
-            d.z -= momentum.z * friction * 2500f * dt;
-            //accel.y = Mathf.Max(accel.y, 0);
-            //velocity.y = 0f;
-            //momentum.y = Math.Max(momentum.y, 0);
-        }
-        
-        d.y = accel.y;
-        return d;
-    }
-
-    public override float torque (float dt, InputTuple i) {
-        spin = i.turn * 6000f * dt;
-        return spin;
+        this.jump = jump;
     }
 }
 
@@ -106,7 +48,6 @@ public class Integrator
     public float mass;
     public Vector3 accel;
     public float spin;
-    public float friction = .02f;
     public float maxSpeed = 100f;
 
     public void recalculate() {

@@ -360,7 +360,8 @@ public class GeomBuilder {
         normal.Normalize();
  
         Color the_color = (Color)bsp.colors[normal_rec.color_index];
-
+        // TODO: This isn't quite right yet for some reason, 
+        // i think there are more than two marker colors
         if ( // marker 1
             the_color.r == 1 &&
             the_color.g == 1 &&

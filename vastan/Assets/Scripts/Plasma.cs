@@ -17,17 +17,18 @@ public class Plasma : Projectile {
     public static Plasma Fire(SceneCharacter3D c, GameObject fab) {
         int gun = 1;
         float energy = 0;
-        if (c.plasma1 < c.plasma2) {
-            if (c.plasma2 > c.min_plasma_power) {
-                energy = c.plasma2;
-                c.plasma2 = 0;
+        WalkerPhysics s = c.state;
+        if (s.plasma1 < s.plasma2) {
+            if (s.plasma2 > s.min_plasma_power) {
+                energy = s.plasma2;
+                s.plasma2 = 0;
                 gun = -1;
             }
         }
         else { // c.plasma1 >= c.plasma2
-            if (c.plasma1 > c.min_plasma_power) {
-                energy = c.plasma1;
-                c.plasma1 = 0;
+            if (s.plasma1 > s.min_plasma_power) {
+                energy = s.plasma1;
+                s.plasma1 = 0;
             }
         }
         var pos = c.head.transform.position;

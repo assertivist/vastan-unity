@@ -108,7 +108,7 @@ public class WeaponsTest : MonoBehaviour {
     }
 
     void fire_grenade(SceneCharacter3D character) {
-        if (character.grenades < 1) {
+        if (character.state.grenades < 1) {
             return;
         }
         //character.grenades--;
@@ -116,7 +116,7 @@ public class WeaponsTest : MonoBehaviour {
     }
 
     void fire_plasma(SceneCharacter3D character) {
-        if (!character.can_fire_plasma()) {
+        if (!character.state.can_fire_plasma()) {
             return;
         }
         Projectiles.Add(Plasma.Fire(character, plasma_prefab));
@@ -131,15 +131,16 @@ public class WeaponsTest : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        ai3d.RunAtTarget();
-        ai3d.state.on_ground = true;
+        //ai3d.RunAtTarget();
+        //ai3d.state.on_ground = true;
         ai3d.recolor_walker(Color.green);
-        set_text (energy_text, walker_char.energy / 5f);
-        set_text (shield_text, walker_char.shield / 3f);
-        set_text (plasma1_text, walker_char.plasma1 / .8f);
-        set_text (plasma2_text, walker_char.plasma2 / .8f);
-        set_text (missiles_text, walker_char.missiles);
-        set_text (grenades_text, walker_char.grenades);
+        WalkerPhysics s = walker_char.state;
+        set_text (energy_text, s.energy / 5f);
+        set_text (shield_text, s.shield / 3f);
+        set_text (plasma1_text, s.plasma1 / .8f);
+        set_text (plasma2_text, s.plasma2 / .8f);
+        set_text (missiles_text, s.missiles);
+        set_text (grenades_text, s.grenades);
 
         if (Input.GetKeyDown(KeyCode.Tab)) {
             if (cam_is_static) {
@@ -191,8 +192,8 @@ public class WeaponsTest : MonoBehaviour {
     private void FixedUpdate() {
         var turn = Input.GetAxis("Horizontal");
         walker_char.Move(Input.GetAxis("Vertical"), turn, Time.fixedDeltaTime, Input.GetButton("Jump"));
-        walker_char.energy_update(Time.fixedDeltaTime * Game.AVARA_FPS);
-        ai3d.energy_update(Time.fixedDeltaTime * Game.AVARA_FPS);
+        walker_char.state.energy_update(Time.fixedDeltaTime * Game.AVARA_FPS);
+        ai3d.state.energy_update(Time.fixedDeltaTime * Game.AVARA_FPS);
         // Get raw mouse input for a cleaner reading on more sensitive mice.
         var mouseDelta = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
 

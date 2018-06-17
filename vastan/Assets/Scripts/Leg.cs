@@ -154,13 +154,18 @@ public class Leg : MonoBehaviour {
         Vector3 from = foot.position;
         from.y += 1f;
         Ray r = new Ray(from, Vector3.down);
-        //Debug.DrawRay(from, Vector3.down, Color.green);
+        Debug.DrawRay(from, Vector3.down, Color.green);
         var result = new RaycastHit();
         bool hit = Physics.Raycast(r, out result);
-        if (hit) {
+        if (hit && result.distance <= 1.05f) {
+            Debug.DrawLine(result.point, result.collider.transform.position);
             return result.point;
         }
         else return null;
+    }
+
+    public bool is_on_ground() {
+        return get_floor_spot().HasValue;
     }
     
     // places the legs according to the target spot
@@ -175,7 +180,7 @@ public class Leg : MonoBehaviour {
         Vector3 hip_pos = hip.position;
         Vector3 target_vector;
         
-        if (ray_result != null && target_pos.y < ((Vector3)ray_result).y) {
+        if (ray_result != null && target_pos.y <= ((Vector3)ray_result).y) {
             floor_pos = (Vector3)ray_result;
             floor_pos.x = target_pos.x;
             floor_pos.z = target_pos.z;
@@ -186,8 +191,10 @@ public class Leg : MonoBehaviour {
         }
         else {
             target_vector = hip_pos - target_pos;
-            on_ground = false;
         }
+
+        if (ray_result == null)
+            on_ground = false;
 
         float pt_length = target_vector.magnitude;
         if (.01 < pt_length && pt_length < (top_length + bottom_length)) {

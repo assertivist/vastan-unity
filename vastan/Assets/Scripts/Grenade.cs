@@ -35,7 +35,7 @@ public class Grenade : Projectile {
         var grenade = go.GetComponent<Grenade>();
         var t = go.transform;
         grenade.attack_time = Time.time;
-        grenade.speed = -1 * c.move;
+        grenade.speed = c.state.velocity;
         grenade.speed += ((t.forward * 2) + t.up);
         grenade.fired_by = c.BaseCharacter.Id;
         return grenade;
@@ -64,6 +64,8 @@ public class Grenade : Projectile {
         pos.x += speed.x * dt;
         pos.y += speed.y * dt;
         pos.z += speed.z * dt;
+        Debug.Log((pos - speed).magnitude);
+        Debug.DrawRay(transform.position, speed * dt, Color.cyan);
         transform.position = pos;
     }
 

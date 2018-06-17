@@ -197,8 +197,8 @@ public class GameClient : Game {
             character.state.velocity = velocity;
             character.state.angle = direction;
             character.head.transform.localRotation = headRot;
-            character.crouch = crouch;
-            character.stance = stance;
+            character.state.crouch = crouch;
+            character.state.stance = stance;
             character.transform.localEulerAngles = new Vector3(0, direction, 0);
             return;
         }
@@ -250,11 +250,11 @@ public class GameClient : Game {
             intendedCharacterHeadRot.w - currentCharHeadRot.w
         ));
 
-        float currentCharCrouch = character.crouch;
+        float currentCharCrouch = character.state.crouch;
         float intendedCharacterCrouch = charState.Crouch;
         CharacterCrouchDiffs.Add(charId, intendedCharacterCrouch - currentCharCrouch);
 
-        float currentCharStance = character.stance;
+        float currentCharStance = character.state.stance;
         float intendedCharacterStance = charState.Stance;
         CharacterStanceDiffs.Add(charId, intendedCharacterStance - currentCharStance);
     }
@@ -349,23 +349,25 @@ public class GameClient : Game {
                 newWHeadRot
             );
 
-            float currentCrouch = character.crouch;
+            float currentCrouch = character.state.crouch;
             float crouchDiff = CharacterCrouchDiffs[charId];
             float newCrouch = currentCrouch + (crouchDiff * portionOfDiffToMove);
 
-            float currentStance = character.stance;
+            float currentStance = character.state.stance;
             float stanceDiff = CharacterStanceDiffs[charId];
             float newStance = currentStance + (stanceDiff * portionOfDiffToMove);
             
             character.state.velocity = CharacterIntendedStates[charId].Velocity;
-            character.crouch = newCrouch;
-            character.stance = newStance;
+            character.state.crouch = newCrouch;
+            character.state.stance = newStance;
             character.LegUpdate(CharacterIntendedStates[charId].Walking, directionDiff);
 
 
-            var temp = character.head.transform.localPosition;
-            temp.z = character.head_rest_y - newCrouch * SceneCharacter3D.crouch_dist;
-            character.head.transform.localPosition = temp;
+            character.head_height = character.state.elevation + (character.headRot.y * -.01f);
+
+            var temp = character.head.transform.position;
+            temp.y = character.head_height + transform.position.y + .35f;
+            character.head.transform.position = temp;
         }
     }
 
@@ -407,14 +409,14 @@ public class GameClient : Game {
 
         // 12A: Reposition the player to match when the server sent the correction 
         MyPlayer.transform.position = correctPosition;
-        MyPlayer.state.angle = correctDirection;
-        SceneCharacter3D p = (SceneCharacter3D)MyPlayer;
-        p.state.pos = correctPosition;
-        p.state.momentum = correctMomentum;
-        p.state.angle = correctDirection;
-        p.state.velocity = correctVelocity;
-        p.crouch = crouch;
-        p.stance = stance;
+        WalkerPhysics state = ((SceneCharacter3D)MyPlayer).state;
+        state.angle = correctDirection;
+        state.pos = correctPosition;
+        state.momentum = correctMomentum;
+        state.angle = correctDirection;
+        state.velocity = correctVelocity;
+        state.crouch = crouch;
+        state.stance = stance;
 
         // 12B: Make up for control commands which were sent between when the server sent the correction and now
         ////Debug.Log (MyPlayer.networkView.viewID + ") " + "Applying missing commands, starting with " + (lastControlCommandApplied + 1) + ", up to " + CurrentControlCommandId);

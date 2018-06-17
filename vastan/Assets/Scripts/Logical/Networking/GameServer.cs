@@ -409,8 +409,8 @@ public class GameServer : Game
                 character.walking, 
                 character.head.transform.localRotation, 
                 character.state.velocity, 
-                character.crouch,
-                character.stance);
+                character.state.crouch,
+                character.state.stance);
         }
 
 
@@ -544,7 +544,17 @@ public class GameServer : Game
             // Send the current position
             // If we send the correction to the old position, it forces the client to apply more contorl commands on its own, creating a larger margin of error
             SceneCharacter3D scenechar = (SceneCharacter3D)player.InGameCharacter;
-            GetComponent<NetworkView>().RPC("CorrectPosition", info.sender, player.LastControlNumApplied, player.InGameCharacter.state.pos, scenechar.state.momentum, player.InGameCharacter.state.angle, scenechar.state.velocity, scenechar.crouch, scenechar.stance);
+            WalkerPhysics state = scenechar.state;
+            GetComponent<NetworkView>().RPC(
+                "CorrectPosition", 
+                info.sender, 
+                player.LastControlNumApplied, 
+                state.pos, 
+                state.momentum, 
+                state.angle, 
+                state.velocity, 
+                state.crouch, 
+                state.stance);
         }
         #endregion 11D
     }
@@ -587,7 +597,7 @@ public class GameServer : Game
         SceneCharacter3D scene_attacker = SceneCharacters[attacker.Id];
         
 
-        if (scene_attacker.can_fire_plasma()) {
+        if (scene_attacker.state.can_fire_plasma()) {
             InstantiatePlasma(scene_attacker);
             GetComponent<NetworkView>().RPC("ReceiveProjectile", RPCMode.Others, attacker.Id);
         }
@@ -623,16 +633,17 @@ public class GameServer : Game
         #region Determine Hit
 
         var roundWhenPlayerAttacked = Rounds[attackingPlayer.RoundLastRespondedTo];
+        WalkerPhysics attacker_state = sceneAttacker.state;
 
         // 16A: Server rewinds the attacker to its position when the client attacked
         #region Rewind Attacker State
         var presentAttackerState = new ObjectState(0,
             sceneAttacker.transform.position,
-            sceneAttacker.state.angle,
+            attacker_state.angle,
             Quaternion.identity,
-            sceneAttacker.state.velocity,
-            sceneAttacker.crouch,
-            sceneAttacker.stance,
+            attacker_state.velocity,
+            attacker_state.crouch,
+            attacker_state.stance,
             sceneAttacker.walking
         );
 
@@ -641,10 +652,11 @@ public class GameServer : Game
             Debug.Log("Rewinding attacker");
             var oldAttackerState = roundWhenPlayerAttacked.CurrentObjectStates[attacker.Id];
             sceneAttacker.transform.position = oldAttackerState.Position;
-            sceneAttacker.state.angle = oldAttackerState.Angle;
-            sceneAttacker.state.velocity = oldAttackerState.Velocity;
-            sceneAttacker.crouch = oldAttackerState.Crouch;
-            sceneAttacker.stance = oldAttackerState.Stance;
+
+            attacker_state.angle = oldAttackerState.Angle;
+            attacker_state.velocity = oldAttackerState.Velocity;
+            attacker_state.crouch = oldAttackerState.Crouch;
+            attacker_state.stance = oldAttackerState.Stance;
         }
         #endregion Rewind Attacker State
 
@@ -659,15 +671,17 @@ public class GameServer : Game
                 continue;
             }
 
+            WalkerPhysics target_state = potentialTarget.state;
+
             // 16B: Server rewinds each potential target to its position when the client attacked
             #region Rewind Target State
             var presentTargetState = new ObjectState(0,
                 potentialTarget.transform.position,
-                potentialTarget.state.angle,
+                target_state.angle,
                 Quaternion.identity,
-                potentialTarget.state.velocity,
-                potentialTarget.crouch,
-                potentialTarget.stance,
+                target_state.velocity,
+                target_state.crouch,
+                target_state.stance,
                 potentialTarget.walking
             );
 
@@ -676,10 +690,10 @@ public class GameServer : Game
                 Debug.Log("Rewinding target");
                 var oldTargetState = roundWhenPlayerAttacked.CurrentObjectStates[((Character)potentialTarget).Id];
                 potentialTarget.transform.position = oldTargetState.Position;
-                potentialTarget.state.angle = oldTargetState.Angle;
-                potentialTarget.state.velocity = oldTargetState.Velocity;
-                potentialTarget.crouch = oldTargetState.Crouch;
-                potentialTarget.stance = oldTargetState.Stance;
+                target_state.angle = oldTargetState.Angle;
+                target_state.velocity = oldTargetState.Velocity;
+                target_state.crouch = oldTargetState.Crouch;
+                target_state.stance = oldTargetState.Stance;
             }
             #endregion Rewind Target State
 
@@ -695,10 +709,10 @@ public class GameServer : Game
             {
                 Debug.Log("Unwinding target");
                 potentialTarget.transform.position = presentTargetState.Position;
-                potentialTarget.state.angle = presentTargetState.Angle;
-                potentialTarget.state.velocity = presentTargetState.Velocity;
-                potentialTarget.crouch = presentTargetState.Crouch;
-                potentialTarget.stance = presentTargetState.Stance;
+                target_state.angle = presentTargetState.Angle;
+                target_state.velocity = presentTargetState.Velocity;
+                target_state.crouch = presentTargetState.Crouch;
+                target_state.stance = presentTargetState.Stance;
             }
             #endregion Reset Target State
         }
@@ -710,10 +724,10 @@ public class GameServer : Game
         {
             Debug.Log("Unwinding attacker");
             sceneAttacker.transform.position = presentAttackerState.Position;
-            sceneAttacker.state.angle = presentAttackerState.Angle;
-            sceneAttacker.state.velocity = presentAttackerState.Velocity;
-            sceneAttacker.crouch = presentAttackerState.Crouch;
-            sceneAttacker.stance = presentAttackerState.Stance;
+            attacker_state.angle = presentAttackerState.Angle;
+            attacker_state.velocity = presentAttackerState.Velocity;
+            attacker_state.crouch = presentAttackerState.Crouch;
+            attacker_state.stance = presentAttackerState.Stance;
         }
         #endregion Reset Attacker State
 
