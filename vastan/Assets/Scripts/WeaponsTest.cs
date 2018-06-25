@@ -67,8 +67,8 @@ public class WeaponsTest : MonoBehaviour {
                 switch_level(level);
                 walker_char.transform.position = current_level.get_incarn().position;
                 Transform incarn = current_level.get_incarn();
-                walker_char.state.pos = incarn.position;
-                walker_char.state.angle = incarn.rotation.eulerAngles.y;
+                walker_char.transform.position = incarn.position;
+                walker_char.transform.eulerAngles = incarn.rotation.eulerAngles;
                 walker_char.transform.SetPositionAndRotation(incarn.position, incarn.rotation);
             }
         }

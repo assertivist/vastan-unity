@@ -195,7 +195,7 @@ public class GameClient : Game {
         if (!CharacterInterpolation) {
             character.transform.position = position;
             character.state.velocity = velocity;
-            character.state.angle = direction;
+            character.transform.eulerAngles.Set(0, direction, 0);
             character.head.transform.localRotation = headRot;
             character.state.crouch = crouch;
             character.state.stance = stance;
@@ -393,7 +393,7 @@ public class GameClient : Game {
             //Debug.Log( "Validating my position @ " + Time.time );
             //Debug.Log("Validating my position " + MyPlayer.GetCurrentSpeed());
             //Debug.Log("My forward is: " + MyPlayer.transform.forward);
-            GetComponent<NetworkView>().RPC("ValidatePosition", RPCMode.Server, LastCorrectionRespondedTo, CurrentControlCommandId, MyPlayer.transform.position, MyPlayer.state.angle);
+            GetComponent<NetworkView>().RPC("ValidatePosition", RPCMode.Server, LastCorrectionRespondedTo, CurrentControlCommandId, MyPlayer.transform.position, MyPlayer.transform.eulerAngles.y);
             LastTimeValidatedPosition = Time.time;
         }
     }
@@ -403,20 +403,17 @@ public class GameClient : Game {
      * 12: Reposition the player to match the server
     */
     [RPC]
-    public void CorrectPosition(int lastControlCommandApplied, Vector3 correctPosition, Vector3 correctMomentum, float correctDirection, Vector3 correctVelocity, float crouch, float stance) {
+    public void CorrectPosition(int lastControlCommandApplied, Vector3 correctPosition, float correctDirection, Vector3 correctVelocity, float crouch, float stance) {
         ////Debug.Log (MyPlayer.networkView.viewID + ") " + "Correcting my position");
         LastCorrectionRespondedTo = lastControlCommandApplied;
 
         // 12A: Reposition the player to match when the server sent the correction 
         MyPlayer.transform.position = correctPosition;
-        WalkerPhysics state = ((SceneCharacter3D)MyPlayer).state;
-        state.angle = correctDirection;
-        state.pos = correctPosition;
-        state.momentum = correctMomentum;
-        state.angle = correctDirection;
-        state.velocity = correctVelocity;
-        state.crouch = crouch;
-        state.stance = stance;
+        MyPlayer.transform.eulerAngles.Set(0, correctDirection, 0);
+        MyPlayer.transform.position = correctPosition;
+        MyPlayer.state.velocity = correctVelocity;
+        MyPlayer.state.crouch = crouch;
+        MyPlayer.state.stance = stance;
 
         // 12B: Make up for control commands which were sent between when the server sent the correction and now
         ////Debug.Log (MyPlayer.networkView.viewID + ") " + "Applying missing commands, starting with " + (lastControlCommandApplied + 1) + ", up to " + CurrentControlCommandId);

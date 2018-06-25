@@ -36,13 +36,11 @@ public class SceneCharacter3D : SceneCharacter
     public int walking = 0;
 
     public float head_height;
-    //public float jump_factor = 1300f;
+
     //public float spring_body_conversion = 100f;
 
     //public float spring_min_liftoff_factor = 8.5f;
     //public float spring_max_liftoff_factor = 9f;
-
-
 
     public bool is_on_the_ground = false;
 
@@ -64,7 +62,7 @@ public class SceneCharacter3D : SceneCharacter
         //TODO: fix the nightmare that is the rigging of the player character
         targetDirection = new Vector2(270f, 270f); // uhh yeah i measured this heh heh
         head_rest_y = head.transform.localPosition.z;
-        state = new WalkerPhysics(0, walker.transform, Vector3.zero, Vector3.zero, transform.localEulerAngles.y);
+        state = new WalkerPhysics(walker.transform, transform.localEulerAngles.y);
         //crouch_spring = new DampenedSpring(crouch_factor);
         my_material = body_pieces[0].GetComponent<Renderer>().material;
         my_property_block = new MaterialPropertyBlock();
@@ -138,26 +136,11 @@ public class SceneCharacter3D : SceneCharacter
         var temp = head.transform.position;
         temp.y = head_height + transform.position.y + .35f;
         head.transform.position = temp;
-        
-        var previous_pos = state.pos;
 
-        state.on_ground = right_leg.is_on_ground() || left_leg.is_on_ground() || state.momentum.y > 0;
-        is_on_the_ground = state.on_ground;
         InputTuple i = new InputTuple(forward, turn, jump);
-        state.integrate(Time.fixedTime, duration, i);
-        
-        transform.localEulerAngles = new Vector3(0, state.angle, 0);
-
-        var tp = head.transform.position;
-        tp.y -= .5f;
-        Debug.DrawLine(tp, tp + (state.velocity * 100), Color.red);
-        Debug.DrawLine(tp, tp + (state.accel * 10), Color.cyan);
-        Debug.DrawLine(tp, tp + (state.momentum * .1f), Color.black);
-        move = (previous_pos - state.pos);
-
-        if (move.magnitude > 0f) {
-            /*CollisionFlags flags =*/ Controller.Move(move * -1f);
-        }
+        state.update(Controller, duration, i);
+        move = state.velocity;
+        is_on_the_ground = state.on_ground;
     }
 
     void OnControllerColliderHit(ControllerColliderHit h) {
@@ -231,11 +214,6 @@ public class SceneCharacter3D : SceneCharacter
     public override float GetCurrentSpeed ()
     {
         return state.velocity.magnitude;
-        //if (Controller != null) {
-        //    return Controller.velocity.magnitude;
-        //} else {
-        //    return 0;
-        //}
     }
 
     /// <summary>
@@ -246,7 +224,7 @@ public class SceneCharacter3D : SceneCharacter
         return new ObjectState(
             BaseCharacter.Id,
             transform.position,
-            state.angle,
+            transform.eulerAngles.y,
             head.transform.localRotation,
             state.velocity,
             state.crouch,

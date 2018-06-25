@@ -64,7 +64,7 @@ public class AI3D : SceneCharacter3D, IArtificialIntelligence
 
         var look_quat = Quaternion.LookRotation(Target.transform.position - this.transform.position, Vector3.up);
         var angles = look_quat.eulerAngles;
-        var dist = Mathf.DeltaAngle(this.state.angle, angles.y);
+        var dist = Mathf.DeltaAngle(transform.eulerAngles.y, angles.y);
         float turn = 0;
 
         if (dist < -5) {

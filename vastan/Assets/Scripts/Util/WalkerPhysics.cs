@@ -1,12 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class WalkerPhysics : Integrator {
+public class WalkerPhysics {
     public Vector3 forward_vector;
     public Transform transform;
     public bool on_ground = false;
-    public bool airborne = true;
-    public bool will_jump;
+    public bool will_jump = false;
     public float friction = .02f;
     private static float max_head_height = 1.75f;
     private static float min_head_height = .75f;
@@ -19,7 +18,7 @@ public class WalkerPhysics : Integrator {
     private float max_stance = max_head_height;
     private float min_stance = min_head_height;
     public float elevation = max_head_height;
-    private float jump_base_power = 50f;
+    private float jump_base_power = 6f;
 
     float max_energy = 5f;
     public float energy = 5f;
@@ -48,22 +47,20 @@ public class WalkerPhysics : Integrator {
     float boost_timer = 0;
     float boost_time = 0;
 
-    float gravity = -9800f;
+    Vector3 gravity = new Vector3(0, -9.81f, 0);
+
+    public Vector3 velocity = Vector3.zero;
 
     DampenedSpring crouch_spring = new DampenedSpring(0);
 
     public static float base_mass = 140f;
 
     public WalkerPhysics(
-        float mass,
         Transform transform,
-        Vector3 velocity,
-        Vector3 momentum,
-        float angle) :
-        base(mass, transform.position, velocity, momentum, angle) {
+        float angle) {
         this.transform = transform;
-        this.pos = transform.position;
         crouch_spring.stable_pos = 0;
+
     }
 
     public bool can_fire_plasma() {
@@ -102,19 +99,19 @@ public class WalkerPhysics : Integrator {
     public void react_to_contact(ControllerColliderHit h, Vector3 move) {
         var pos_adjust = h.normal * move.magnitude;
         Debug.DrawLine(h.point, h.point + pos_adjust);
-        pos = transform.position;
+        //pos = transform.position;
 
         var ground_angle = Vector3.Angle(h.normal, Vector3.up);
         if (ground_angle < 45f) { // Controller.SlopeLimit
-            on_ground = true;
+            //on_ground = true;
         }
         if (ground_angle < 90f) {
             //momentum.y /= 2;
             return;
         }
 
-        velocity = velocity - (h.normal * Vector3.Dot(velocity, h.normal));
-        momentum = momentum - (h.normal * Vector3.Dot(momentum, h.normal));
+        //velocity = velocity - (h.normal * Vector3.Dot(velocity, h.normal));
+        //momentum = momentum - (h.normal * Vector3.Dot(momentum, h.normal));
     }
 
     public void energy_update(float dt) {
@@ -141,25 +138,39 @@ public class WalkerPhysics : Integrator {
         energy = Mathf.Max(energy, 0f);
     }
 
-    public override Vector3 acceleration(float dt, InputTuple i) {
-        mass = get_total_mass();
-        forward_vector = transform.TransformDirection(Vector3.forward) * -1;
-        var jump = i.jump;
-        var v = forward_vector * i.forward;
-        elevation = stance - crouch;
+    public void update(CharacterController controller, float dt, InputTuple i) {
+        if (i.turn != 0) {
+            var turn = i.turn * 67f * dt;
+            //Debug.Log("Turn: " + turn);
+            transform.Rotate(0, turn, 0);
+        }
 
+        RaycastHit hit;
+        var did_hit = Physics.Raycast(transform.position + Vector3.up, Vector3.down, out hit, 1.1f);
+        if (velocity.y <= 0 && did_hit) {
+            Debug.DrawRay(transform.position + Vector3.up, Vector3.down, Color.cyan);
+            Debug.Log(hit.distance);
+            if (hit.distance <= 1.1f) {
+                on_ground = true;
+                //crouch_impulse = self.velocity.y;
+                velocity.y = 0;
+                if(hit.point.y > transform.position.y)
+                //transform.position = new Vector3(transform.position.x, hit.point.y, transform.position.z);
+                controller.Move(new Vector3(0, hit.point.y - transform.position.y, 0));
+            }
+        }
+        else {
+            on_ground = false;
+            var current_y = new Vector3(0, transform.position.y);
+            var current_y_vel = new Vector3(0, velocity.y, 0);
+            PositionAndVelocity newpv_y = new Integrator(gravity).integrate(current_y, current_y_vel, dt);
+            velocity.y = newpv_y.Velocity.y;
+            //transform.position = new Vector3(transform.position.x, newpv_y.Position.y, transform.position.z);
+            controller.Move(new Vector3(0, newpv_y.Position.y - transform.position.y, 0));
+        }
 
         float jumpdt = dt * Game.AVARA_FPS;
-        //var resting = crouch_spring.stable_pos == crouch_spring.pos;
-        //crouch_spring.stable_pos = 0f + base_crouch_factor + (bob_factor * bob_amount);
-        //if (resting) crouch_spring.pos = crouch_spring.stable_pos;
-        //crouch_spring.calculate(duration);
-        //crouch_factor = Mathf.Round(Mathf.Clamp(crouch_spring.pos, -1.2f, 1.2f) * 100) / 100f;
-        //crouch_factor = crouch_spring.pos;
-
-        if (jump) {
-            //crouch_factor = Mathf.Min(1.0f - bob_amount, crouch_factor + crouch_dt);
-            //crouch_spring.vel += 400f * duration;
+        if (i.jump) {
             if (!will_jump) {
                 crouch += (stance - crouch - min_stance) / 8f * jumpdt;
             }
@@ -171,46 +182,31 @@ public class WalkerPhysics : Integrator {
         else {
             if (will_jump && on_ground) {
                 var spd = (((crouch / 2f) + jump_base_power) * base_mass) / get_total_mass();
-                momentum.y = spd;
-                airborne = true;
+                velocity.y = spd;
                 on_ground = false;
             }
-            crouch = Mathf.Max((crouch / 1.01f) * jumpdt, 0);
+            crouch = Mathf.Max(crouch / 2f, 0);
             will_jump = false;
         }
 
-        if (!on_ground && airborne) {
-            airborne = false;
-        }
-
-        if (on_ground) {
-            friction = 1f;
-            momentum.y = 0;
-        }
-        else {
+        float friction = 1f;
+        if (!on_ground) {
             friction = .02f;
         }
 
-        var d = new Vector3(accel.x, 0, accel.z) - v;
-        if (d.magnitude > friction / 5f) {
-            d = d.normalized;
-            d *= friction * 40000 * dt;
-        }
-        else {
-            d *= friction * 40000 * dt;
-        }
+        var xz_velocity = new Vector3(velocity.x, 0, velocity.z);
+        PositionAndVelocity newpv = new Friction(
+            transform.TransformDirection(Vector3.forward) * i.forward,
+            friction).integrate(transform.position, xz_velocity, dt);
+        velocity.x = newpv.Velocity.x;
+        velocity.z = newpv.Velocity.z;
+        var new_pos = transform.position;
+        new_pos.x = newpv.Position.x;
+        new_pos.z = newpv.Position.z;
+        //transform.position = new_pos;
+        controller.Move(new_pos - transform.position);
 
-
-        d.x -= momentum.x * friction * 2500f * dt;
-        d.z -= momentum.z * friction * 2500f * dt;
-
-        accel.y = gravity * dt;
-        d.y = accel.y;
-        return d;
-    }
-
-    public override float torque(float dt, InputTuple i) {
-        spin = i.turn * 24000f * dt;
-        return spin;
+        elevation = stance - crouch;
+        Debug.DrawRay(transform.position, velocity, Color.red);
     }
 }

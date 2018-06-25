@@ -71,14 +71,14 @@ public class Plasma : Projectile {
 
             var hit_player = hit.GetComponent<SceneCharacter3D>();
             if (hit_player != null) {
-                hit_player.state.momentum += transform.forward * energy * 3f;
+                hit_player.state.velocity += transform.forward * energy * 3f;
                 hit_player.was_hit(energy, max_energy);
                 asplode();
             }
 
             var hit_ai = hit.GetComponent<AI3D>();
             if (hit_ai != null) {
-                hit_ai.state.momentum += transform.forward * energy * 3f;
+                hit_ai.state.velocity += transform.forward * energy * 3f;
                 hit_ai.was_hit(energy, max_energy);
                 asplode();
             }

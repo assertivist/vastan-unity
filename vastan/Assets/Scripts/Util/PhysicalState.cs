@@ -3,8 +3,7 @@ using UnityEngine;
 
 
 
-public struct InputTuple
-{
+public struct InputTuple {
     public float forward;
     public float turn;
     public bool jump;
@@ -15,101 +14,68 @@ public struct InputTuple
     }
 }
 
-public class Integrator
-{
-    class Derivative
-    {
-        public Vector3 velocity;
-        public Vector3 force;
-        public float torque;
+public struct PositionAndVelocity {
+    private readonly Vector3 _position;
+    private readonly Vector3 _velocity;
+    public PositionAndVelocity(Vector3 pos, Vector3 vel) {
+        _position = pos;
+        _velocity = vel;
+    }
 
-        public Derivative(Vector3 velocity, Vector3 force, float torque) {
-            this.velocity = velocity;
-            this.force = force;
-            this.torque = torque;
+    public Vector3 Position { get { return _position; } }
+    public Vector3 Velocity { get { return _velocity; } }
+}
+
+public class Integrator {
+    protected Vector3 _accel;
+    private float _factor = 2.0f;
+    private float _divisor = 1.0f / 6.0f;
+
+    public Integrator(Vector3 acceleration) {
+        _accel = acceleration;
+    }
+
+    public virtual Vector3 Acceleration(Vector3 x, Vector3 v, float dt){
+        return _accel;
+    }
+
+    public PositionAndVelocity evaluate(Vector3 x, Vector3 v, float dt, Vector3 dx, Vector3 dv) {
+        x = x + dx * dt;
+        v = v + dv * dt;
+
+        dx = v;
+        dv = Acceleration(x, v, dt);
+
+        return new PositionAndVelocity(dx, dv);
+    }
+
+    public PositionAndVelocity integrate(Vector3 x, Vector3 v, float dt) {
+        var dpva = evaluate(x, v, 0, Vector3.zero, Vector3.zero);
+        var dpvb = evaluate(x, v, dt * 0.5f, dpva.Position, dpva.Velocity);
+        var dpvc = evaluate(x, v, dt * 0.5f, dpvb.Position, dpvb.Velocity);
+        var dpvd = evaluate(x, v, dt, dpvc.Position, dpvc.Velocity);
+        
+        var dxdt = (dpva.Position + (dpvb.Position + dpvc.Position) * _factor + dpvd.Position) * _divisor;
+        var dvdt = (dpva.Velocity + (dpvb.Velocity + dpvc.Velocity) * _factor + dpvd.Velocity) * _divisor;
+        return new PositionAndVelocity(x + dxdt * dt, v + dvdt * dt);
+    }
+}
+
+public class Friction : Integrator {
+    private float _friction;
+
+    public Friction(Vector3 accel, float friction) : base(accel) {
+        _friction = friction;
+    }
+
+    public override Vector3 Acceleration(Vector3 x, Vector3 v, float dt) {
+        var direction = _accel - v;
+        if (direction.magnitude > _friction / 5.0f) {
+            direction = direction.normalized;
+            return direction * _friction * 70f;
         }
-    }
-
-    
-
-    public Integrator(float mass, Vector3 pos, Vector3 velocity, Vector3 momentum, float angle) {
-        this.mass = mass;
-        this.pos = pos;
-        this.velocity = velocity;
-        this.momentum = momentum;
-        this.angle = angle;
-    }
-    
-    private float t;
-    public Vector3 pos;
-    public Vector3 momentum;
-    public Vector3 velocity;
-    public float angle;
-    public float mass;
-    public Vector3 accel;
-    public float spin;
-    public float maxSpeed = 100f;
-
-    public void recalculate() {
-        velocity = momentum * (1f / mass);
-       
-
-        var mag_sq = Mathf.Pow(velocity.magnitude, 2f);
-        if (mag_sq > Mathf.Pow(maxSpeed, 2f) && mag_sq > 0) {
-            var ratio = maxSpeed / velocity.magnitude;
-            velocity *= ratio;
-            momentum *= ratio;
-        }
-        if (angle > 359) angle -= 359f;
-        if (angle < 0) angle = 359f - angle;
-    }
-
-    private Derivative evaluate1(float t, InputTuple i) {
-        return new Derivative(velocity, acceleration(0, i), torque(0,i));
-    }
-
-    private Derivative evaluate2(float t, float dt, Derivative d, InputTuple i) {
-        var p = pos + (d.velocity * dt);
-        var m = momentum + (d.force * dt);
-        var a = angle + d.torque * dt;
-        var s = new Integrator(mass, p, Vector3.zero, m, a);
-        s.recalculate();
-        return new Derivative(s.velocity, acceleration(dt, i), torque(dt, i));
-    }
-
-    public void integrate(float t, float dt, InputTuple i) {
-        var a = evaluate1(t, i);
-        var b = evaluate2(t, dt * .05f, a, i);
-        var c = evaluate2(t, dt * .05f, b, i);
-        var d = evaluate2(t, dt, c, i);
-
-        var factor = 2f;
-        var divisor = (1f / 6f);
-
-        var dposdt = ((a.velocity + ((b.velocity + c.velocity) * factor)) + d.velocity) * divisor;
-        var dmomenumdt = ((a.force + ((b.force + c.force) * factor)) + d.force) * divisor;
-        pos += dposdt;
-        momentum += (dmomenumdt * dt);
-        angle += divisor * dt * (a.torque + (factor * (b.torque + c.torque)) + d.torque);
-        recalculate();
-    }
-
-    
-    public virtual float torque(float dt, InputTuple i) { return 0; }
-    public virtual Vector3 acceleration(float dt, InputTuple i) { return Vector3.zero; }
-
-    public static Integrator interpolate(Integrator previous_state, Integrator new_state, float alpha) {
-        var int_state = new_state;
-        var new_pos = (new_state.pos * alpha) + (previous_state.pos * (1f - alpha));
-        var new_velocity = (new_state.velocity * alpha) + (previous_state.velocity * (1f - alpha));
-        var new_momentum = (new_state.momentum * alpha) + (previous_state.momentum * (1f - alpha));
-        var new_angle = (new_state.angle * alpha) + (previous_state.angle * (1f - alpha));
-        int_state.pos = new_pos;
-        int_state.velocity = new_velocity;
-        int_state.momentum = new_momentum;
-        int_state.angle = new_angle;
-        int_state.recalculate();
-        return int_state;
+        else
+            return direction * _friction * 70f;
     }
 }
 

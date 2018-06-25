@@ -549,9 +549,8 @@ public class GameServer : Game
                 "CorrectPosition", 
                 info.sender, 
                 player.LastControlNumApplied, 
-                state.pos, 
-                state.momentum, 
-                state.angle, 
+                scenechar.transform.position, 
+                scenechar.transform.eulerAngles.y,
                 state.velocity, 
                 state.crouch, 
                 state.stance);
@@ -633,17 +632,16 @@ public class GameServer : Game
         #region Determine Hit
 
         var roundWhenPlayerAttacked = Rounds[attackingPlayer.RoundLastRespondedTo];
-        WalkerPhysics attacker_state = sceneAttacker.state;
 
         // 16A: Server rewinds the attacker to its position when the client attacked
         #region Rewind Attacker State
         var presentAttackerState = new ObjectState(0,
             sceneAttacker.transform.position,
-            attacker_state.angle,
+            sceneAttacker.transform.eulerAngles.y,
             Quaternion.identity,
-            attacker_state.velocity,
-            attacker_state.crouch,
-            attacker_state.stance,
+            sceneAttacker.state.velocity,
+            sceneAttacker.state.crouch,
+            sceneAttacker.state.stance,
             sceneAttacker.walking
         );
 
@@ -652,11 +650,10 @@ public class GameServer : Game
             Debug.Log("Rewinding attacker");
             var oldAttackerState = roundWhenPlayerAttacked.CurrentObjectStates[attacker.Id];
             sceneAttacker.transform.position = oldAttackerState.Position;
-
-            attacker_state.angle = oldAttackerState.Angle;
-            attacker_state.velocity = oldAttackerState.Velocity;
-            attacker_state.crouch = oldAttackerState.Crouch;
-            attacker_state.stance = oldAttackerState.Stance;
+            sceneAttacker.transform.eulerAngles.Set(0, oldAttackerState.Angle, 0);
+            sceneAttacker.state.velocity = oldAttackerState.Velocity;
+            sceneAttacker.state.crouch = oldAttackerState.Crouch;
+            sceneAttacker.state.stance = oldAttackerState.Stance;
         }
         #endregion Rewind Attacker State
 
@@ -677,7 +674,7 @@ public class GameServer : Game
             #region Rewind Target State
             var presentTargetState = new ObjectState(0,
                 potentialTarget.transform.position,
-                target_state.angle,
+                potentialTarget.transform.eulerAngles.y,
                 Quaternion.identity,
                 target_state.velocity,
                 target_state.crouch,
@@ -690,10 +687,11 @@ public class GameServer : Game
                 Debug.Log("Rewinding target");
                 var oldTargetState = roundWhenPlayerAttacked.CurrentObjectStates[((Character)potentialTarget).Id];
                 potentialTarget.transform.position = oldTargetState.Position;
-                target_state.angle = oldTargetState.Angle;
-                target_state.velocity = oldTargetState.Velocity;
-                target_state.crouch = oldTargetState.Crouch;
-                target_state.stance = oldTargetState.Stance;
+                potentialTarget.transform.eulerAngles.Set(0, oldTargetState.Angle, 0);
+                //target_state.angle = oldTargetState.Angle;
+                potentialTarget.state.velocity = oldTargetState.Velocity;
+                potentialTarget.state.crouch = oldTargetState.Crouch;
+                potentialTarget.state.stance = oldTargetState.Stance;
             }
             #endregion Rewind Target State
 
@@ -709,10 +707,10 @@ public class GameServer : Game
             {
                 Debug.Log("Unwinding target");
                 potentialTarget.transform.position = presentTargetState.Position;
-                target_state.angle = presentTargetState.Angle;
-                target_state.velocity = presentTargetState.Velocity;
-                target_state.crouch = presentTargetState.Crouch;
-                target_state.stance = presentTargetState.Stance;
+                potentialTarget.transform.eulerAngles.Set(0, presentTargetState.Angle, 0);
+                potentialTarget.state.velocity = presentTargetState.Velocity;
+                potentialTarget.state.crouch = presentTargetState.Crouch;
+                potentialTarget.state.stance = presentTargetState.Stance;
             }
             #endregion Reset Target State
         }
@@ -724,10 +722,10 @@ public class GameServer : Game
         {
             Debug.Log("Unwinding attacker");
             sceneAttacker.transform.position = presentAttackerState.Position;
-            attacker_state.angle = presentAttackerState.Angle;
-            attacker_state.velocity = presentAttackerState.Velocity;
-            attacker_state.crouch = presentAttackerState.Crouch;
-            attacker_state.stance = presentAttackerState.Stance;
+            sceneAttacker.transform.eulerAngles.Set(0, presentAttackerState.Angle, 0);
+            sceneAttacker.state.velocity = presentAttackerState.Velocity;
+            sceneAttacker.state.crouch = presentAttackerState.Crouch;
+            sceneAttacker.state.stance = presentAttackerState.Stance;
         }
         #endregion Reset Attacker State
 

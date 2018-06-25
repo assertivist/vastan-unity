@@ -137,7 +137,7 @@ public class Grenade : Projectile {
                 //hit_sc.crouch_spring.vel -= dist.normalized.y * hitpower;
                 //hit_sc.crouch_factor -= dist.normalized.y * hitpower;
 
-            hit_sc.state.momentum += dist.normalized * hitpower;
+            hit_sc.state.velocity += dist.normalized * hitpower;
             hit_sc.was_hit(hitpower, power);
         }
 

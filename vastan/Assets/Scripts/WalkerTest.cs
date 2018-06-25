@@ -56,9 +56,9 @@ public class WalkerTest : MonoBehaviour {
             floor.transform.eulerAngles = Vector3.zero;
         }
 
-        if (Input.GetKeyDown(KeyCode.E)) {
-            walker_char.state.accel.y += 100;
-        }
+        //if (Input.GetKeyDown(KeyCode.E)) {
+        //    walker_char.state.accel.y += 100;
+        //}
 
         if (Input.GetKeyDown(KeyCode.Tab)) {
             if (cam_is_static) {
