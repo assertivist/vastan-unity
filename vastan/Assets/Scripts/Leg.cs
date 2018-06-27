@@ -26,7 +26,7 @@ public class Leg : MonoBehaviour {
     private float bottom_length;
 
     // current point on ellipse
-    public int walk_seq_step = 0;
+    public float walk_seq_step = 0;
 
     // up or down step? (are we lifting
     // this foot or using it to move fw)
@@ -104,7 +104,7 @@ public class Leg : MonoBehaviour {
         }
     }
   
-    void increment_walk_seq_step(int amt) {
+    void increment_walk_seq_step(float amt) {
         if (!((-walkfunc_steps < walk_seq_step) && 
             (walk_seq_step < walkfunc_steps))) {
             up_step = !up_step;
@@ -167,7 +167,7 @@ public class Leg : MonoBehaviour {
     public bool is_on_ground() {
         return get_floor_spot().HasValue;
     }
-    
+
     // places the legs according to the target spot
     // while not putting the feet through any object
 
@@ -179,7 +179,7 @@ public class Leg : MonoBehaviour {
         Vector3 floor_pos;
         Vector3 hip_pos = hip.position;
         Vector3 target_vector;
-        
+
         if (ray_result != null && target_pos.y <= ((Vector3)ray_result).y) {
             floor_pos = (Vector3)ray_result;
             floor_pos.x = target_pos.x;
@@ -198,7 +198,7 @@ public class Leg : MonoBehaviour {
 
         float pt_length = target_vector.magnitude;
         if (.01 < pt_length && pt_length < (top_length + bottom_length)) {
-            float tt_angle_cos = (Mathf.Pow(top_length, 2) + 
+            float tt_angle_cos = (Mathf.Pow(top_length, 2) +
                 Mathf.Pow(pt_length, 2) -
                 Mathf.Pow(bottom_length, 2)) / (2 * top_length * pt_length);
             float target_top_angle;
@@ -210,13 +210,13 @@ public class Leg : MonoBehaviour {
                 return;
             }
             target_vector.Normalize();
-            
+
             float delta = Vector3.Angle(target_vector, Vector2.up);
 
             var angles = top.localEulerAngles;
             var l_vec = foot_ref.transform.InverseTransformDirection(target_vector);
             angles.x = 180.0f - target_top_angle;
-            
+
             if (l_vec.x < 0) {
                 angles.x -= delta;
             }
@@ -227,7 +227,7 @@ public class Leg : MonoBehaviour {
             if (!float.IsNaN(angles.x))
                 top.localEulerAngles = angles;
 
-            float tb_angle_cos = ((Mathf.Pow(top_length, 2) + 
+            float tb_angle_cos = ((Mathf.Pow(top_length, 2) +
                 Mathf.Pow(bottom_length, 2) -
                 Mathf.Pow(pt_length, 2)) / (2 * top_length * bottom_length));
             float target_bottom_angle = Mathf.Rad2Deg * Mathf.Acos(tb_angle_cos);
@@ -245,8 +245,8 @@ public class Leg : MonoBehaviour {
 
     // called once per frame
     void Update () {
-        float sp = speed * 20;
-        int walkstep_sp = Mathf.RoundToInt(sp * 8);
+        float sp = speed;
+        float walkstep_sp = sp * 6.12f;// Mathf.RoundToInt(sp);
         if (walking) {
             if (direction > 0) {
                 // walkin forwards

@@ -44,8 +44,14 @@ public class WalkerPhysics {
     int max_boosters = 3;
     int boosters = 3;
     bool boosting = false;
-    float boost_timer = 0;
     float boost_time = 0;
+    float boost_length = (16 * 5) * Game.AVARA_FPS;
+
+    float max_accel = .250f;
+    float motor_friction = .750f;
+    float turning_effect = 3.5f;
+
+    float[] motors = { 0, 0 };
 
     Vector3 gravity = new Vector3(0, -9.81f, 0);
 
@@ -110,7 +116,7 @@ public class WalkerPhysics {
             return;
         }
 
-        //velocity = velocity - (h.normal * Vector3.Dot(velocity, h.normal));
+        velocity = velocity - (h.normal * Vector3.Dot(velocity, h.normal));
         //momentum = momentum - (h.normal * Vector3.Dot(momentum, h.normal));
     }
 
@@ -131,11 +137,25 @@ public class WalkerPhysics {
         }
 
         energy += energy_charge * dt;
-        if (boosting)
+        if (boosting) {
             energy += energy_charge * 4 * dt;
+            boost_time += dt;
+            if (boost_time > boost_length) {
+                boosting = false;
+            }
+        }
 
         energy = Mathf.Min(max_energy, energy);
         energy = Mathf.Max(energy, 0f);
+    }
+
+    public void boost() {
+        if (boosters > 0) {
+            boosters--;
+            boost_time = 0;
+            boosting = true;
+        }
+
     }
 
     public void update(CharacterController controller, float dt, InputTuple i) {
@@ -149,7 +169,7 @@ public class WalkerPhysics {
         var did_hit = Physics.Raycast(transform.position + Vector3.up, Vector3.down, out hit, 1.1f);
         if (velocity.y <= 0 && did_hit) {
             Debug.DrawRay(transform.position + Vector3.up, Vector3.down, Color.cyan);
-            Debug.Log(hit.distance);
+            //Debug.Log(hit.distance);
             if (hit.distance <= 1.1f) {
                 on_ground = true;
                 //crouch_impulse = self.velocity.y;
@@ -160,6 +180,7 @@ public class WalkerPhysics {
             }
         }
         else {
+            
             on_ground = false;
             var current_y = new Vector3(0, transform.position.y);
             var current_y_vel = new Vector3(0, velocity.y, 0);
@@ -183,20 +204,48 @@ public class WalkerPhysics {
             if (will_jump && on_ground) {
                 var spd = (((crouch / 2f) + jump_base_power) * base_mass) / get_total_mass();
                 velocity.y = spd;
+                Debug.Log(spd);
                 on_ground = false;
             }
             crouch = Mathf.Max(crouch / 2f, 0);
             will_jump = false;
         }
 
-        float friction = 1f;
+        friction = 1f;
         if (!on_ground) {
             friction = .02f;
         }
 
+        var modAccel = base_mass / get_total_mass();
+        modAccel = modAccel * modAccel;
+        modAccel = max_accel * modAccel;
+        int motionFlags = 0;
+
+        if (i.forward > 0) motionFlags |= 1 + 2;
+        if (i.forward < 0) motionFlags |= 4 + 8;
+        if (i.turn < 0) motionFlags |= 2 + 4;
+        if (i.turn > 0) motionFlags |= 1 + 8;
+
+        if ((motionFlags & 1) > 0) motors[0] += modAccel;
+        if ((motionFlags & 2) > 0) motors[1] += modAccel;
+        if ((motionFlags & 4) > 0) motors[0] -= modAccel;
+        if ((motionFlags & 8) > 0) motors[1] -= modAccel;
+
+        var distance = (motors[0] + motors[1]) / 2;
+        var headChange = (motors[0] - motors[1]) * turning_effect;
+
+        if (headChange < 5 && headChange > -5)
+            headChange = 0;
+
+        var avrgHeading = transform.eulerAngles.y + (headChange / 2f);
+        float[] motorDir = {
+            Mathf.Sin(avrgHeading) * distance,
+            Mathf.Cos(avrgHeading) * distance
+        };
+
         var xz_velocity = new Vector3(velocity.x, 0, velocity.z);
         PositionAndVelocity newpv = new Friction(
-            transform.TransformDirection(Vector3.forward) * i.forward,
+            transform.TransformDirection(Vector3.forward) * i.forward * 2.3f,
             friction).integrate(transform.position, xz_velocity, dt);
         velocity.x = newpv.Velocity.x;
         velocity.z = newpv.Velocity.z;
