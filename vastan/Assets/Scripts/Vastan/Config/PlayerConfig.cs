@@ -7,6 +7,7 @@ namespace Vastan.Config
     {
         string name;
         short team;
+		HullConfig hull;
     }
 
     class HullConfig

@@ -2,13 +2,18 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Vastan.Game;
 using Vastan.Util;
+using Vastan.Config;
 using Vastan.Sound;
 
 namespace Vastan.Networking
 {
     class VastanClient : NetworkedSystem
     {
+		public Camera myCamera;
+		public PlayerConfig myPlayerConfig;
         Vastan.Sound.Manager soundManager;
+
+		public VastanCharacter myCharacter;
 
         public VastanClient()
         {

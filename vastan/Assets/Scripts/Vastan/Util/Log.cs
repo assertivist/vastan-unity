@@ -2,12 +2,13 @@ using System;
 using UnityEngine;	
 namespace Vastan.Util {
 	class Log {
-		static string logformat = "{0:u} - {1}";
+		static string logformat = "{0:u}| {1}";
 
-		static string LogString(string message)
+		static string LogString(string message) 
 		{
 			return String.Format(logformat, DateTime.Now, message);
 		}
+
 		public static void Debug(string message)
 		{
 			if (UnityEngine.Debug.isDebugBuild)
@@ -15,6 +16,7 @@ namespace Vastan.Util {
 				UnityEngine.Debug.Log(LogString(message));
 			}
 		}
+		
 		public static void Error(string message)
 		{
 			UnityEngine.Debug.LogError(LogString(message));
