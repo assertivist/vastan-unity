@@ -16,10 +16,20 @@ namespace Vastan.Util {
 				UnityEngine.Debug.Log(LogString(message));
 			}
 		}
+
+		public static void Debug(string message, params object[] things)
+		{
+			Debug(String.Format(message, things));
+		}
 		
 		public static void Error(string message)
 		{
 			UnityEngine.Debug.LogError(LogString(message));
 		}
+
+		public static void Error(string message, params object[] things)
+        {
+			Error(String.Format(message, things));
+        }
 	}
 }

@@ -4,6 +4,7 @@ using Vastan.Game;
 using Vastan.Util;
 using Vastan.Config;
 using Vastan.Sound;
+using System.IO;
 
 namespace Vastan.Networking
 {
@@ -19,7 +20,7 @@ namespace Vastan.Networking
         {
             Init();
             Connect("127.0.0.1");
-            Log.Debug("Opened client socket " + socketId);
+            Log.Debug("Opened client socket ", socketId);
         }
 
         public void Update() 
@@ -39,7 +40,7 @@ namespace Vastan.Networking
             Log.Debug("Receiving disconnection on client?");
         }
 
-        public override void DataReceived(int host, int connection, int channel, byte[] buffer, int size)
+        public override void DataReceived(int host, int connection, int channel, BinaryReader buffer, int size)
         {
             // Message from server
             Log.Debug("Message from server");

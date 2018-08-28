@@ -13,19 +13,19 @@ namespace Vastan.Config
     class HullConfig
     {
         short id;
-        short max_missiles;
-        short max_grenades;
-        short max_boosters;
+        short maxMissiles;
+        short maxGrenades;
+        short maxBoosters;
         float mass;
-        float max_energy;
-        float energy_charge;
-        float max_shields;
-        float shield_charge;
-        float min_shot;
-        float max_shot;
-        float shot_charge;
-        float riding_height;
+        float maxEnergy;
+        float energyCharge;
+        float maxShields;
+        float shieldCharge;
+        float minShot;
+        float maxShot;
+        float shotCharge;
+        float ridingHeight;
         float acceleration;
-        float jump_power;
+        float jumpPower;
     }
 }

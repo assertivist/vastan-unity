@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace Vastan.Game
 {
-    class VastanCharacter : MonoBehaviour
+    public class VastanCharacter : MonoBehaviour
     {
         public CharacterController controller { get; set; }
 

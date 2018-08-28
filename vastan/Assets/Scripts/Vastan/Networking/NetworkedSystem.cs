@@ -1,11 +1,18 @@
 using System;
-using UnityEngine;
+using System.IO;
 using UnityEngine.Networking;
 using Vastan.Game;
 using Vastan.Util;
 
 namespace Vastan.Networking 
 {
+	public class ConnectionInfo {
+		public string Address;
+		public int Port;
+		public UnityEngine.Networking.Types.NetworkID Network;
+		public UnityEngine.Networking.Types.NodeID Node;
+	}
+
     abstract class NetworkedSystem : System.Object 
     {
         public int socketId;
@@ -39,7 +46,7 @@ namespace Vastan.Networking
 
             if (HasError(error))
             {
-                Log.Debug("Error connecting to server " + address);
+				Log.Debug(String.Format("Error connecting to server {0}", address));
             }
             else 
             {
@@ -47,7 +54,43 @@ namespace Vastan.Networking
             }
         }
 
-        public bool HasError(byte error) 
+		public static ConnectionInfo GetConnectionInfo(int host, int connection)
+		{
+			string address;
+			int port;
+			UnityEngine.Networking.Types.NetworkID networkID;
+			UnityEngine.Networking.Types.NodeID nodeID;
+			byte error;
+
+			ConnectionInfo connectInfo = new ConnectionInfo();
+
+			NetworkTransport.GetConnectionInfo(host, 
+			                                   connection, 
+			                                   out address, 
+			                                   out port, 
+			                                   out networkID, 
+			                                   out nodeID, 
+			                                   out error);
+
+			if (!HasError(error)) 
+			{
+				connectInfo.Address = address;
+				connectInfo.Port = port;
+				connectInfo.Network = networkID;
+				connectInfo.Node = nodeID;
+				return connectInfo;
+			}
+			else 
+			{
+				Log.Error(
+					String.Format("Unable to get connection info for {0} {1}", 
+					              host, 
+					              connection));
+				return new ConnectionInfo();	
+			}
+		}
+
+        public static bool HasError(byte error) 
         {
             if ((NetworkError)error != NetworkError.Ok)
             {
@@ -85,11 +128,11 @@ namespace Vastan.Networking
             byte error;
 
             NetworkTransport.Send(
-                host, 
-                connection, 
-                channel, 
-                thing, 
-                thing.Length, 
+                host,
+                connection,
+                channel,
+                thing,
+                thing.Length,
                 out error);
 
             if (HasError(error))
@@ -145,7 +188,12 @@ namespace Vastan.Networking
                     break;
                 case NetworkEventType.DataEvent:
                     Log.Debug(String.Format("DataEvent({0},{1},{2})", recvHostId, recvConnectionId, recvChannelId));
-                    DataReceived(recvHostId, recvConnectionId, recvChannelId, recvBuffa, dataSize);
+					using (MemoryStream theStream = new MemoryStream(recvBuffa))
+					{
+						BinaryReader reader = new BinaryReader(theStream);
+						DataReceived(recvHostId, recvConnectionId, recvChannelId, reader, dataSize);
+						reader.Close();
+					}
                     break;
                 case NetworkEventType.BroadcastEvent:
                     Log.Debug(String.Format("BroadcastEvent({0})", recvHostId));
@@ -161,7 +209,7 @@ namespace Vastan.Networking
 
         abstract public void ConnectionReceived(int host, int connection);
         abstract public void Disconnection(int host, int connection);
-        abstract public void DataReceived(int host, int connection, int channel, byte[] buffer, int size);
+        abstract public void DataReceived(int host, int connection, int channel, BinaryReader buffer, int size);
         abstract public void BroadcastReceived(int host, byte[] buffer, int size);
 
     }
