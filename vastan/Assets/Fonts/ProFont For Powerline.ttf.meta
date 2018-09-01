@@ -1,20 +1,22 @@
 fileFormatVersion: 2
-guid: 673818c8fed8e5b45a337dee073c4133
-timeCreated: 1485752050
-licenseType: Free
+guid: 172f216433692470796f1ed034cb7ea1
 TrueTypeFontImporter:
+  externalObjects: {}
   serializedVersion: 4
   fontSize: 16
   forceTextureCase: -2
   characterSpacing: 0
   characterPadding: 1
   includeFontData: 1
+  fontName: ProFont for Powerline
   fontNames:
-  - Work Sans
+  - ProFont for Powerline
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
   userData: 
   assetBundleName: 
   assetBundleVariant: 
